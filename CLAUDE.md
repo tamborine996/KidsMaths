@@ -4,10 +4,11 @@ A children's maths learning web app designed to help a 6-year-old achieve Year 6
 
 ## Deployment
 
-- **Repository**: Not yet created
-- **Live URL**: Not yet deployed
+- **Repository**: https://github.com/tamborine996/KidsMaths
+- **Live URL**: https://tamborine996.github.io/KidsMaths/
 - **Git Root**: `C:\Users\mqc20\Downloads\Projects\KidsMaths`
 - **Local Dev**: `npx serve -l 3005`
+- **Deploys**: Automatically on push to `master` (GitHub Pages, legacy build)
 
 ## Core Philosophy
 
@@ -66,7 +67,6 @@ KidsMaths/
 ## To-Dos
 
 ### Pressing
-- Deploy to Netlify
 - Test on tablet device
 - Refine visual canvas for larger numbers
 
