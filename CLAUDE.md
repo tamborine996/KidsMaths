@@ -22,6 +22,8 @@ A children's maths learning web app designed to help a 6-year-old achieve Year 6
 ```
 KidsMaths/
 ├── index.html              # Single-page app
+├── manifest.json           # PWA manifest
+├── sw.js                   # Service worker (offline + install)
 ├── css/styles.css          # All styling with CSS variables
 ├── js/
 │   ├── app.js              # Main application
@@ -30,8 +32,9 @@ KidsMaths/
 │   └── components/         # VisualObjects, Celebration, Timer
 ├── data/
 │   ├── modules.json        # All 6 modules with level configs
+│   ├── stories.json        # 5 reading levels × 3 stories each
 │   └── rewards.json        # Store items
-└── assets/icons/           # Custom SVG icons (not yet used)
+└── assets/                 # SVG icons for PWA
 ```
 
 ## Modules
@@ -48,7 +51,7 @@ KidsMaths/
 ## Current State
 
 **Phase 1 Complete**: Core infrastructure working
-- Home screen with 6 modules
+- Home screen with 6 maths modules + Reading section
 - Module screen with level selector
 - Learn/Practice/Test modes
 - Visual objects (apples) for L1 levels
@@ -56,6 +59,9 @@ KidsMaths/
 - Celebration animations
 - Store with rewards
 - Parent dashboard with PIN protection (default: 1234)
+- **Reading section**: 5 levels (age 5-10), 3 stories each, page-by-page reader
+- **PWA**: installable to home screen, runs in standalone mode (no browser chrome)
+- **Back button trapping**: History API prevents accidental exits on tablet
 
 **Design Theme**: Warm Storybook
 - Comic Neue font (friendly, hand-drawn feel)
@@ -67,15 +73,16 @@ KidsMaths/
 ## To-Dos
 
 ### Pressing
-- Test on tablet device
+- Test on tablet device (add to home screen as PWA)
 - Refine visual canvas for larger numbers
 
 ### Future Enhancements
 - Speed challenge mode (L6 per module)
 - Sound effects toggle
 - Multiple child profiles
-- Offline mode (service worker)
 - More visual object types (stars, blocks)
+- More stories per reading level
+- Reading comprehension questions after stories
 
 ## Key Implementation Notes
 
