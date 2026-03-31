@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>KidsMaths</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Timer Bar (always visible during practice) -->
+        <div id="timer-bar" class="timer-bar hidden">
+            <div class="timer-display">
+                <span id="timer-icon" class="timer-icon"></span>
+                <span id="timer-text">15:00</span>
+            </div>
+            <div class="coin-display">
+                <span id="coin-icon" class="coin-icon"></span>
+                <span id="coin-count">0</span>
+            </div>
+        </div>
+
+        <!-- Home Screen -->
+        <div id="home-screen" class="screen active">
+            <header class="home-header">
+                <h1>KidsMaths</h1>
+                <p class="subtitle">Let's learn together!</p>
+            </header>
+            <div class="module-grid" id="module-grid">
+                <!-- Modules injected by JS -->
+            </div>
+            <div class="home-footer">
+                <button id="store-btn" class="footer-btn">
+                    <span class="btn-icon store-icon"></span>
+                    <span>Store</span>
+                </button>
+                <button id="parent-btn" class="footer-btn">
+                    <span class="btn-icon parent-icon"></span>
+                    <span>Parent</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Module Screen (Learn/Practice/Test selection) -->
+        <div id="module-screen" class="screen">
+            <header class="screen-header">
+                <button class="back-btn" data-to="home">&larr;</button>
+                <h2 id="module-title">Addition</h2>
+            </header>
+            <div class="level-selector">
+                <label for="level-select">Level:</label>
+                <select id="level-select" class="level-select">
+                    <!-- Levels injected by JS -->
+                </select>
+            </div>
+            <div class="mode-buttons">
+                <button class="mode-btn learn-btn" data-mode="learn">
+                    <span class="mode-icon">?</span>
+                    <span class="mode-label">Learn</span>
+                    <span class="mode-desc">See how it works</span>
+                </button>
+                <button class="mode-btn practice-btn" data-mode="practice">
+                    <span class="mode-icon">+</span>
+                    <span class="mode-label">Practice</span>
+                    <span class="mode-desc">Try problems</span>
+                </button>
+                <button class="mode-btn test-btn" data-mode="test">
+                    <span class="mode-icon">*</span>
+                    <span class="mode-label">Test</span>
+                    <span class="mode-desc">Show what you know</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Learn Screen -->
+        <div id="learn-screen" class="screen">
+            <header class="screen-header">
+                <button class="back-btn" data-to="module">&larr;</button>
+                <h2>Learn</h2>
+            </header>
+            <div class="learn-content" id="learn-content">
+                <!-- Learn content injected by JS -->
+            </div>
+            <button class="primary-btn" id="start-practice-btn">Start Practicing!</button>
+        </div>
+
+        <!-- Practice Screen -->
+        <div id="practice-screen" class="screen">
+            <header class="screen-header">
+                <button class="back-btn" data-to="module">&larr;</button>
+                <h2 id="practice-title">Practice</h2>
+            </header>
+            <div class="practice-area">
+                <canvas id="visual-canvas" class="visual-canvas"></canvas>
+                <div class="problem-display" id="problem-display">
+                    <span class="operand" id="operand1">3</span>
+                    <span class="operator" id="operator">+</span>
+                    <span class="operand" id="operand2">2</span>
+                    <span class="equals">=</span>
+                    <input type="number" id="answer-input" class="answer-input" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+                </div>
+                <div class="hint-area hidden" id="hint-area">
+                    <p id="hint-text"></p>
+                </div>
+                <div class="action-buttons">
+                    <button class="secondary-btn" id="hint-btn">Hint</button>
+                    <button class="primary-btn" id="check-btn">Check</button>
+                </div>
+            </div>
+            <div class="feedback-display hidden" id="feedback-display">
+                <p id="feedback-text"></p>
+            </div>
+        </div>
+
+        <!-- Test Screen -->
+        <div id="test-screen" class="screen">
+            <header class="screen-header">
+                <button class="back-btn" data-to="module">&larr;</button>
+                <h2>Test</h2>
+            </header>
+            <div class="test-progress">
+                <span id="test-progress-text">Question 1 of 10</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="test-progress-fill"></div>
+                </div>
+            </div>
+            <div class="practice-area">
+                <canvas id="test-visual-canvas" class="visual-canvas"></canvas>
+                <div class="problem-display" id="test-problem-display">
+                    <span class="operand" id="test-operand1">3</span>
+                    <span class="operator" id="test-operator">+</span>
+                    <span class="operand" id="test-operand2">2</span>
+                    <span class="equals">=</span>
+                    <input type="number" id="test-answer-input" class="answer-input" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+                </div>
+                <div class="action-buttons">
+                    <button class="primary-btn" id="test-check-btn">Check</button>
+                </div>
+            </div>
+            <div class="test-complete hidden" id="test-complete">
+                <h3>Great Effort!</h3>
+                <p id="test-result"></p>
+                <button class="primary-btn" id="test-done-btn">Done</button>
+            </div>
+        </div>
+
+        <!-- Store Screen -->
+        <div id="store-screen" class="screen">
+            <header class="screen-header">
+                <button class="back-btn" data-to="home">&larr;</button>
+                <h2>Store</h2>
+                <div class="coin-display header-coins">
+                    <span class="coin-icon"></span>
+                    <span id="store-coin-count">0</span>
+                </div>
+            </header>
+            <div class="rewards-grid" id="rewards-grid">
+                <!-- Rewards injected by JS -->
+            </div>
+        </div>
+
+        <!-- Parent Screen (PIN protected) -->
+        <div id="parent-screen" class="screen">
+            <div id="pin-overlay" class="pin-overlay">
+                <div class="pin-box">
+                    <h3>Parent Mode</h3>
+                    <p>Enter PIN to continue</p>
+                    <input type="password" id="pin-input" class="pin-input" maxlength="4" inputmode="numeric" pattern="[0-9]*">
+                    <button class="primary-btn" id="pin-submit">Enter</button>
+                    <button class="secondary-btn" id="pin-cancel">Cancel</button>
+                </div>
+            </div>
+            <div id="parent-dashboard" class="hidden">
+                <header class="screen-header">
+                    <button class="back-btn" data-to="home">&larr;</button>
+                    <h2>Parent Dashboard</h2>
+                </header>
+                <div class="parent-tabs">
+                    <button class="tab-btn active" data-tab="progress">Progress</button>
+                    <button class="tab-btn" data-tab="sessions">Sessions</button>
+                    <button class="tab-btn" data-tab="coins">Coins</button>
+                    <button class="tab-btn" data-tab="settings">Settings</button>
+                </div>
+                <div class="parent-content">
+                    <div id="progress-tab" class="tab-content active">
+                        <div id="progress-overview"></div>
+                    </div>
+                    <div id="sessions-tab" class="tab-content">
+                        <div id="session-history"></div>
+                    </div>
+                    <div id="coins-tab" class="tab-content">
+                        <div class="coin-management">
+                            <div class="coin-balance">
+                                <span>Current Balance:</span>
+                                <span id="parent-coin-balance">0</span>
+                            </div>
+                            <div class="coin-adjust">
+                                <button class="adjust-btn" id="coin-minus">-</button>
+                                <button class="adjust-btn" id="coin-plus">+</button>
+                            </div>
+                            <h4>Redeemed Rewards</h4>
+                            <div id="redeemed-list"></div>
+                        </div>
+                    </div>
+                    <div id="settings-tab" class="tab-content">
+                        <div class="settings-section">
+                            <h4>PIN Settings</h4>
+                            <button class="secondary-btn" id="change-pin-btn">Change PIN</button>
+                        </div>
+                        <div class="settings-section">
+                            <h4>Reset Data</h4>
+                            <button class="danger-btn" id="reset-data-btn">Reset All Progress</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Celebration Overlay -->
+        <div id="celebration-overlay" class="celebration-overlay hidden">
+            <div class="celebration-content">
+                <div class="celebration-stars" id="celebration-stars"></div>
+                <p class="celebration-text" id="celebration-text">Well done!</p>
+            </div>
+        </div>
+
+        <!-- Session Complete Modal -->
+        <div id="session-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="coin-earned-animation">
+                    <span class="big-coin"></span>
+                    <span class="plus-one">+1</span>
+                </div>
+                <h3>Great Effort!</h3>
+                <p>You've completed a 15-minute session!</p>
+                <p class="coin-message">You earned <strong>1 coin</strong>!</p>
+                <div class="modal-buttons">
+                    <button class="secondary-btn" id="session-stop-btn">Take a Break</button>
+                    <button class="primary-btn" id="session-continue-btn">Keep Going!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

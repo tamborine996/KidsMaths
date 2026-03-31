@@ -1,0 +1,60 @@
+{
+  "rewards": [
+    {
+      "id": "wingstop",
+      "name": "Wingstop Meal",
+      "cost": 10,
+      "icon": "🍗",
+      "description": "A delicious meal at Wingstop!"
+    },
+    {
+      "id": "ice_cream",
+      "name": "Ice Cream",
+      "cost": 3,
+      "icon": "🍦",
+      "description": "Your favourite ice cream treat"
+    },
+    {
+      "id": "small_toy",
+      "name": "Small Toy",
+      "cost": 5,
+      "icon": "🎁",
+      "description": "A small toy of your choice"
+    },
+    {
+      "id": "extra_screen",
+      "name": "30 Min Screen Time",
+      "cost": 4,
+      "icon": "📱",
+      "description": "30 minutes of extra screen time"
+    },
+    {
+      "id": "movie_night",
+      "name": "Movie Night",
+      "cost": 8,
+      "icon": "🎬",
+      "description": "Choose a movie for family movie night"
+    },
+    {
+      "id": "park_trip",
+      "name": "Park Trip",
+      "cost": 6,
+      "icon": "🏞️",
+      "description": "A special trip to the park"
+    },
+    {
+      "id": "baking",
+      "name": "Baking Together",
+      "cost": 5,
+      "icon": "🧁",
+      "description": "Bake something yummy together"
+    },
+    {
+      "id": "big_toy",
+      "name": "Big Toy",
+      "cost": 20,
+      "icon": "🎮",
+      "description": "A bigger toy or game of your choice"
+    }
+  ]
+}

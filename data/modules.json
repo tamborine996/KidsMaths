@@ -1,0 +1,365 @@
+{
+  "modules": [
+    {
+      "id": "addition",
+      "name": "Addition",
+      "icon": "+",
+      "order": 1,
+      "color": "addition",
+      "levels": [
+        {
+          "id": "L1",
+          "name": "Single + Single (Visual)",
+          "description": "Add numbers 1-9 with objects to count",
+          "config": {
+            "operand1": { "min": 1, "max": 9 },
+            "operand2": { "min": 1, "max": 9 },
+            "visual": true,
+            "visualType": "apples"
+          }
+        },
+        {
+          "id": "L2",
+          "name": "Single + Single (Rapid)",
+          "description": "Mental addition without objects",
+          "config": {
+            "operand1": { "min": 1, "max": 9 },
+            "operand2": { "min": 1, "max": 9 },
+            "visual": false
+          }
+        },
+        {
+          "id": "L3",
+          "name": "Double + Single",
+          "description": "Add a single digit to a double digit number",
+          "config": {
+            "operand1": { "min": 10, "max": 99 },
+            "operand2": { "min": 1, "max": 9 },
+            "visual": false
+          }
+        },
+        {
+          "id": "L4",
+          "name": "Double + Double (No Carry)",
+          "description": "Add two double digit numbers without carrying",
+          "config": {
+            "operand1": { "min": 10, "max": 99 },
+            "operand2": { "min": 10, "max": 99 },
+            "visual": false,
+            "noCarry": true
+          }
+        },
+        {
+          "id": "L5",
+          "name": "Double + Double (With Carry)",
+          "description": "Add two double digit numbers with carrying",
+          "config": {
+            "operand1": { "min": 10, "max": 99 },
+            "operand2": { "min": 10, "max": 99 },
+            "visual": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "subtraction",
+      "name": "Subtraction",
+      "icon": "-",
+      "order": 2,
+      "color": "subtraction",
+      "levels": [
+        {
+          "id": "L1",
+          "name": "Single - Single (Visual)",
+          "description": "Subtract numbers 1-9 with objects",
+          "config": {
+            "operand1": { "min": 2, "max": 9 },
+            "operand2": { "min": 1, "max": 8 },
+            "visual": true,
+            "visualType": "apples"
+          }
+        },
+        {
+          "id": "L2",
+          "name": "Single - Single (Rapid)",
+          "description": "Mental subtraction without objects",
+          "config": {
+            "operand1": { "min": 2, "max": 9 },
+            "operand2": { "min": 1, "max": 8 },
+            "visual": false
+          }
+        },
+        {
+          "id": "L3",
+          "name": "Double - Single",
+          "description": "Subtract a single digit from a double digit",
+          "config": {
+            "operand1": { "min": 10, "max": 99 },
+            "operand2": { "min": 1, "max": 9 },
+            "visual": false
+          }
+        },
+        {
+          "id": "L4",
+          "name": "Double - Double (No Borrow)",
+          "description": "Subtract without borrowing",
+          "config": {
+            "operand1": { "min": 20, "max": 99 },
+            "operand2": { "min": 10, "max": 89 },
+            "visual": false,
+            "noBorrow": true
+          }
+        },
+        {
+          "id": "L5",
+          "name": "Double - Double (With Borrow)",
+          "description": "Subtract with borrowing",
+          "config": {
+            "operand1": { "min": 20, "max": 99 },
+            "operand2": { "min": 10, "max": 89 },
+            "visual": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "times-tables",
+      "name": "Times Tables",
+      "icon": "×",
+      "order": 3,
+      "color": "times",
+      "levels": [
+        {
+          "id": "L1",
+          "name": "2 Times Table",
+          "description": "Learn the 2 times table",
+          "config": { "table": 2, "visual": true }
+        },
+        {
+          "id": "L2",
+          "name": "5 Times Table",
+          "description": "Learn the 5 times table",
+          "config": { "table": 5, "visual": true }
+        },
+        {
+          "id": "L3",
+          "name": "10 Times Table",
+          "description": "Learn the 10 times table",
+          "config": { "table": 10, "visual": false }
+        },
+        {
+          "id": "L4",
+          "name": "3 Times Table",
+          "description": "Learn the 3 times table",
+          "config": { "table": 3, "visual": true }
+        },
+        {
+          "id": "L5",
+          "name": "4 Times Table",
+          "description": "Learn the 4 times table",
+          "config": { "table": 4, "visual": true }
+        },
+        {
+          "id": "L6",
+          "name": "6 Times Table",
+          "description": "Learn the 6 times table",
+          "config": { "table": 6, "visual": false }
+        },
+        {
+          "id": "L7",
+          "name": "7 Times Table",
+          "description": "Learn the 7 times table",
+          "config": { "table": 7, "visual": false }
+        },
+        {
+          "id": "L8",
+          "name": "8 Times Table",
+          "description": "Learn the 8 times table",
+          "config": { "table": 8, "visual": false }
+        },
+        {
+          "id": "L9",
+          "name": "9 Times Table",
+          "description": "Learn the 9 times table",
+          "config": { "table": 9, "visual": false }
+        },
+        {
+          "id": "L10",
+          "name": "11 Times Table",
+          "description": "Learn the 11 times table",
+          "config": { "table": 11, "visual": false }
+        },
+        {
+          "id": "L11",
+          "name": "12 Times Table",
+          "description": "Learn the 12 times table",
+          "config": { "table": 12, "visual": false }
+        },
+        {
+          "id": "L12",
+          "name": "Mixed Tables",
+          "description": "Practice all times tables mixed together",
+          "config": { "mixed": true, "tables": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] }
+        }
+      ]
+    },
+    {
+      "id": "multiplication",
+      "name": "Multiply",
+      "icon": "×",
+      "order": 4,
+      "color": "multiply",
+      "levels": [
+        {
+          "id": "L1",
+          "name": "Double × Single (Easy)",
+          "description": "Multiply 10-20 by 2-5",
+          "config": {
+            "operand1": { "min": 10, "max": 20 },
+            "operand2": { "min": 2, "max": 5 }
+          }
+        },
+        {
+          "id": "L2",
+          "name": "Double × Single",
+          "description": "Multiply 10-50 by 2-9",
+          "config": {
+            "operand1": { "min": 10, "max": 50 },
+            "operand2": { "min": 2, "max": 9 }
+          }
+        },
+        {
+          "id": "L3",
+          "name": "Double × Single (Hard)",
+          "description": "Multiply 10-99 by 2-9",
+          "config": {
+            "operand1": { "min": 10, "max": 99 },
+            "operand2": { "min": 2, "max": 9 }
+          }
+        },
+        {
+          "id": "L4",
+          "name": "Triple × Single",
+          "description": "Multiply 100-500 by 2-5",
+          "config": {
+            "operand1": { "min": 100, "max": 500 },
+            "operand2": { "min": 2, "max": 5 }
+          }
+        },
+        {
+          "id": "L5",
+          "name": "Double × Double",
+          "description": "Multiply two double digit numbers",
+          "config": {
+            "operand1": { "min": 10, "max": 30 },
+            "operand2": { "min": 10, "max": 20 }
+          }
+        }
+      ]
+    },
+    {
+      "id": "division",
+      "name": "Division",
+      "icon": "÷",
+      "order": 5,
+      "color": "division",
+      "levels": [
+        {
+          "id": "L1",
+          "name": "Simple Division (Visual)",
+          "description": "Divide with visual sharing",
+          "config": {
+            "answer": { "min": 1, "max": 5 },
+            "divisor": { "min": 2, "max": 5 },
+            "visual": true
+          }
+        },
+        {
+          "id": "L2",
+          "name": "Division Facts",
+          "description": "Division linked to times tables",
+          "config": {
+            "answer": { "min": 1, "max": 12 },
+            "divisor": { "min": 2, "max": 12 },
+            "visual": false
+          }
+        },
+        {
+          "id": "L3",
+          "name": "Larger Dividends",
+          "description": "Divide larger numbers",
+          "config": {
+            "answer": { "min": 5, "max": 20 },
+            "divisor": { "min": 2, "max": 9 },
+            "visual": false
+          }
+        },
+        {
+          "id": "L4",
+          "name": "Double ÷ Single",
+          "description": "Divide double digit by single digit",
+          "config": {
+            "answer": { "min": 10, "max": 30 },
+            "divisor": { "min": 2, "max": 9 },
+            "visual": false
+          }
+        },
+        {
+          "id": "L5",
+          "name": "Triple ÷ Single",
+          "description": "Divide triple digit by single digit",
+          "config": {
+            "answer": { "min": 20, "max": 50 },
+            "divisor": { "min": 2, "max": 9 },
+            "visual": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "percentages",
+      "name": "Percentages",
+      "icon": "%",
+      "order": 6,
+      "color": "percent",
+      "levels": [
+        {
+          "id": "L1",
+          "name": "50% (Half)",
+          "description": "Find half of numbers",
+          "config": {
+            "percentages": [50],
+            "result": { "min": 1, "max": 50 }
+          }
+        },
+        {
+          "id": "L2",
+          "name": "25% (Quarter)",
+          "description": "Find a quarter of numbers",
+          "config": {
+            "percentages": [25],
+            "result": { "min": 1, "max": 25 }
+          }
+        },
+        {
+          "id": "L3",
+          "name": "10% and 20%",
+          "description": "Find 10% and 20% of numbers",
+          "config": {
+            "percentages": [10, 20],
+            "result": { "min": 1, "max": 20 }
+          }
+        },
+        {
+          "id": "L4",
+          "name": "Mixed Percentages",
+          "description": "Practice all common percentages",
+          "config": {
+            "percentages": [10, 20, 25, 50],
+            "result": { "min": 1, "max": 50 }
+          }
+        }
+      ]
+    }
+  ]
+}

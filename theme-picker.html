@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidsMaths - Choose a Theme</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Comic+Neue:wght@400;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 1.1rem;
+        }
+
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 32px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .theme-card {
+            border-radius: 24px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .theme-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+
+        .theme-preview {
+            padding: 32px;
+            min-height: 380px;
+        }
+
+        .theme-label {
+            padding: 20px 32px;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .theme-label h3 {
+            font-size: 1.3rem;
+            margin-bottom: 4px;
+        }
+
+        .theme-label p {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        /* Mini components for preview */
+        .preview-header {
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .preview-modules {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .preview-module {
+            padding: 16px 12px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .preview-problem {
+            text-align: center;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+
+        .preview-problem .numbers {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .preview-input {
+            width: 60px;
+            height: 40px;
+            border-radius: 8px;
+            border: 2px solid;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .preview-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .preview-progress {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+        }
+
+        .progress-ring {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .progress-info h4 {
+            font-size: 0.95rem;
+            margin-bottom: 2px;
+        }
+
+        .progress-info p {
+            font-size: 0.75rem;
+            opacity: 0.7;
+        }
+
+        /* ============================================
+           THEME 1: Soft Playful
+           ============================================ */
+        .theme-soft-playful {
+            background: linear-gradient(135deg, #FDF6F0 0%, #FFF9F5 100%);
+            font-family: 'Baloo 2', cursive;
+            color: #4A4A4A;
+        }
+
+        .theme-soft-playful .preview-header {
+            color: #5D5D5D;
+            font-size: 1.4rem;
+        }
+
+        .theme-soft-playful .preview-module {
+            background: linear-gradient(135deg, #FFE5D9 0%, #FFD7C4 100%);
+            color: #8B5A3C;
+            box-shadow: 0 4px 12px rgba(255, 183, 150, 0.3);
+        }
+
+        .theme-soft-playful .preview-module:nth-child(2) {
+            background: linear-gradient(135deg, #D4E7FE 0%, #B8D4F8 100%);
+            color: #4A6FA5;
+            box-shadow: 0 4px 12px rgba(180, 210, 248, 0.4);
+        }
+
+        .theme-soft-playful .preview-module:nth-child(3) {
+            background: linear-gradient(135deg, #E2F0CB 0%, #D4E8B8 100%);
+            color: #5A7A3A;
+            box-shadow: 0 4px 12px rgba(210, 232, 184, 0.4);
+        }
+
+        .theme-soft-playful .preview-module:nth-child(4) {
+            background: linear-gradient(135deg, #F3D9FA 0%, #E8C4F0 100%);
+            color: #7A4A8A;
+            box-shadow: 0 4px 12px rgba(232, 196, 240, 0.4);
+        }
+
+        .theme-soft-playful .preview-problem {
+            background: #FFFFFF;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            border: 2px solid #F5E6DC;
+        }
+
+        .theme-soft-playful .preview-problem .numbers {
+            color: #5A4A3A;
+        }
+
+        .theme-soft-playful .preview-input {
+            border-color: #E8D5C4;
+            background: #FFFBF8;
+            color: #5A4A3A;
+        }
+
+        .theme-soft-playful .preview-btn {
+            background: linear-gradient(135deg, #7ECEC0 0%, #5EBDAD 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(126, 206, 192, 0.4);
+        }
+
+        .theme-soft-playful .preview-progress {
+            background: #FFFFFF;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+        }
+
+        .theme-soft-playful .progress-ring {
+            background: linear-gradient(135deg, #7ECEC0 0%, #5EBDAD 100%);
+            color: white;
+        }
+
+        /* ============================================
+           THEME 2: Vibrant Energy
+           ============================================ */
+        .theme-vibrant {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Fredoka', sans-serif;
+            color: white;
+        }
+
+        .theme-vibrant .preview-header {
+            color: #FFE566;
+            font-size: 1.5rem;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .theme-vibrant .preview-module {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .theme-vibrant .preview-module:nth-child(1) { background: #FF6B6B; border-color: #FF6B6B; }
+        .theme-vibrant .preview-module:nth-child(2) { background: #4ECDC4; border-color: #4ECDC4; }
+        .theme-vibrant .preview-module:nth-child(3) { background: #FFE66D; color: #333; border-color: #FFE66D; }
+        .theme-vibrant .preview-module:nth-child(4) { background: #95E1D3; color: #333; border-color: #95E1D3; }
+
+        .theme-vibrant .preview-problem {
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+        }
+
+        .theme-vibrant .preview-problem .numbers {
+            color: #764ba2;
+        }
+
+        .theme-vibrant .preview-input {
+            border-color: #764ba2;
+            background: white;
+            color: #333;
+        }
+
+        .theme-vibrant .preview-btn {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(255, 107, 107, 0.5);
+        }
+
+        .theme-vibrant .preview-progress {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
+        }
+
+        .theme-vibrant .progress-ring {
+            background: #FFE566;
+            color: #333;
+        }
+
+        .theme-vibrant .progress-info h4 { color: white; }
+        .theme-vibrant .progress-info p { color: rgba(255,255,255,0.7); }
+
+        /* ============================================
+           THEME 3: Clean Minimal
+           ============================================ */
+        .theme-minimal {
+            background: #FAFAFA;
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+        }
+
+        .theme-minimal .preview-header {
+            color: #222;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .theme-minimal .preview-module {
+            background: white;
+            color: #333;
+            border: 1px solid #E5E5E5;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .theme-minimal .preview-module:nth-child(1) { border-left: 4px solid #4A90D9; }
+        .theme-minimal .preview-module:nth-child(2) { border-left: 4px solid #E85D75; }
+        .theme-minimal .preview-module:nth-child(3) { border-left: 4px solid #50C878; }
+        .theme-minimal .preview-module:nth-child(4) { border-left: 4px solid #9B7ED9; }
+
+        .theme-minimal .preview-problem {
+            background: white;
+            border: 1px solid #E8E8E8;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        .theme-minimal .preview-problem .numbers {
+            color: #222;
+            font-weight: 600;
+        }
+
+        .theme-minimal .preview-input {
+            border-color: #DDD;
+            background: #FAFAFA;
+            color: #333;
+        }
+
+        .theme-minimal .preview-btn {
+            background: #222;
+            color: white;
+        }
+
+        .theme-minimal .preview-progress {
+            background: white;
+            border: 1px solid #E8E8E8;
+        }
+
+        .theme-minimal .progress-ring {
+            background: #4A90D9;
+            color: white;
+        }
+
+        /* ============================================
+           THEME 4: Warm Storybook
+           ============================================ */
+        .theme-storybook {
+            background: #F7F3E9;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23E8DFD0' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            font-family: 'Comic Neue', cursive;
+            color: #5D4E37;
+        }
+
+        .theme-storybook .preview-header {
+            color: #8B6914;
+            font-size: 1.5rem;
+        }
+
+        .theme-storybook .preview-module {
+            background: #FFFEF7;
+            border: 3px solid #E8D5A3;
+            color: #6B5B3D;
+            border-radius: 16px;
+            box-shadow: 4px 4px 0 #E8D5A3;
+        }
+
+        .theme-storybook .preview-module:nth-child(1) { border-color: #E8A3A3; box-shadow: 4px 4px 0 #E8A3A3; }
+        .theme-storybook .preview-module:nth-child(2) { border-color: #A3C9E8; box-shadow: 4px 4px 0 #A3C9E8; }
+        .theme-storybook .preview-module:nth-child(3) { border-color: #B8E8A3; box-shadow: 4px 4px 0 #B8E8A3; }
+        .theme-storybook .preview-module:nth-child(4) { border-color: #D4A3E8; box-shadow: 4px 4px 0 #D4A3E8; }
+
+        .theme-storybook .preview-problem {
+            background: #FFFEF7;
+            border: 3px solid #E8D5A3;
+            box-shadow: 6px 6px 0 #E8D5A3;
+        }
+
+        .theme-storybook .preview-problem .numbers {
+            color: #5D4E37;
+        }
+
+        .theme-storybook .preview-input {
+            border: 3px solid #D4C4A0;
+            background: #FFFEF7;
+            color: #5D4E37;
+            border-radius: 8px;
+        }
+
+        .theme-storybook .preview-btn {
+            background: #7FB069;
+            color: white;
+            border: 3px solid #6A9A56;
+            box-shadow: 4px 4px 0 #6A9A56;
+        }
+
+        .theme-storybook .preview-progress {
+            background: #FFFEF7;
+            border: 2px solid #E8D5A3;
+        }
+
+        .theme-storybook .progress-ring {
+            background: #F4A460;
+            color: white;
+            border: 3px solid #D4894A;
+        }
+
+        /* ============================================
+           THEME 5: Ocean Adventure
+           ============================================ */
+        .theme-ocean {
+            background: linear-gradient(180deg, #E0F4FF 0%, #B8E4F9 50%, #87CEEB 100%);
+            font-family: 'Nunito', sans-serif;
+            color: #1E5162;
+        }
+
+        .theme-ocean .preview-header {
+            color: #0D3B66;
+            font-size: 1.4rem;
+        }
+
+        .theme-ocean .preview-module {
+            background: rgba(255,255,255,0.85);
+            color: #0D3B66;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(13, 59, 102, 0.15);
+        }
+
+        .theme-ocean .preview-module:nth-child(1) { background: linear-gradient(135deg, #FF6B6B, #FF8E8E); color: white; }
+        .theme-ocean .preview-module:nth-child(2) { background: linear-gradient(135deg, #4ECDC4, #6BE0D8); color: white; }
+        .theme-ocean .preview-module:nth-child(3) { background: linear-gradient(135deg, #FFD93D, #FFE566); color: #5D4E37; }
+        .theme-ocean .preview-module:nth-child(4) { background: linear-gradient(135deg, #6C5CE7, #8B7CF7); color: white; }
+
+        .theme-ocean .preview-problem {
+            background: white;
+            box-shadow: 0 12px 40px rgba(13, 59, 102, 0.12);
+            border-radius: 24px;
+        }
+
+        .theme-ocean .preview-problem .numbers {
+            color: #0D3B66;
+        }
+
+        .theme-ocean .preview-input {
+            border-color: #87CEEB;
+            background: #F0F9FF;
+            color: #0D3B66;
+            border-radius: 12px;
+        }
+
+        .theme-ocean .preview-btn {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(255, 107, 107, 0.4);
+        }
+
+        .theme-ocean .preview-progress {
+            background: white;
+            box-shadow: 0 4px 16px rgba(13, 59, 102, 0.08);
+            border-radius: 16px;
+        }
+
+        .theme-ocean .progress-ring {
+            background: linear-gradient(135deg, #4ECDC4, #6BE0D8);
+            color: white;
+        }
+
+        /* ============================================
+           THEME 6: Candy Pop
+           ============================================ */
+        .theme-candy {
+            background: linear-gradient(135deg, #FFECD2 0%, #FCB69F 100%);
+            font-family: 'Fredoka', sans-serif;
+            color: #5D4157;
+        }
+
+        .theme-candy .preview-header {
+            color: #A8385D;
+            font-size: 1.5rem;
+        }
+
+        .theme-candy .preview-module {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 24px rgba(168, 56, 93, 0.15);
+        }
+
+        .theme-candy .preview-module:nth-child(1) { background: #FF9AA2; color: white; }
+        .theme-candy .preview-module:nth-child(2) { background: #B5EAD7; color: #3D6B5A; }
+        .theme-candy .preview-module:nth-child(3) { background: #FFDAC1; color: #8B5A3C; }
+        .theme-candy .preview-module:nth-child(4) { background: #C7CEEA; color: #4A5078; }
+
+        .theme-candy .preview-problem {
+            background: white;
+            box-shadow: 0 12px 40px rgba(168, 56, 93, 0.12);
+            border-radius: 28px;
+        }
+
+        .theme-candy .preview-problem .numbers {
+            color: #A8385D;
+        }
+
+        .theme-candy .preview-input {
+            border: 3px solid #FFB7C5;
+            background: #FFF5F7;
+            color: #5D4157;
+            border-radius: 14px;
+        }
+
+        .theme-candy .preview-btn {
+            background: linear-gradient(135deg, #A8385D 0%, #C94B7C 100%);
+            color: white;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(168, 56, 93, 0.35);
+        }
+
+        .theme-candy .preview-progress {
+            background: white;
+            box-shadow: 0 4px 16px rgba(168, 56, 93, 0.08);
+            border-radius: 18px;
+        }
+
+        .theme-candy .progress-ring {
+            background: linear-gradient(135deg, #FF9AA2, #FFB7C5);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Choose a Theme for KidsMaths</h1>
+        <p>Click around to see how each feels. Which one would your daughter enjoy?</p>
+    </div>
+
+    <div class="themes-grid">
+        <!-- Theme 1: Soft Playful -->
+        <div class="theme-card">
+            <div class="theme-preview theme-soft-playful">
+                <div class="preview-header">KidsMaths</div>
+                <div class="preview-modules">
+                    <div class="preview-module">+ Addition</div>
+                    <div class="preview-module">- Subtract</div>
+                    <div class="preview-module">× Times</div>
+                    <div class="preview-module">÷ Division</div>
+                </div>
+                <div class="preview-problem">
+                    <div class="numbers">3 + 4 = </div>
+                    <input type="text" class="preview-input" value="7">
+                    <button class="preview-btn">Check</button>
+                </div>
+                <div class="preview-progress">
+                    <div class="progress-ring">80%</div>
+                    <div class="progress-info">
+                        <h4>Addition</h4>
+                        <p>4 of 5 levels complete</p>
+                    </div>
+                </div>
+            </div>
+            <div class="theme-label">
+                <h3>Soft Playful</h3>
+                <p>Warm, gentle, like wooden toys. Easy on the eyes for longer sessions.</p>
+            </div>
+        </div>
+
+        <!-- Theme 2: Vibrant Energy -->
+        <div class="theme-card">
+            <div class="theme-preview theme-vibrant">
+                <div class="preview-header">KidsMaths</div>
+                <div class="preview-modules">
+                    <div class="preview-module">+ Addition</div>
+                    <div class="preview-module">- Subtract</div>
+                    <div class="preview-module">× Times</div>
+                    <div class="preview-module">÷ Division</div>
+                </div>
+                <div class="preview-problem">
+                    <div class="numbers">3 + 4 = </div>
+                    <input type="text" class="preview-input" value="7">
+                    <button class="preview-btn">Check</button>
+                </div>
+                <div class="preview-progress">
+                    <div class="progress-ring">80%</div>
+                    <div class="progress-info">
+                        <h4>Addition</h4>
+                        <p>4 of 5 levels complete</p>
+                    </div>
+                </div>
+            </div>
+            <div class="theme-label">
+                <h3>Vibrant Energy</h3>
+                <p>Bold, exciting, high-energy. Great for engagement but more stimulating.</p>
+            </div>
+        </div>
+
+        <!-- Theme 3: Clean Minimal -->
+        <div class="theme-card">
+            <div class="theme-preview theme-minimal">
+                <div class="preview-header">KidsMaths</div>
+                <div class="preview-modules">
+                    <div class="preview-module">+ Addition</div>
+                    <div class="preview-module">- Subtract</div>
+                    <div class="preview-module">× Times</div>
+                    <div class="preview-module">÷ Division</div>
+                </div>
+                <div class="preview-problem">
+                    <div class="numbers">3 + 4 = </div>
+                    <input type="text" class="preview-input" value="7">
+                    <button class="preview-btn">Check</button>
+                </div>
+                <div class="preview-progress">
+                    <div class="progress-ring">80%</div>
+                    <div class="progress-info">
+                        <h4>Addition</h4>
+                        <p>4 of 5 levels complete</p>
+                    </div>
+                </div>
+            </div>
+            <div class="theme-label">
+                <h3>Clean Minimal</h3>
+                <p>Simple, distraction-free, focused. Content takes center stage.</p>
+            </div>
+        </div>
+
+        <!-- Theme 4: Warm Storybook -->
+        <div class="theme-card">
+            <div class="theme-preview theme-storybook">
+                <div class="preview-header">KidsMaths</div>
+                <div class="preview-modules">
+                    <div class="preview-module">+ Addition</div>
+                    <div class="preview-module">- Subtract</div>
+                    <div class="preview-module">× Times</div>
+                    <div class="preview-module">÷ Division</div>
+                </div>
+                <div class="preview-problem">
+                    <div class="numbers">3 + 4 = </div>
+                    <input type="text" class="preview-input" value="7">
+                    <button class="preview-btn">Check</button>
+                </div>
+                <div class="preview-progress">
+                    <div class="progress-ring">80%</div>
+                    <div class="progress-info">
+                        <h4>Addition</h4>
+                        <p>4 of 5 levels complete</p>
+                    </div>
+                </div>
+            </div>
+            <div class="theme-label">
+                <h3>Warm Storybook</h3>
+                <p>Hand-drawn feel, like a children's book. Cozy and inviting.</p>
+            </div>
+        </div>
+
+        <!-- Theme 5: Ocean Adventure -->
+        <div class="theme-card">
+            <div class="theme-preview theme-ocean">
+                <div class="preview-header">KidsMaths</div>
+                <div class="preview-modules">
+                    <div class="preview-module">+ Addition</div>
+                    <div class="preview-module">- Subtract</div>
+                    <div class="preview-module">× Times</div>
+                    <div class="preview-module">÷ Division</div>
+                </div>
+                <div class="preview-problem">
+                    <div class="numbers">3 + 4 = </div>
+                    <input type="text" class="preview-input" value="7">
+                    <button class="preview-btn">Check</button>
+                </div>
+                <div class="preview-progress">
+                    <div class="progress-ring">80%</div>
+                    <div class="progress-info">
+                        <h4>Addition</h4>
+                        <p>4 of 5 levels complete</p>
+                    </div>
+                </div>
+            </div>
+            <div class="theme-label">
+                <h3>Ocean Adventure</h3>
+                <p>Fresh, bright, airy. Calm but cheerful like a sunny beach day.</p>
+            </div>
+        </div>
+
+        <!-- Theme 6: Candy Pop -->
+        <div class="theme-card">
+            <div class="theme-preview theme-candy">
+                <div class="preview-header">KidsMaths</div>
+                <div class="preview-modules">
+                    <div class="preview-module">+ Addition</div>
+                    <div class="preview-module">- Subtract</div>
+                    <div class="preview-module">× Times</div>
+                    <div class="preview-module">÷ Division</div>
+                </div>
+                <div class="preview-problem">
+                    <div class="numbers">3 + 4 = </div>
+                    <input type="text" class="preview-input" value="7">
+                    <button class="preview-btn">Check</button>
+                </div>
+                <div class="preview-progress">
+                    <div class="progress-ring">80%</div>
+                    <div class="progress-info">
+                        <h4>Addition</h4>
+                        <p>4 of 5 levels complete</p>
+                    </div>
+                </div>
+            </div>
+            <div class="theme-label">
+                <h3>Candy Pop</h3>
+                <p>Sweet, playful pastels. Fun and girly without being too intense.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
