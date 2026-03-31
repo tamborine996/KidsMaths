@@ -1,0 +1,2123 @@
+{
+  "source": "African Storybook / Global Storybooks",
+  "license": "CC BY 4.0 / CC BY-NC 4.0",
+  "attribution": "Original stories from the African Storybook initiative (africanstorybook.org). Illustrations from the Global ASP Image Bank.",
+  "imageBase": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master",
+  "levels": [
+    {
+      "id": "L1",
+      "name": "Level 1",
+      "ageRange": "5-6",
+      "stories": [
+        {
+          "id": "asb-0087",
+          "title": "I like to read!",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "I like to read.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0087/01.jpg"
+            },
+            {
+              "text": "Who can I read to?",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0087/02.jpg"
+            },
+            {
+              "text": "My sister is asleep.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0087/03.jpg"
+            },
+            {
+              "text": "Who can I read to?",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0087/04.jpg"
+            },
+            {
+              "text": "My mother and grandmother are busy.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0087/05.jpg"
+            },
+            {
+              "text": "Who can I read to?",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0087/06.jpg"
+            },
+            {
+              "text": "My father and grandfather are busy.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0087/07.jpg"
+            },
+            {
+              "text": "Who can I read to? I can read to myself!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0087/08.jpg"
+            }
+          ],
+          "author": "Letta Machoga",
+          "illustrator": "Wiehan de Jager",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0327",
+          "title": "Counting animals",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "One elephant is going to drink water.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0327/01.jpg"
+            },
+            {
+              "text": "Two giraffes are going to drink water.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0327/02.jpg"
+            },
+            {
+              "text": "Three buffaloes and four birds are also going to drink water.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0327/03.jpg"
+            },
+            {
+              "text": "Five impalas and six warthogs are walking to the water.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0327/04.jpg"
+            },
+            {
+              "text": "Seven zebras are running to the water.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0327/05.jpg"
+            },
+            {
+              "text": "Eight frogs and nine fish are swimming in the water.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0327/06.jpg"
+            },
+            {
+              "text": "One lion roars. He also wants to drink. Who is afraid of the lion?",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0327/07.jpg"
+            },
+            {
+              "text": "One elephant is drinking water with the lion.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0327/08.jpg"
+            }
+          ],
+          "author": "Zanele Buthelezi, Thembani Dladla, Clare Verbeek",
+          "illustrator": "Rob Owen",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0030",
+          "title": "Feelings",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "My heart feels a lot of things.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0030/01.jpg"
+            },
+            {
+              "text": "I feel happy when my granny tells us stories in the evening.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0030/02.jpg"
+            },
+            {
+              "text": "I feel silly when I play with my friend.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0030/03.jpg"
+            },
+            {
+              "text": "I feel bad when my dad says he does not have money.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0030/04.jpg"
+            },
+            {
+              "text": "I feel loved when my mom gives me a hug.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0030/05.jpg"
+            }
+          ],
+          "author": "Clare Verbeek, Thembani Dladla, Zanele Buthelezi",
+          "illustrator": "Kathy Arbuckle, Ingrid Schechter",
+          "license": "CC-BY-NC"
+        },
+        {
+          "id": "asb-0302",
+          "title": "Fire",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Look, fire!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0302/01.jpg"
+            },
+            {
+              "text": "Fire burns.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0302/02.jpg"
+            },
+            {
+              "text": "Fire cooks.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0302/03.jpg"
+            },
+            {
+              "text": "Fire gives warmth.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0302/04.jpg"
+            },
+            {
+              "text": "Fire gives light.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0302/05.jpg"
+            },
+            {
+              "text": "Look, fire!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0302/06.jpg"
+            },
+            {
+              "text": "Fire is wonderful.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0302/07.jpg"
+            },
+            {
+              "text": "And it is powerful.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0302/08.jpg"
+            }
+          ],
+          "author": "Deborah Namugosa, Beatrice Nabune, Alison Tukei, Rose Sabano",
+          "illustrator": "Rob Owen",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0156",
+          "title": "The hungry crocodile",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Once there was a very hungry crocodile.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0156/01.jpg"
+            },
+            {
+              "text": "He searched for food slowly and quietly. And then...",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0156/02.jpg"
+            },
+            {
+              "text": "POW!!! The crocodile strikes!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0156/03.jpg"
+            },
+            {
+              "text": "After that he is no longer hungry, and he is happy.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0156/04.jpg"
+            },
+            {
+              "text": "Until he gets hungry again.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0156/05.jpg"
+            }
+          ],
+          "author": "Christian G.",
+          "illustrator": "Wiehan de Jager",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0002",
+          "title": "Look at the animals",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Look at the animals.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0002/01.jpg"
+            },
+            {
+              "text": "The cow says, \"Moo.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0002/02.jpg"
+            },
+            {
+              "text": "The goat says, \"Meh, meh.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0002/03.jpg"
+            },
+            {
+              "text": "The horse says, \"Neigh.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0002/04.jpg"
+            },
+            {
+              "text": "The pig says, \"Grunt.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0002/05.jpg"
+            },
+            {
+              "text": "The chicken says, \"Cluck.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0002/06.jpg"
+            },
+            {
+              "text": "The dog says, \"Woof.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0002/07.jpg"
+            },
+            {
+              "text": "The farmer says, \"Shhh!\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0002/08.jpg"
+            }
+          ],
+          "author": "Jenny Katz",
+          "illustrator": "Sandy Campbell",
+          "license": "CC-BY-NC"
+        },
+        {
+          "id": "asb-0003",
+          "title": "School clothes",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "This dress is long.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0003/01.jpg"
+            },
+            {
+              "text": "This jersey is big.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0003/02.jpg"
+            },
+            {
+              "text": "This bag is big.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0003/03.jpg"
+            },
+            {
+              "text": "This belt is...",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0003/04.jpg"
+            },
+            {
+              "text": "This hat is small.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0003/05.jpg"
+            },
+            {
+              "text": "The socks are short.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0003/06.jpg"
+            },
+            {
+              "text": "But these shoes are new.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0003/07.jpg"
+            },
+            {
+              "text": "... they fit well.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0003/08.jpg"
+            }
+          ],
+          "author": "Clare Verbeek, Thembani Dladla, Zanele Buthelezi",
+          "illustrator": "Mlungisi Dlamini, Ingrid Schechter",
+          "license": "CC-BY-NC"
+        },
+        {
+          "id": "asb-0120",
+          "title": "Hair",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Thuli has short hair.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0120/01.jpg"
+            },
+            {
+              "text": "Anna has long hair.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0120/02.jpg"
+            },
+            {
+              "text": "Cathy has the longest hair.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0120/03.jpg"
+            },
+            {
+              "text": "Zama has plaited her hair.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0120/04.jpg"
+            },
+            {
+              "text": "Baba has a beard.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0120/05.jpg"
+            },
+            {
+              "text": "Zanele has combed her hair.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0120/06.jpg"
+            },
+            {
+              "text": "Thabo has cut his hair.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0120/07.jpg"
+            },
+            {
+              "text": "Themba has shaved his hair.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0120/08.jpg"
+            }
+          ],
+          "author": "Clare Verbeek, Thembani Dladla, Zanele Buthelezi",
+          "illustrator": "Bronwen Heath, Ingrid Schechter",
+          "license": "CC-BY-NC"
+        },
+        {
+          "id": "asb-0271",
+          "title": "Two",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Two little hands to hold.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0271/01.jpg"
+            },
+            {
+              "text": "Two little feet to kick.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0271/02.jpg"
+            },
+            {
+              "text": "Two little eyes to see.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0271/03.jpg"
+            },
+            {
+              "text": "Two little ears to hear.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0271/04.jpg"
+            },
+            {
+              "text": "And two loving arms to HUG!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0271/05.jpg"
+            }
+          ],
+          "author": "Carole Bloch",
+          "illustrator": "Richard MacIntosh",
+          "license": "CC-BY-NC"
+        },
+        {
+          "id": "asb-0231",
+          "title": "Weather book",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "It is dry.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0231/01.jpg"
+            },
+            {
+              "text": "The sun is hot.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0231/02.jpg"
+            },
+            {
+              "text": "It is windy.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0231/03.jpg"
+            },
+            {
+              "text": "It is cloudy.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0231/04.jpg"
+            },
+            {
+              "text": "It is cold.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0231/05.jpg"
+            },
+            {
+              "text": "It is raining.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0231/06.jpg"
+            },
+            {
+              "text": "There is thunder.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0231/07.jpg"
+            },
+            {
+              "text": "I see a rainbow.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0231/08.jpg"
+            }
+          ],
+          "author": "Clare Verbeek, Thembani Dladla, Zanele Buthelezi",
+          "illustrator": "Sandra McDougall, Ingrid Schechter",
+          "license": "CC-BY-NC"
+        },
+        {
+          "id": "asb-0129",
+          "title": "Lazy little brother",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "I wake up and make fire.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0129/01.jpg"
+            },
+            {
+              "text": "I boil some water.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0129/02.jpg"
+            },
+            {
+              "text": "I chop the firewood.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0129/03.jpg"
+            },
+            {
+              "text": "I stir the pot.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0129/04.jpg"
+            },
+            {
+              "text": "I sweep the floor.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0129/05.jpg"
+            },
+            {
+              "text": "I wash the dishes.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0129/06.jpg"
+            },
+            {
+              "text": "Why do I work so hard... ... when my brother is busy playing?",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0129/07.jpg"
+            }
+          ],
+          "author": "Clare Verbeek, Thembani Dladla, Zanele Buthelezi",
+          "illustrator": "Mlungisi Dlamini, Ingrid Schechter",
+          "license": "CC-BY-NC"
+        },
+        {
+          "id": "asb-0067",
+          "title": "Cooking",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "I peel the potatoes.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0067/01.jpg"
+            },
+            {
+              "text": "I chop a cabbage.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0067/02.jpg"
+            },
+            {
+              "text": "I grate the carrots.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0067/03.jpg"
+            },
+            {
+              "text": "I wash the beans.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0067/04.jpg"
+            },
+            {
+              "text": "I cut the butternut.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0067/05.jpg"
+            },
+            {
+              "text": "I chop the spinach.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0067/06.jpg"
+            },
+            {
+              "text": "My mom chops the onions.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0067/07.jpg"
+            },
+            {
+              "text": "Onions make me cry when they are chopped.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0067/08.jpg"
+            }
+          ],
+          "author": "Clare Verbeek, Thembani Dladla, Zanele Buthelezi",
+          "illustrator": "Kathy Arbuckle, Ingrid Schechter",
+          "license": "CC-BY-NC"
+        },
+        {
+          "id": "asb-0008",
+          "title": "What are you doing?",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "I am singing.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0008/01.jpg"
+            },
+            {
+              "text": "She is waving.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0008/02.jpg"
+            },
+            {
+              "text": "I am clapping.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0008/03.jpg"
+            },
+            {
+              "text": "She is stretching.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0008/04.jpg"
+            },
+            {
+              "text": "He is calling.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0008/05.jpg"
+            },
+            {
+              "text": "I am answering.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0008/06.jpg"
+            },
+            {
+              "text": "She is listening.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0008/07.jpg"
+            },
+            {
+              "text": "What are you doing?",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0008/08.jpg"
+            }
+          ],
+          "author": "Nina Orange",
+          "illustrator": "Wiehan de Jager",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0009",
+          "title": "Where is my cat?",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Where is my cat?",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0009/01.jpg"
+            },
+            {
+              "text": "Is it under the bed?",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0009/02.jpg"
+            },
+            {
+              "text": "Is it on top of the cupboard?",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0009/03.jpg"
+            },
+            {
+              "text": "Is it behind the couch?",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0009/04.jpg"
+            },
+            {
+              "text": "Is it next to the bin?",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0009/05.jpg"
+            },
+            {
+              "text": "Is it inside the basket?",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0009/06.jpg"
+            },
+            {
+              "text": "Is it outside the house?",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0009/07.jpg"
+            },
+            {
+              "text": "Here it is!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0009/08.jpg"
+            }
+          ],
+          "author": "Clare Verbeek, Thembani Dladla, Zanele Buthelezi",
+          "illustrator": "Bronwen Heath, Ingrid Schechter",
+          "license": "CC-BY-NC"
+        },
+        {
+          "id": "asb-0112",
+          "title": "My body",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "I can run with it.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0112/01.jpg"
+            },
+            {
+              "text": "I can jump with it.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0112/02.jpg"
+            },
+            {
+              "text": "I can dance with it.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0112/03.jpg"
+            },
+            {
+              "text": "I can swim with it.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0112/04.jpg"
+            },
+            {
+              "text": "I can skip with it.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0112/05.jpg"
+            },
+            {
+              "text": "I can kick with it.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0112/06.jpg"
+            },
+            {
+              "text": "I can escape with it.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0112/07.jpg"
+            },
+            {
+              "text": "But I can never fly with it.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0112/08.jpg"
+            }
+          ],
+          "author": "Clare Verbeek, Thembani Dladla, Zanele Buthelezi",
+          "illustrator": "Mlungisi Dlamini, Ingrid Schechter",
+          "license": "CC-BY-NC"
+        }
+      ]
+    },
+    {
+      "id": "L2",
+      "name": "Level 2",
+      "ageRange": "6-7",
+      "stories": [
+        {
+          "id": "asb-0111",
+          "title": "Why hippos have no hair",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "One day, Rabbit was walking by the riverside.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0111/01.jpg"
+            },
+            {
+              "text": "Hippo was there too, going for a stroll and eating some nice green grass.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0111/02.jpg"
+            },
+            {
+              "text": "Hippo didn't see that Rabbit was there and she accidentally stepped on Rabbit's foot. Rabbit started screaming at Hippo, \"You Hippo! Can't you see that you're stepping on my foot?\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0111/03.jpg"
+            },
+            {
+              "text": "Hippo apologised to Rabbit, \"I'm so sorry. I didn't see you. Please forgive me!\" But Rabbit wouldn't listen and he shouted at Hippo, \"You did that on purpose! Someday, you'll see! You're going to pay!\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0111/04.jpg"
+            },
+            {
+              "text": "Rabbit went to find Fire and said, \"Go, burn Hippo when she comes out of the water to eat grass. She stepped on me!\" Fire answered, \"No problem, Rabbit, my friend. I'll do just what you ask.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0111/05.jpg"
+            },
+            {
+              "text": "Later, Hippo was eating grass far from the river when, \"Whoosh!\" Fire burst into flame. The flames began to burn Hippo's hair.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0111/06.jpg"
+            },
+            {
+              "text": "Hippo started to cry and ran for the water. All her hair was burned off by the fire. Hippo kept crying, \"My hair has burned in the fire! My hair is all gone! My beautiful hair!\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0111/07.jpg"
+            },
+            {
+              "text": "Rabbit was happy that Hippo's hair was burned. And to this day, for fear of fire, the hippo never goes far from the water.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0111/08.jpg"
+            }
+          ],
+          "author": "Basilio Gimo, David Ker",
+          "illustrator": "Carol Liddiment",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0337",
+          "title": "Children of wax",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Once upon a time, there lived a happy family.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0337/01.jpg"
+            },
+            {
+              "text": "They never fought with each other. They helped their parents at home and in the fields.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0337/02.jpg"
+            },
+            {
+              "text": "But they were not allowed to go near a fire.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0337/03.jpg"
+            },
+            {
+              "text": "They had to do all their work during the night. Because they were made of wax!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0337/04.jpg"
+            },
+            {
+              "text": "But one of the boys longed to go out in the sunlight.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0337/05.jpg"
+            },
+            {
+              "text": "One day the longing was too strong. His brothers warned him...",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0337/06.jpg"
+            },
+            {
+              "text": "But it was too late! He melted in the hot sun.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0337/07.jpg"
+            },
+            {
+              "text": "The wax children were so sad to see their brother melting away.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0337/08.jpg"
+            },
+            {
+              "text": "But they made a plan. They shaped the lump of melted wax into a bird.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0337/09.jpg"
+            },
+            {
+              "text": "They took their bird brother up to a high mountain.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0337/10.jpg"
+            },
+            {
+              "text": "And as the sun rose, he flew away singing into the morning light.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0337/11.jpg"
+            }
+          ],
+          "author": "Southern African Folktale",
+          "illustrator": "Wiehan de Jager",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0210",
+          "title": "Tingi and the cows",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Tingi lived with his grandmother.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0210/01.jpg"
+            },
+            {
+              "text": "He used to look after the cows with her.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0210/02.jpg"
+            },
+            {
+              "text": "One day the soldiers came.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0210/03.jpg"
+            },
+            {
+              "text": "They took the cows away.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0210/04.jpg"
+            },
+            {
+              "text": "Tingi and his grandmother ran away and hid.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0210/05.jpg"
+            },
+            {
+              "text": "They hid in the bush until night.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0210/06.jpg"
+            },
+            {
+              "text": "Then the soldiers came back.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0210/07.jpg"
+            },
+            {
+              "text": "Grandmother hid Tingi under the leaves.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0210/08.jpg"
+            },
+            {
+              "text": "One of the soldiers put his foot right on him, but he kept quiet.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0210/09.jpg"
+            },
+            {
+              "text": "When it was safe, Tingi and his grandmother came out.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0210/10.jpg"
+            },
+            {
+              "text": "They crept home very quietly.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0210/11.jpg"
+            }
+          ],
+          "author": "Ingrid Schechter",
+          "illustrator": "Ingrid Schechter",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0296",
+          "title": "Tom the banana seller",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Tom carries a tray of ripe bananas.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0296/01.jpg"
+            },
+            {
+              "text": "Tom goes to the market to sell bananas.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0296/02.jpg"
+            },
+            {
+              "text": "People at the market are buying fruit.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0296/03.jpg"
+            },
+            {
+              "text": "But no one is buying Tom's bananas. They prefer to buy fruit from women.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0296/04.jpg"
+            },
+            {
+              "text": "\"In our community, only women sell fruit,\" people say. \"What kind of a man is this?\" people ask.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0296/05.jpg"
+            },
+            {
+              "text": "But Tom does not give up. He calls, \"Buy my bananas! Buy my sweet ripe bananas!\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0296/06.jpg"
+            },
+            {
+              "text": "One woman picks up a bunch of bananas from the tray. She looks at the bananas carefully.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0296/07.jpg"
+            },
+            {
+              "text": "The woman buys the bananas.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0296/08.jpg"
+            },
+            {
+              "text": "More people come to the stall. They buy Tom's bananas and eat them.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0296/09.jpg"
+            },
+            {
+              "text": "Soon, the tray is empty. Tom counts the money he earned.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0296/10.jpg"
+            },
+            {
+              "text": "Then Tom buys soap, sugar, and bread. He puts the things in his tray.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0296/11.jpg"
+            },
+            {
+              "text": "Tom balances the tray on his head and goes home.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0296/12.jpg"
+            }
+          ],
+          "author": "Humphreys Odunga",
+          "illustrator": "Zablon Alex Nguku",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0027",
+          "title": "Decision",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "My village had many problems. We made a long line to fetch water from one tap.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0027/01.jpg"
+            },
+            {
+              "text": "We waited for food donated by others.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0027/02.jpg"
+            },
+            {
+              "text": "We locked our houses early because of thieves.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0027/03.jpg"
+            },
+            {
+              "text": "Many children dropped out of school.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0027/04.jpg"
+            },
+            {
+              "text": "Young girls worked as maids in other villages.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0027/05.jpg"
+            },
+            {
+              "text": "Young boys roamed around the village while others worked on people's farms.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0027/06.jpg"
+            },
+            {
+              "text": "When the wind blew, waste paper hung on trees and fences.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0027/07.jpg"
+            },
+            {
+              "text": "People were cut by broken glass that was thrown carelessly.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0027/08.jpg"
+            },
+            {
+              "text": "Then one day, the tap dried up and our containers were empty.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0027/09.jpg"
+            },
+            {
+              "text": "My father walked from house to house asking people to attend a village meeting.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0027/10.jpg"
+            },
+            {
+              "text": "People gathered under a big tree and listened.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0027/11.jpg"
+            },
+            {
+              "text": "My father stood up and said, \"We need to work together to solve our problems.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0027/12.jpg"
+            },
+            {
+              "text": "Eight-year-old Juma, sitting on a tree trunk shouted, \"I can help with cleaning up.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0027/13.jpg"
+            },
+            {
+              "text": "One woman said, \"The women can join me to grow food.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0027/14.jpg"
+            },
+            {
+              "text": "Another man stood up and said, \"The men will dig a well.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0027/15.jpg"
+            },
+            {
+              "text": "We all shouted with one voice, \"We must change our lives.\" From that day we worked together to solve our problems.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0027/16.jpg"
+            }
+          ],
+          "author": "Ursula Nafula",
+          "illustrator": "Vusi Malindi",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0342",
+          "title": "Punishment",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "One day, mama got a lot of fruit.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0342/01.jpg"
+            },
+            {
+              "text": "\"When can we have some fruit?\" we ask. \"We will have the fruit tonight,\" says mama.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0342/02.jpg"
+            },
+            {
+              "text": "My brother Rahim is greedy. He tastes all the fruit. He eats a lot of it.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0342/03.jpg"
+            },
+            {
+              "text": "\"Look at what Rahim did!\" shouts my little brother. \"Rahim is naughty and selfish,\" I say.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0342/04.jpg"
+            },
+            {
+              "text": "Mother is angry with Rahim.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0342/05.jpg"
+            },
+            {
+              "text": "We are also angry with Rahim. But Rahim is not sorry.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0342/06.jpg"
+            },
+            {
+              "text": "\"Aren't you going to punish Rahim?\" asks little brother.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0342/07.jpg"
+            },
+            {
+              "text": "\"Rahim, soon you will be sorry,\" warns mama.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0342/08.jpg"
+            },
+            {
+              "text": "Rahim starts to feel sick.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0342/09.jpg"
+            },
+            {
+              "text": "\"My tummy is so sore,\" whispers Rahim.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0342/10.jpg"
+            },
+            {
+              "text": "Mama knew this would happen. The fruit is punishing Rahim!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0342/11.jpg"
+            },
+            {
+              "text": "Later, Rahim says sorry to us. \"I will never be so greedy again,\" he promises. And we all believe him.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0342/12.jpg"
+            }
+          ],
+          "author": "Adelheid Marie Bwire",
+          "illustrator": "Melany Pietersen",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0089",
+          "title": "Khalai talks to plants",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "This is Khalai. She is seven years old. Her name means 'the good one' in her language, Lubukusu.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0089/01.jpg"
+            },
+            {
+              "text": "Khalai wakes up and talks to the orange tree. \"Please orange tree, grow big and give us lots of ripe oranges.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0089/02.jpg"
+            },
+            {
+              "text": "Khalai walks to school. On the way she talks to the grass. \"Please grass, grow greener and don't dry up.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0089/03.jpg"
+            },
+            {
+              "text": "Khalai passes wild flowers. \"Please flowers, keep blooming so I can put you in my hair.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0089/04.jpg"
+            },
+            {
+              "text": "At school, Khalai talks to the tree in the middle of the compound. \"Please tree, put out big branches so we can read under your shade.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0089/05.jpg"
+            },
+            {
+              "text": "Khalai talks to the hedge around her school. \"Please grow strong and stop bad people from coming in.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0089/06.jpg"
+            },
+            {
+              "text": "When Khalai returns home from school, she visits the orange tree. \"Are your oranges ripe yet?\" asks Khalai.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0089/07.jpg"
+            },
+            {
+              "text": "\"The oranges are still green,\" sighs Khalai. \"I will see you tomorrow orange tree,\" says Khalai. \"Perhaps then you will have a ripe orange for me!\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0089/08.jpg"
+            }
+          ],
+          "author": "Ursula Nafula",
+          "illustrator": "Jesse Pietersen",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0234",
+          "title": "Andiswa Soccer Star",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Andiswa watched the boys play soccer. She wished that she could join them. She asked the coach if she can practise with them.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0234/01.jpg"
+            },
+            {
+              "text": "The coach put his hands on his hips. \"At this school, only boys are allowed to play soccer,\" he said.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0234/02.jpg"
+            },
+            {
+              "text": "The boys told her to go play netball. They said that netball is for girls and soccer is for boys. Andiswa was upset.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0234/03.jpg"
+            },
+            {
+              "text": "The next day, the school had a big soccer match. The coach was worried because his best player was sick and could not play.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0234/04.jpg"
+            },
+            {
+              "text": "Andiswa ran to the coach and begged him to let her to play. The coach was not sure what to do. Then he decided that Andiswa could join the team.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0234/05.jpg"
+            },
+            {
+              "text": "The game was tough. Nobody had scored a goal by half time.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0234/06.jpg"
+            },
+            {
+              "text": "During the second half of the match one of the boys passed the ball to Andiswa. She moved very fast towards the goal post. She kicked the ball hard and scored a goal.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0234/07.jpg"
+            },
+            {
+              "text": "The crowd went wild with joy. Since that day, girls were also allowed to play soccer at the school.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0234/08.jpg"
+            }
+          ],
+          "author": "Eden Daniels",
+          "illustrator": "Eden Daniels",
+          "license": "CC-BY-NC"
+        },
+        {
+          "id": "asb-0001",
+          "title": "A very tall man",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "His hoe was too short.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0001/01.jpg"
+            },
+            {
+              "text": "His doorway was too low.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0001/02.jpg"
+            },
+            {
+              "text": "His bed was too short.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0001/03.jpg"
+            },
+            {
+              "text": "His bicycle was too short.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0001/04.jpg"
+            },
+            {
+              "text": "This man was too tall!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0001/05.jpg"
+            },
+            {
+              "text": "He made a very long hoe handle.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0001/06.jpg"
+            },
+            {
+              "text": "He made very high door frames.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0001/07.jpg"
+            },
+            {
+              "text": "He made a very long bed.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0001/08.jpg"
+            },
+            {
+              "text": "He bought a very high bicycle.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0001/09.jpg"
+            },
+            {
+              "text": "He sat on a very high chair. He ate with a very long fork.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0001/10.jpg"
+            },
+            {
+              "text": "He left his house and lived in a big forest. He lived for many years.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0001/11.jpg"
+            }
+          ],
+          "author": "Cornelius Gulere",
+          "illustrator": "Catherine Groenewald",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0095",
+          "title": "Zama is great!",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "My little brother sleeps very late. I wake early, because I am great!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0095/01.jpg"
+            },
+            {
+              "text": "I am the one who lets in the sun.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0095/02.jpg"
+            },
+            {
+              "text": "\"You're my morning star,\" says Ma.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0095/03.jpg"
+            },
+            {
+              "text": "I wash myself, I don't need any help.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0095/04.jpg"
+            },
+            {
+              "text": "I can cope with cold water and blue smelly soap.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0095/05.jpg"
+            },
+            {
+              "text": "Ma reminds, \"Don't forget teeth.\" I reply, \"Never, not me!\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0095/06.jpg"
+            },
+            {
+              "text": "After washing, I greet Grandpa and Auntie, and wish them a good day.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0095/07.jpg"
+            },
+            {
+              "text": "Then I dress myself, \"I'm big now Ma,\" I say.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0095/08.jpg"
+            },
+            {
+              "text": "I can close my buttons and buckle my shoes.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0095/09.jpg"
+            },
+            {
+              "text": "And I make sure little brother knows all the school news.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0095/10.jpg"
+            },
+            {
+              "text": "In class I do my best in every way.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0095/11.jpg"
+            },
+            {
+              "text": "I do all these good things every day. But the thing I like most, is to play and play!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0095/12.jpg"
+            }
+          ],
+          "author": "Michael Oguttu",
+          "illustrator": "Vusi Malindi",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0004",
+          "title": "Goat, Dog, and Cow",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Goat, Dog, and Cow were great friends. One day they went on a journey in a taxi.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0004/01.jpg"
+            },
+            {
+              "text": "When they reached the end of their journey, the driver asked them to pay their fares. Cow paid her fare.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0004/02.jpg"
+            },
+            {
+              "text": "Dog paid a bit extra, because he did not have the correct money.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0004/03.jpg"
+            },
+            {
+              "text": "The driver was about to give Dog his change when Goat ran away without paying anything.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0004/04.jpg"
+            },
+            {
+              "text": "The driver was very annoyed. He drove away without giving Dog his change.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0004/05.jpg"
+            },
+            {
+              "text": "That is why, even today, Dog runs towards a car to peep inside and find the driver who owes him his change.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0004/06.jpg"
+            },
+            {
+              "text": "Goat runs away from the sound of a car. She is afraid she will be arrested for not paying her fare.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0004/07.jpg"
+            },
+            {
+              "text": "And Cow is not bothered when a car is coming. Cow takes her time crossing the road because she knows she paid her fare in full.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0004/08.jpg"
+            }
+          ],
+          "author": "Fabian Wakholi",
+          "illustrator": "Marleen Visser, Ingrid Schechter",
+          "license": "CC-BY"
+        }
+      ]
+    },
+    {
+      "id": "L3",
+      "name": "Level 3",
+      "ageRange": "7-8",
+      "stories": [
+        {
+          "id": "asb-0201",
+          "title": "Donkey Child",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "It was a little girl who first saw the mysterious shape in the distance.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/01.jpg"
+            },
+            {
+              "text": "As the shape moved closer, she saw that it was a heavily pregnant woman.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/02.jpg"
+            },
+            {
+              "text": "Shy but brave, the little girl moved nearer to the woman. \"We must keep her with us,\" the little girl's people decided. \"We'll keep her and her child safe.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/03.jpg"
+            },
+            {
+              "text": "The child was soon on its way. \"Push!\" \"Bring blankets!\" \"Water!\" \"Puuuuussssshhh!!!\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/04.jpg"
+            },
+            {
+              "text": "But when they saw the baby, everyone jumped back in shock. \"A donkey?!\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/05.jpg"
+            },
+            {
+              "text": "Everyone began to argue. \"We said we would keep mother and child safe, and that's what we'll do,\" said some. \"But they will bring us bad luck!\" said others.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/06.jpg"
+            },
+            {
+              "text": "And so the woman found herself alone again. She wondered what to do with this awkward child. She wondered what to do with herself.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/07.jpg"
+            },
+            {
+              "text": "But finally she had to accept that he was her child and she was his mother.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/08.jpg"
+            },
+            {
+              "text": "Now, if the child had stayed that same, small size, everything might have been different. But the donkey child grew and grew until he could no longer fit on his mother's back. And no matter how hard he tried, he could not behave like a human being. His mother was often tired and frustrated. Sometimes she made him do work meant for animals.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/09.jpg"
+            },
+            {
+              "text": "Confusion and anger built up inside Donkey. He couldn't do this and he couldn't do that. He couldn't be like this and he couldn't be like that. He became so angry that, one day, he kicked his mother to the ground.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/10.jpg"
+            },
+            {
+              "text": "Donkey was filled with shame. He started to run away as far and fast as he could.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/11.jpg"
+            },
+            {
+              "text": "By the time he stopped running, it was night, and Donkey was lost. \"Hee haw?\" he whispered to the darkness. \"Hee Haw?\" it echoed back. He was alone. Curling himself into a tight ball, he fell into a deep and troubled sleep.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/12.jpg"
+            },
+            {
+              "text": "Donkey woke up to find a strange old man staring down at him. He looked into the old man's eyes and started to feel a twinkle of hope.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/13.jpg"
+            },
+            {
+              "text": "Donkey went to stay with the old man, who taught him many different ways to survive. Donkey listened and learned, and so did the old man. They helped each other, and they laughed together.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/14.jpg"
+            },
+            {
+              "text": "One morning, the old man asked Donkey to carry him to the top of a mountain.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/15.jpg"
+            },
+            {
+              "text": "High up amongst the clouds they fell asleep. Donkey dreamed that his mother was sick and calling to him. And when he woke up...",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/16.jpg"
+            },
+            {
+              "text": "... the clouds had disappeared along with his friend, the old man.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/17.jpg"
+            },
+            {
+              "text": "Donkey finally knew what to do.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/18.jpg"
+            },
+            {
+              "text": "Donkey found his mother, alone and mourning her lost child. They stared at each other for a long time. And then hugged each other very hard.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/19.jpg"
+            },
+            {
+              "text": "The donkey child and his mother have grown together and found many ways of living side by side. Slowly, all around them, other families have started to settle.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0201/20.jpg"
+            }
+          ],
+          "author": "Lindiwe Matshikiza",
+          "illustrator": "Meghan Judge",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0006",
+          "title": "Anansi and Wisdom",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Long long ago people didn't know anything. They didn't know how to plant crops, or how to weave cloth, or how to make iron tools. The god Nyame up in the sky had all the wisdom of the world. He kept it safe in a clay pot.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0006/01.jpg"
+            },
+            {
+              "text": "One day, Nyame decided that he would give the pot of wisdom to Anansi. Every time Anansi looked in the clay pot, he learned something new. It was so exciting!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0006/02.jpg"
+            },
+            {
+              "text": "Greedy Anansi thought, \"I'll keep the pot safe at the top of a tall tree. Then I can have it all to myself!\" He spun a long thread, wound it round the clay pot, and tied it to his stomach. He began to climb the tree. But it was hard climbing the tree with the pot bumping him in the knees all the time.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0006/03.jpg"
+            },
+            {
+              "text": "All the time Anansi's young son had been standing at the bottom of the tree watching. He said, \"Wouldn't it be easier to climb if you tied the pot to your back instead?\" Anansi tried tying the clay pot full of wisdom to his back, and it really was a lot easier.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0006/04.jpg"
+            },
+            {
+              "text": "In no time he reached the top of the tree. But then he stopped and thought, \"I'm supposed to be the one with all the wisdom, and here my son was cleverer than me!\" Anansi was so angry about this that he threw the clay pot down out of the tree.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0006/05.jpg"
+            },
+            {
+              "text": "It smashed into pieces on the ground. The wisdom was free for everyone to share. And that is how people learned to farm, to weave cloth, to make iron tools, and all the other things that people know how to do.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0006/06.jpg"
+            }
+          ],
+          "author": "Ghanaian folktale",
+          "illustrator": "Wiehan de Jager",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0110",
+          "title": "A Tiny Seed: The Story of Wangari Maathai",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "In a village on the slopes of Mount Kenya in East Africa, a little girl worked in the fields with her mother. Her name was Wangari.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0110/01.jpg"
+            },
+            {
+              "text": "Wangari loved being outside. In her family's food garden she broke up the soil with her machete. She pressed tiny seeds into the warm earth.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0110/02.jpg"
+            },
+            {
+              "text": "Her favourite time of day was just after sunset. When it got too dark to see the plants, Wangari knew it was time to go home. She would follow the narrow paths through the fields, crossing rivers as she went.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0110/03.jpg"
+            },
+            {
+              "text": "Wangari was a clever child and couldn't wait to go to school. But her mother and father wanted her to stay and help them at home. When she was seven years old, her big brother persuaded her parents to let her go to school.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0110/04.jpg"
+            },
+            {
+              "text": "She liked to learn! Wangari learnt more and more with every book she read. She did so well at school that she was invited to study in the United States of America. Wangari was excited! She wanted to know more about the world.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0110/05.jpg"
+            },
+            {
+              "text": "At the American university Wangari learnt many new things. She studied plants and how they grow. And she remembered how she grew: playing games with her brothers in the shade of the trees in the beautiful Kenyan forests.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0110/06.jpg"
+            },
+            {
+              "text": "The more she learnt, the more she realised that she loved the people of Kenya. She wanted them to be happy and free. The more she learnt, the more she remembered her African home.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0110/07.jpg"
+            },
+            {
+              "text": "When she had finished her studies, she returned to Kenya. But her country had changed. Huge farms stretched across the land. Women had no wood to make cooking fires. The people were poor and the children were hungry.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0110/08.jpg"
+            },
+            {
+              "text": "Wangari knew what to do. She taught the women how to plant trees from seeds. The women sold the trees and used the money to look after their families. The women were very happy. Wangari had helped them to feel powerful and strong.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0110/09.jpg"
+            },
+            {
+              "text": "As time passed, the new trees grew into forests, and the rivers started flowing again. Wangari's message spread across Africa. Today, millions of trees have grown from Wangari's seeds.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0110/10.jpg"
+            },
+            {
+              "text": "Wangari had worked hard. People all over the world took notice, and gave her a famous prize. It is called the Nobel Peace Prize, and she was the first African woman ever to receive it.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0110/11.jpg"
+            },
+            {
+              "text": "Wangari died in 2011, but we can think of her every time we see a beautiful tree.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0110/12.jpg"
+            }
+          ],
+          "author": "Nicola Rijsdijk",
+          "illustrator": "Maya Marshak",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0158",
+          "title": "Hen and Eagle",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Once upon a time, Hen and Eagle were friends. They lived in peace with all the other birds. None of them could fly.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0158/01.jpg"
+            },
+            {
+              "text": "One day, there was famine in the land. Eagle had to walk very far to find food. She came back very tired. \"There must be an easier way to travel!\" said Eagle.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0158/02.jpg"
+            },
+            {
+              "text": "After a good night's sleep, Hen had a brilliant idea. She began collecting the fallen feathers from all their bird friends. \"Let's sew them together on top of our own feathers,\" she said. \"Perhaps that will make it easier to travel.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0158/03.jpg"
+            },
+            {
+              "text": "Eagle was the only one in the village with a needle, so she started sewing first. She made herself a pair of beautiful wings and flew high above Hen. Hen borrowed the needle but she soon got tired of sewing. She left the needle on the cupboard and went into the kitchen to prepare food for her children.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0158/04.jpg"
+            },
+            {
+              "text": "But the other birds had seen Eagle flying away. They asked Hen to lend them the needle to make wings for themselves too. Soon there were birds flying all over the sky.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0158/05.jpg"
+            },
+            {
+              "text": "When the last bird returned the borrowed needle, Hen was not there. So her children took the needle and started playing with it. When they got tired of the game, they left the needle in the sand.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0158/06.jpg"
+            },
+            {
+              "text": "Later that afternoon, Eagle returned. She asked for the needle to fix some feathers that had loosened on her journey. Hen looked on the cupboard. She looked in the kitchen. She looked in the yard. But the needle was nowhere to be found.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0158/07.jpg"
+            },
+            {
+              "text": "\"Just give me a day,\" Hen begged Eagle. \"Then you can fix your wing and fly away to get food again.\" \"Just one more day,\" said Eagle. \"If you can't find the needle, you'll have to give me one of your chicks as payment.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0158/08.jpg"
+            },
+            {
+              "text": "When Eagle came the next day, she found Hen scratching in the sand, but no needle. So Eagle flew down very fast and caught one of the chicks. She carried it away. Forever after that, whenever Eagle appears, she finds Hen scratching in the sand for the needle.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0158/09.jpg"
+            },
+            {
+              "text": "As the shadow of Eagle's wing falls on the ground, Hen warns her chicks. \"Get out of the bare and dry land.\" And they respond: \"We are not fools. We will run.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0158/10.jpg"
+            }
+          ],
+          "author": "Ann Nduku",
+          "illustrator": "Wiehan de Jager",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0324",
+          "title": "The day I left home for the city",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "The small bus stop in my village was busy with people and overloaded buses. On the ground were even more things to load. Touts were shouting the names where their buses were going.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0324/01.jpg"
+            },
+            {
+              "text": "\"City! City! Going west!\" I heard a tout shouting. That was the bus I needed to catch.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0324/02.jpg"
+            },
+            {
+              "text": "The city bus was almost full, but more people were still pushing to get on. Some packed their luggage under the bus. Others put theirs on the racks inside.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0324/03.jpg"
+            },
+            {
+              "text": "New passengers clutched their tickets as they looked for somewhere to sit in the crowded bus. Women with young children made them comfortable for the long journey.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0324/04.jpg"
+            },
+            {
+              "text": "I squeezed in next to a window. The person sitting next to me was holding tightly to a green plastic bag. He wore old sandals, a worn out coat, and he looked nervous.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0324/05.jpg"
+            },
+            {
+              "text": "I looked outside the bus and realised that I was leaving my village, the place where I had grown up. I was going to the big city.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0324/06.jpg"
+            },
+            {
+              "text": "The loading was completed and all passengers were seated. Hawkers still pushed their way into the bus to sell their goods to the passengers. Everyone was shouting the names of what was available for sale. The words sounded funny to me.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0324/07.jpg"
+            },
+            {
+              "text": "A few passengers bought drinks, others bought small snacks and began to chew. Those who did not have any money, like me, just watched.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0324/08.jpg"
+            },
+            {
+              "text": "These activities were interrupted by the hooting of the bus, a sign that we were ready to leave. The tout yelled at the hawkers to get out.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0324/09.jpg"
+            },
+            {
+              "text": "Hawkers pushed each other to make their way out of the bus. Some gave back change to the travellers. Others made last minute attempts to sell more items.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0324/10.jpg"
+            },
+            {
+              "text": "As the bus left the bus stop, I stared out of the window. I wondered if I would ever go back to my village again.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0324/11.jpg"
+            },
+            {
+              "text": "As the journey progressed, the inside of the bus got very hot. I closed my eyes hoping to sleep.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0324/12.jpg"
+            },
+            {
+              "text": "But my mind drifted back home. Will my mother be safe? Will my rabbits fetch any money? Will my brother remember to water my tree seedlings?",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0324/13.jpg"
+            },
+            {
+              "text": "On the way, I memorised the name of the place where my uncle lived in the big city. I was still mumbling it when I fell asleep.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0324/14.jpg"
+            },
+            {
+              "text": "Nine hours later, I woke up with loud banging and calling for passengers going back to my village. I grabbed my small bag and jumped out of the bus.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0324/15.jpg"
+            },
+            {
+              "text": "The return bus was filling up quickly. Soon it would make its way back east. The most important thing for me now, was to start looking for my uncle's house.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0324/16.jpg"
+            }
+          ],
+          "author": "Lesley Koyi, Ursula Nafula",
+          "illustrator": "Brian Wambi",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0141",
+          "title": "Chicken and Millipede",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Chicken and Millipede were friends. But they were always competing with each other. One day they decided to play football to see who the best player was.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0141/01.jpg"
+            },
+            {
+              "text": "They went to the football field and started their game. Chicken was fast, but Millipede was faster. Chicken kicked far, but Millipede kicked further. Chicken started to feel grumpy.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0141/02.jpg"
+            },
+            {
+              "text": "They decided to play a penalty shoot-out. First Millipede was goal keeper. Chicken scored only one goal. Then it was the chicken's turn to defend the goal.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0141/03.jpg"
+            },
+            {
+              "text": "Millipede kicked the ball and scored. Millipede dribbled the ball and scored. Millipede headed the ball and scored. Millipede scored five goals.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0141/04.jpg"
+            },
+            {
+              "text": "Chicken was furious that she lost. She was a very bad loser. Millipede started laughing because his friend was making such a fuss.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0141/05.jpg"
+            },
+            {
+              "text": "Chicken was so angry that she opened her beak wide and swallowed the millipede.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0141/06.jpg"
+            },
+            {
+              "text": "As Chicken was walking home, she met Mother Millipede. Mother Millipede asked, \"Have you seen my child?\" Chicken didn't say anything. Mother Millipede was worried.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0141/07.jpg"
+            },
+            {
+              "text": "Then Mother Millipede heard a tiny voice. \"Help me mom!\" cried the voice. Mother Millipede looked around and listened carefully. The voice came from inside the chicken.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0141/08.jpg"
+            },
+            {
+              "text": "Mother Millipede shouted, \"Use your special power my child!\" Millipedes can make a bad smell and a terrible taste. Chicken began to feel ill.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0141/09.jpg"
+            },
+            {
+              "text": "Chicken burped. Then she swallowed and spat. Then she sneezed and coughed. And coughed. The millipede was disgusting!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0141/10.jpg"
+            },
+            {
+              "text": "Chicken coughed until she coughed out the millipede that was in her stomach. Mother Millipede and her child crawled up a tree to hide.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0141/11.jpg"
+            },
+            {
+              "text": "From that time, chickens and millipedes were enemies.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0141/12.jpg"
+            }
+          ],
+          "author": "Winny Asara",
+          "illustrator": "Magriet Brink",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0066",
+          "title": "Nozibele and the three hairs",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "A long time ago, three girls went out to collect wood.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0066/01.jpg"
+            },
+            {
+              "text": "It was a hot day so they went down to the river to swim. They played and splashed and swam in the water.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0066/02.jpg"
+            },
+            {
+              "text": "Suddenly, they realised that it was late. They hurried back to the village.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0066/03.jpg"
+            },
+            {
+              "text": "When they were nearly home, Nozibele put her hand to her neck. She had forgotten her necklace! \"Please come back with me!\" she begged her friends. But her friends said it was too late.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0066/04.jpg"
+            },
+            {
+              "text": "So Nozibele went back to the river alone. She found her necklace and hurried home. But she got lost in the dark.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0066/05.jpg"
+            },
+            {
+              "text": "In the distance she saw light coming from a hut. She hurried towards it and knocked at the door.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0066/06.jpg"
+            },
+            {
+              "text": "To her surprise, a dog opened the door and said, \"What do you want?\" \"I'm lost and I need a place to sleep,\" said Nozibele. \"Come in, or I'll bite you!\" said the dog. So Nozibele went in.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0066/07.jpg"
+            },
+            {
+              "text": "Then the dog said, \"Cook for me!\" \"But I've never cooked for a dog before,\" she answered. \"Cook, or I'll bite you!\" said the dog. So Nozibele cooked some food for the dog.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0066/08.jpg"
+            },
+            {
+              "text": "Then the dog said, \"Make the bed for me!\" Nozibele answered, \"I've never made a bed for a dog.\" \"Make the bed, or I'll bite you!\" the dog said. So Nozibele made the bed.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0066/09.jpg"
+            },
+            {
+              "text": "Every day she had to cook and sweep and wash for the dog. Then one day the dog said, \"Nozibele, today I have to visit some friends. Sweep the house, cook the food and wash my things before I come back.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0066/10.jpg"
+            },
+            {
+              "text": "As soon as the dog had gone, Nozibele took three hairs from her head. She put one hair under the bed, one behind the door, and one in the kraal. Then she ran home as fast as she could.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0066/11.jpg"
+            },
+            {
+              "text": "When the dog came back, he looked for Nozibele. \"Nozibele, where are you?\" he shouted. \"I'm here, under the bed,\" said the first hair. \"I'm here, behind the door,\" said the second hair. \"I'm here, in the kraal,\" said the third hair.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0066/12.jpg"
+            },
+            {
+              "text": "Then the dog knew that Nozibele had tricked him. So he ran and ran all the way to the village. But Nozibele's brothers were waiting there with big sticks. The dog turned and ran away and has never been seen since.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0066/13.jpg"
+            }
+          ],
+          "author": "Tessa Welch",
+          "illustrator": "Wiehan de Jager",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0315",
+          "title": "Sakima's song",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Sakima lived with his parents and his four year old sister. They lived on a rich man's land. Their grass-thatched hut was at the end of a row of trees.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/01.jpg"
+            },
+            {
+              "text": "When Sakima was three years old, he fell sick and lost his sight. Sakima was a talented boy.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/02.jpg"
+            },
+            {
+              "text": "Sakima did many things that other six year old boys did not do. For example, he could sit with older members of the village and discuss important matters.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/03.jpg"
+            },
+            {
+              "text": "The parents of Sakima worked at the rich man's house. They left home early in the morning and returned late in the evening. Sakima was left with his little sister.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/04.jpg"
+            },
+            {
+              "text": "Sakima loved to sing songs. One day his mother asked him, \"Where do you learn these songs from, Sakima?\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/05.jpg"
+            },
+            {
+              "text": "Sakima answered, \"They just come, mother. I hear them in my head and then I sing.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/06.jpg"
+            },
+            {
+              "text": "Sakima liked to sing for his little sister, especially, if she felt hungry. His sister would listen to him singing his favourite song. She would sway to the soothing tune.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/07.jpg"
+            },
+            {
+              "text": "\"Can you sing it again and again, Sakima,\" his sister would beg him. Sakima would accept and sing it over and over again.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/08.jpg"
+            },
+            {
+              "text": "One evening when his parents returned home, they were very quiet. Sakima knew that there was something wrong.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/09.jpg"
+            },
+            {
+              "text": "\"What is wrong, mother, father?\" Sakima asked. Sakima learned that the rich man's son was missing. The man was very sad and lonely.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/10.jpg"
+            },
+            {
+              "text": "\"I can sing for him. He might be happy again,\" Sakima told his parents. But his parents dismissed him. \"He is very rich. You are only a blind boy. Do you think your song will help him?\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/11.jpg"
+            },
+            {
+              "text": "However, Sakima did not give up. His little sister supported him. She said, \"Sakima's songs soothe me when I am hungry. They will soothe the rich man too.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/12.jpg"
+            },
+            {
+              "text": "The following day, Sakima asked his little sister to lead him to the rich man's house.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/13.jpg"
+            },
+            {
+              "text": "He stood below one big window and began to sing his favourite song. Slowly, the head of the rich man began to show through the big window.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/14.jpg"
+            },
+            {
+              "text": "The workers stopped what they were doing. They listened to Sakima's beautiful song. But one man said, \"Nobody has been able to console the boss. Does this blind boy think he will console him?\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/15.jpg"
+            },
+            {
+              "text": "Sakima finished singing his song and turned to leave. But the rich man rushed out and said, \"Please sing again.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/16.jpg"
+            },
+            {
+              "text": "At that very moment, two men came carrying someone on a stretcher. They had found the rich man's son beaten up and left on the side of the road.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/17.jpg"
+            },
+            {
+              "text": "The rich man was so happy to see his son again. He rewarded Sakima for consoling him. He took his son and Sakima to hospital so Sakima could regain his sight.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0315/18.jpg"
+            }
+          ],
+          "author": "Ursula Nafula",
+          "illustrator": "Peris Wachuka",
+          "license": "CC-BY"
+        }
+      ]
+    },
+    {
+      "id": "L4",
+      "name": "Level 4",
+      "ageRange": "8-9",
+      "stories": [
+        {
+          "id": "asb-0291",
+          "title": "What Vusi's sister said",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Early one morning Vusi's granny called him, \"Vusi, please take this egg to your parents. They want to make a large cake for your sister's wedding.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0291/01.jpg"
+            },
+            {
+              "text": "On his way to his parents, Vusi met two boys picking fruit. One boy grabbed the egg from Vusi and shot it at a tree. The egg broke.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0291/02.jpg"
+            },
+            {
+              "text": "\"What have you done?\" cried Vusi. \"That egg was for a cake. The cake was for my sister's wedding. What will my sister say if there is no wedding cake?\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0291/03.jpg"
+            },
+            {
+              "text": "The boys were sorry for teasing Vusi. \"We can't help with the cake, but here is a walking stick for your sister,\" said one. Vusi continued on his journey.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0291/04.jpg"
+            },
+            {
+              "text": "Along the way he met two men building a house. \"Can we use that strong stick?\" asked one. But the stick was not strong enough for building, and it broke.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0291/05.jpg"
+            },
+            {
+              "text": "\"What have you done?\" cried Vusi. \"That stick was a gift for my sister. The fruit pickers gave me the stick because they broke the egg for the cake. The cake was for my sister's wedding. Now there is no egg, no cake, and no gift. What will my sister say?\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0291/06.jpg"
+            },
+            {
+              "text": "The builders were sorry for breaking the stick. \"We can't help with the cake, but here is some thatch for your sister,\" said one. And so Vusi continued on his journey.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0291/07.jpg"
+            },
+            {
+              "text": "Along the way, Vusi met a farmer and a cow. \"What delicious thatch, can I have a nibble?\" asked the cow. But the thatch was so tasty that the cow ate it all!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0291/08.jpg"
+            },
+            {
+              "text": "\"What have you done?\" cried Vusi. \"That thatch was a gift for my sister. The builders gave me the thatch because they broke the stick from the fruit pickers. The fruit pickers gave me the stick because they broke the egg for my sister's cake. The cake was for my sister's wedding. Now there is no egg, no cake, and no gift. What will my sister say?\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0291/09.jpg"
+            },
+            {
+              "text": "The cow was sorry she was greedy. The farmer agreed that the cow could go with Vusi as a gift for his sister. And so Vusi carried on.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0291/10.jpg"
+            },
+            {
+              "text": "But the cow ran back to the farmer at supper time. And Vusi got lost on his journey. He arrived very late for his sister's wedding. The guests were already eating.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0291/11.jpg"
+            },
+            {
+              "text": "\"What shall I do?\" cried Vusi. \"The cow that ran away was a gift, in return for the thatch the builders gave me. The builders gave me the thatch because they broke the stick from the fruit pickers. The fruit pickers gave me the stick because they broke the egg for the cake. The cake was for the wedding. Now there is no egg, no cake, and no gift.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0291/12.jpg"
+            },
+            {
+              "text": "Vusi's sister thought for a while, then she said, \"Vusi my brother, I don't really care about gifts. I don't even care about the cake! We are all here together, I am happy. Now put on your smart clothes and let's celebrate this day!\" And so that's what Vusi did.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0291/13.jpg"
+            }
+          ],
+          "author": "Nina Orange",
+          "illustrator": "Wiehan de Jager",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0072",
+          "title": "The Honeyguide's revenge",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "This is the story of Ngede, the Honeyguide, and a greedy young man named Gingile. One day while Gingile was out hunting he heard the call of Ngede. Gingile's mouth began to water at the thought of honey. He stopped and listened carefully, searching until he saw the bird in the branches above his head. \"Chitik-chitik-chitik,\" the little bird rattled, as he flew to the next tree, and the next. \"Chitik, chitik, chitik,\" he called, stopping from time to time to be sure that Gingile followed.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0072/01.jpg"
+            },
+            {
+              "text": "After half an hour, they reached a huge wild fig tree. Ngede hopped about madly among the branches. He then settled on one branch and cocked his head at Gingile as if to say, \"Here it is! Come now! What is taking you so long?\" Gingile couldn't see any bees from under the tree, but he trusted Ngede.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0072/02.jpg"
+            },
+            {
+              "text": "So Gingile put down his hunting spear under the tree, gathered some dry twigs and made a small fire. When the fire was burning well, he put a long dry stick into the heart of the fire. This wood was especially known to make lots of smoke while it burned. He began climbing, holding the cool end of the smoking stick in his teeth.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0072/03.jpg"
+            },
+            {
+              "text": "Soon he could hear the loud buzzing of the busy bees. They were coming in and out of a hollow in the tree trunk – their hive. When Gingile reached the hive he pushed the smoking end of the stick into the hollow. The bees came rushing out, angry and mean. They flew away because they didn't like the smoke – but not before they had given Gingile some painful stings!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0072/04.jpg"
+            },
+            {
+              "text": "When the bees were out, Gingile pushed his hands into the nest. He took out handfuls of the heavy comb, dripping with rich honey and full of fat, white grubs. He put the comb carefully in the pouch he carried on his shoulder, and started to climb down the tree.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0072/05.jpg"
+            },
+            {
+              "text": "Ngede eagerly watched everything that Gingile was doing. He was waiting for him to leave a fat piece of honeycomb as a thank-you offering to the Honeyguide. Ngede flittered from branch to branch, closer and closer to the ground. Finally Gingile reached the bottom of the tree. Ngede perched on a rock near the boy and waited for his reward.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0072/06.jpg"
+            },
+            {
+              "text": "But, Gingile put out the fire, picked up his spear and started walking home, ignoring the bird. Ngede called out angrily, \"VIC-torr! VIC-torrr!\" Gingile stopped, stared at the little bird and laughed aloud. \"You want some honey, do you, my friend? Ha! But I did all the work, and got all the stings. Why should I share any of this lovely honey with you?\" Then he walked off. Ngede was furious! This was no way to treat him! But he would get his revenge.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0072/07.jpg"
+            },
+            {
+              "text": "One day several weeks later Gingile again heard the honey call of Ngede. He remembered the delicious honey, and eagerly followed the bird once again. After leading Gingile along the edge of the forest, Ngede stopped to rest in a great umbrella thorn. \"Ahh,\" thought Gingile. \"The hive must be in this tree.\" He quickly made his small fire and began to climb, the smoking branch in his teeth. Ngede sat and watched.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0072/08.jpg"
+            },
+            {
+              "text": "Gingile climbed, wondering why he didn't hear the usual buzzing. \"Perhaps the hive is deep in the tree,\" he thought to himself. He pulled himself up another branch. But instead of the hive, he was staring into the face of a leopard! Leopard was very angry at having her sleep so rudely interrupted. She narrowed her eyes, opened her mouth to reveal her very large and very sharp teeth.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0072/09.jpg"
+            },
+            {
+              "text": "Before Leopard could take a swipe at Gingile, he rushed down the tree. In his hurry he missed a branch, and landed with a heavy thud on the ground twisting his ankle. He hobbled off as fast as he could. Luckily for him, Leopard was still too sleepy to chase him. Ngede, the Honeyguide, had his revenge. And Gingile learned his lesson.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0072/10.jpg"
+            },
+            {
+              "text": "And so, when the children of Gingile hear the story of Ngede they have respect for the little bird. Whenever they harvest honey, they make sure to leave the biggest part of the comb for Honeyguide!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0072/11.jpg"
+            }
+          ],
+          "author": "Zulu folktale",
+          "illustrator": "Wiehan de Jager",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0294",
+          "title": "Grandma's bananas",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Grandma's garden was wonderful, full of sorghum, millet, and cassava. But best of all were the bananas. Although Grandma had many grandchildren, I secretly knew that I was her favourite. She invited me often to her house. She also told me little secrets. But there was one secret she did not share with me: where she ripened bananas.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0294/01.jpg"
+            },
+            {
+              "text": "One day I saw a big straw basket placed in the sun outside Grandma's house. When I asked what it was for, the only answer I got was, \"It's my magic basket.\" Next to the basket, there were several banana leaves that Grandma turned from time to time. I was curious. \"What are the leaves for, Grandma?\" I asked. The only answer I got was, \"They are my magic leaves.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0294/02.jpg"
+            },
+            {
+              "text": "It was so interesting watching Grandma, the bananas, the banana leaves and the big straw basket. But Grandma sent me off to my mother on an errand. \"Grandma, please, let me watch as you prepare...\" \"Don't be stubborn, child, do as you are told,\" she insisted. I took off running.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0294/03.jpg"
+            },
+            {
+              "text": "When I returned, Grandma was sitting outside but with neither the basket nor the bananas. \"Grandma, where is the basket, where are all the bananas, and where...\" But the only answer I got was, \"They are in my magic place.\" It was so disappointing!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0294/04.jpg"
+            },
+            {
+              "text": "Two days later, Grandma sent me to fetch her walking stick from her bedroom. As soon as I opened the door, I was welcomed by the strong smell of ripening bananas. In the inner room was grandma's big magic straw basket. It was well hidden by an old blanket. I lifted it and sniffed that glorious smell.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0294/05.jpg"
+            },
+            {
+              "text": "Grandma's voice startled me when she called, \"What are you doing? Hurry up and bring me the stick.\" I hurried out with her walking stick. \"What are you smiling about?\" Grandma asked. Her question made me realise that I was still smiling at the discovery of her magic place.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0294/06.jpg"
+            },
+            {
+              "text": "The following day when grandma came to visit my mother, I rushed to her house to check the bananas once more. There was a bunch of very ripe ones. I picked one and hid it in my dress. After covering the basket again, I went behind the house and quickly ate it. It was the sweetest banana I had ever tasted.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0294/07.jpg"
+            },
+            {
+              "text": "The following day, when grandma was in the garden picking vegetables, I sneaked in and peered at the bananas. Nearly all were ripe. I couldn't help taking a bunch of four. As I tiptoed towards the door, I heard grandma coughing outside. I just managed to hide the bananas under my dress and walked past her.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0294/08.jpg"
+            },
+            {
+              "text": "The following day was market day. Grandma woke up early. She always took ripe bananas and cassava to sell at the market. I did not hurry to visit her that day. But I could not avoid her for long.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0294/09.jpg"
+            },
+            {
+              "text": "Later that evening I was called by my mother and father, and Grandma. I knew why. That night as I lay down to sleep, I knew I could never steal again, not from grandma, not from my parents, and certainly not from anyone else.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0294/10.jpg"
+            }
+          ],
+          "author": "Ursula Nafula",
+          "illustrator": "Catherine Groenewald",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0243",
+          "title": "Holidays with grandmother",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "Odongo and Apiyo lived in the city with their father. They looked forward to the holidays. Not just because school was closed, but because they went to visit their grandmother. She lived in a fishing village near a large lake.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/01.jpg"
+            },
+            {
+              "text": "Odongo and Apiyo were excited because it was time to visit their grandmother again. The night before, they packed their bags and got ready for the long journey to her village. They could not sleep and talked the whole night about the holiday.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/02.jpg"
+            },
+            {
+              "text": "Early the next morning, they left for the village in their father's car. They drove past mountains, wild animals and tea plantations. They counted cars and sang songs.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/03.jpg"
+            },
+            {
+              "text": "After a while, the children were tired and fell asleep.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/04.jpg"
+            },
+            {
+              "text": "Father woke up Odongo and Apiyo as they arrived in the village. They found Nyar-Kanyada, their grandmother, resting on a mat under a tree. Nyar-Kanyada in Luo, means 'daughter of the people of Kanyada'. She was a strong and beautiful woman.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/05.jpg"
+            },
+            {
+              "text": "Nyar-Kanyada welcomed them into the house and danced around the room singing with joy. Her grandchildren were excited to give her the presents they brought from the city. \"First open my gift,\" said Odongo. \"No, my gift first!\" said Apiyo.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/06.jpg"
+            },
+            {
+              "text": "After she opened the presents, Nyar-Kanyada blessed her grandchildren in a traditional way.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/07.jpg"
+            },
+            {
+              "text": "Then Odongo and Apiyo went outside. They chased butterflies and birds.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/08.jpg"
+            },
+            {
+              "text": "They climbed trees and splashed in the water of the lake.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/09.jpg"
+            },
+            {
+              "text": "When it was dark they returned to the house for dinner. Before they could finish eating, they were falling asleep!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/10.jpg"
+            },
+            {
+              "text": "The next day, the children's father drove back to the city leaving them with Nyar-Kanyada.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/11.jpg"
+            },
+            {
+              "text": "Odongo and Apiyo helped their grandmother with household chores. They fetched water and firewood. They collected eggs from the chickens and picked greens from the garden.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/12.jpg"
+            },
+            {
+              "text": "Nyar-Kanyada taught her grandchildren to make soft ugali to eat with stew. She showed them how to make coconut rice to eat with roast fish.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/13.jpg"
+            },
+            {
+              "text": "One morning, Odongo took his grandmother's cows to graze. They ran onto a neighbour's farm. The farmer was angry with Odongo. He threatened to keep the cows for eating his crops. After that day, the boy made sure that the cows did not get into trouble again.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/14.jpg"
+            },
+            {
+              "text": "On another day, the children went to the marketplace with Nyar-Kanyada. She had a stall selling vegetables, sugar and soap. Apiyo liked to tell customers the price of items. Odongo would pack the items that customers bought.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/15.jpg"
+            },
+            {
+              "text": "At the end of the day they drank chai tea together. They helped grandmother to count the money she earned.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/16.jpg"
+            },
+            {
+              "text": "But too soon the holidays were over and the children had to go back to the city. Nyar-Kanyada gave Odongo a cap and Apiyo a sweater. She packed food for their journey.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/17.jpg"
+            },
+            {
+              "text": "When their father came to fetch them, they did not want to leave. The children begged Nyar-Kanyada to go with them to the city. She smiled and said, \"I am too old for the city. I will be waiting for you to come to my village again.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/18.jpg"
+            },
+            {
+              "text": "Odongo and Apiyo both hugged her tightly and said goodbye.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/19.jpg"
+            },
+            {
+              "text": "When Odongo and Apiyo went back to school they told their friends about life in the village. Some children felt that life in the city was good. Others felt that the village was better. But most of all, everyone agreed that Odongo and Apiyo had a wonderful grandmother!",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0243/20.jpg"
+            }
+          ],
+          "author": "Violet Otieno",
+          "illustrator": "Catherine Groenewald",
+          "license": "CC-BY"
+        }
+      ]
+    },
+    {
+      "id": "L5",
+      "name": "Level 5",
+      "ageRange": "9-10",
+      "stories": [
+        {
+          "id": "asb-0052",
+          "title": "Simbegwire",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "When Simbegwire's mother died, she was very sad. Simbegwire's father did his best to take care of his daughter. Slowly, they learned to feel happy again, without Simbegwire's mother. Every morning they sat and talked about the day ahead. Every evening they made dinner together. After they washed the dishes, Simbegwire's father helped her with homework.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0052/01.jpg"
+            },
+            {
+              "text": "One day, Simbegwire's father came home later than usual. \"Where are you my child?\" he called. Simbegwire ran to her father. She stopped still when she saw that he was holding a woman's hand. \"I want you to meet someone special, my child. This is Anita,\" he said smiling.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0052/02.jpg"
+            },
+            {
+              "text": "\"Hello Simbegwire, your father told me a lot about you,\" said Anita. But she did not smile or take the girl's hand. Simbegwire's father was happy and excited. He talked about the three of them living together, and how good their life would be. \"My child, I hope you will accept Anita as your mother,\" he said.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0052/03.jpg"
+            },
+            {
+              "text": "Simbegwire's life changed. She no longer had time to sit with her father in the mornings. Anita gave her so many household chores that she was too tired to do her school work in the evenings. She went straight to bed after dinner. Her only comfort was the colourful blanket her mother gave her. Simbegwire's father did not seem to notice that his daughter was unhappy.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0052/04.jpg"
+            },
+            {
+              "text": "After a few months, Simbegwire's father told them that he would be away from home for a while. \"I have to travel for my job,\" he said. \"But I know you will look after each other.\" Simbegwire's face fell, but her father did not notice. Anita did not say anything. She was not happy either.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0052/05.jpg"
+            },
+            {
+              "text": "Things got worse for Simbegwire. If she didn't finish her chores, or she complained, Anita hit her. And at dinner, the woman ate most of the food, leaving Simbegwire with only a few scraps. Each night Simbegwire cried herself to sleep, hugging her mother's blanket.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0052/06.jpg"
+            },
+            {
+              "text": "One morning, Simbegwire was late getting out of bed. \"You lazy girl!\" Anita shouted. She pulled Simbegwire out of bed. The precious blanket caught on a nail, and tore in two.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0052/07.jpg"
+            },
+            {
+              "text": "Simbegwire was very upset. She decided to run away from home. She took the pieces of her mother's blanket, packed some food, and left the house. She followed the road her father had taken.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0052/08.jpg"
+            },
+            {
+              "text": "When it came to evening, she climbed a tall tree near a stream and made a bed for herself in the branches. As she went to sleep, she sang: \"Maama, maama, maama, you left me. You left me and never came back. Father doesn't love me anymore. Mother, when are you coming back? You left me.\"",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0052/09.jpg"
+            },
+            {
+              "text": "The next morning, Simbegwire sang the song again. When the women came to wash their clothes at the stream, they heard the sad song coming from the tall tree. They thought it was only the wind rustling the leaves, and carried on with their work. But one of the women listened very carefully to the song.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0052/10.jpg"
+            },
+            {
+              "text": "This woman looked up into the tree. When she saw the girl and the pieces of colourful blanket, she cried, \"Simbegwire, my brother's child!\" The other women stopped washing and helped Simbegwire to climb down from the tree. Her aunt hugged the little girl and tried to comfort her.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0052/11.jpg"
+            },
+            {
+              "text": "Simbegwire's aunt took the child to her own house. She gave Simbegwire warm food, and tucked her in bed with her mother's blanket. That night, Simbegwire cried as she went to sleep. But they were tears of relief. She knew her aunt would look after her.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0052/12.jpg"
+            },
+            {
+              "text": "When Simbegwire's father returned home, he found her room empty. \"What happened, Anita?\" he asked with a heavy heart. The woman explained that Simbegwire had run away. \"I wanted her to respect me,\" she said. \"But perhaps I was too strict.\" Simbegwire's father left the house and went in the direction of the stream. He continued to his sister's village to find out if she had seen Simbegwire.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0052/13.jpg"
+            },
+            {
+              "text": "Simbegwire was playing with her cousins when she saw her father from far away. She was scared he might be angry, so she ran inside the house to hide. But her father went to her and said, \"Simbegwire, you have found a perfect mother for yourself. One who loves you and understands you. I am proud of you and I love you.\" They agreed that Simbegwire would stay with her aunt as long as she wanted to.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0052/14.jpg"
+            },
+            {
+              "text": "Her father visited her every day. Eventually, he came with Anita. She reached out for Simbegwire's hand. \"I'm so sorry little one, I was wrong,\" she cried. \"Will you let me try again?\" Simbegwire looked at her father and his worried face. Then she stepped forward slowly and put her arms around Anita.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0052/15.jpg"
+            },
+            {
+              "text": "The next week, Anita invited Simbegwire, with her cousins and aunt, to the house for a meal. What a feast! Anita prepared all of Simbegwire's favourite foods, and everyone ate until they were full. Then the children played while the adults talked. Simbegwire felt happy and brave. She decided that soon, very soon, she would return home to live with her father and her stepmother.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0052/16.jpg"
+            }
+          ],
+          "author": "Rukia Nantale",
+          "illustrator": "Benjamin Mitchley",
+          "license": "CC-BY"
+        },
+        {
+          "id": "asb-0262",
+          "title": "Magozwe",
+          "source": "African Storybook",
+          "pages": [
+            {
+              "text": "In the busy city of Nairobi, far away from a caring life at home, lived a group of homeless boys. They welcomed each day just as it came. On one morning, the boys were packing their mats after sleeping on cold pavements. To chase away the cold they lit a fire with rubbish. Among the group of boys was Magozwe. He was the youngest.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0262/01.jpg"
+            },
+            {
+              "text": "When Magozwe's parents died, he was only five years old. He went to live with his uncle. This man did not care about the child. He did not give Magozwe enough food. He made the boy do a lot of hard work.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0262/02.jpg"
+            },
+            {
+              "text": "If Magozwe complained or questioned, his uncle beat him. When Magozwe asked if he could go to school, his uncle beat him and said, \"You're too stupid to learn anything.\" After three years of this treatment Magozwe ran away from his uncle. He started living on the street.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0262/03.jpg"
+            },
+            {
+              "text": "Street life was difficult and most of the boys struggled daily just to get food. Sometimes they were arrested, sometimes they were beaten. When they were sick, there was no one to help. The group depended on the little money they got from begging, and from selling plastics and other recycling. Life was even more difficult because of fights with rival groups who wanted control of parts of the city.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0262/04.jpg"
+            },
+            {
+              "text": "One day while Magozwe was looking through the dustbins, he found an old tattered storybook. He cleaned the dirt from it and put it in his sack. Every day after that he would take out the book and look at the pictures. He did not know how to read the words.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0262/05.jpg"
+            },
+            {
+              "text": "The pictures told the story of a boy who grew up to be a pilot. Magozwe would daydream of being a pilot. Sometimes, he imagined that he was the boy in the story.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0262/06.jpg"
+            },
+            {
+              "text": "It was cold and Magozwe was standing on the road begging. A man walked up to him. \"Hello, I'm Thomas. I work near here, at a place where you can get something to eat,\" said the man. He pointed to a yellow house with a blue roof. \"I hope you will go there to get some food?\" he asked. Magozwe looked at the man, and then at the house. \"Maybe,\" he said, and walked away.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0262/07.jpg"
+            },
+            {
+              "text": "Over the months that followed, the homeless boys got used to seeing Thomas around. He liked to talk to people, especially people living on the streets. Thomas listened to the stories of people's lives. He was serious and patient, never rude or disrespectful. Some of the boys started going to the yellow and blue house to get food at midday.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0262/08.jpg"
+            },
+            {
+              "text": "Magozwe was sitting on the pavement looking at his picture book when Thomas sat down next to him. \"What is the story about?\" asked Thomas. \"It's about a boy who becomes a pilot,\" replied Magozwe. \"What's the boy's name?\" asked Thomas. \"I don't know, I can't read,\" said Magozwe quietly.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0262/09.jpg"
+            },
+            {
+              "text": "When they met, Magozwe began to tell his own story to Thomas. It was the story of his uncle and why he ran away. Thomas didn't talk a lot, and he didn't tell Magozwe what to do, but he always listened carefully. Sometimes they would talk while they ate at the house with the blue roof.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0262/10.jpg"
+            },
+            {
+              "text": "Around Magozwe's tenth birthday, Thomas gave him a new storybook. It was a story about a village boy who grew up to be a famous soccer player. Thomas read that story to Magozwe many times, until one day he said, \"I think it's time you went to school and learned to read. What do you think?\" Thomas explained that he knew of a place where children could stay, and go to school.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0262/11.jpg"
+            },
+            {
+              "text": "Magozwe thought about this new place, and about going to school. What if his uncle was right and he was too stupid to learn anything? What if they beat him at this new place? He was afraid. \"Maybe it is better to stay living on the street,\" he thought.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0262/12.jpg"
+            },
+            {
+              "text": "He shared his fears with Thomas. Over time the man reassured the boy that life could be better at the new place.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0262/13.jpg"
+            },
+            {
+              "text": "And so Magozwe moved into a room in a house with a green roof. He shared the room with two other boys. Altogether there were ten children living at that house. Along with Auntie Cissy and her husband, three dogs, a cat, and an old goat.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0262/14.jpg"
+            },
+            {
+              "text": "Magozwe started school and it was difficult. He had a lot to catch up. Sometimes he wanted to give up. But he thought about the pilot and the soccer player in the storybooks. Like them, he did not give up.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0262/15.jpg"
+            },
+            {
+              "text": "Magozwe was sitting in the yard at the house with the green roof, reading a storybook from school. Thomas came up and sat next to him. \"What is the story about?\" asked Thomas. \"It's about a boy who becomes a teacher,\" replied Magozwe. \"What's the boy's name?\" asked Thomas. \"His name is Magozwe,\" said Magozwe with a smile.",
+              "image": "https://raw.githubusercontent.com/global-asp/gsn-imagebank/master/0262/16.jpg"
+            }
+          ],
+          "author": "Lesley Koyi",
+          "illustrator": "Wiehan de Jager",
+          "license": "CC-BY"
+        }
+      ]
+    }
+  ]
+}

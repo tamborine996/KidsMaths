@@ -1344,6 +1344,48 @@ body {
 }
 
 /* ============================================
+   Reading - Tabs
+   ============================================ */
+.reading-tabs {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.reading-tab {
+    flex: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: var(--text-secondary);
+    transition: all 0.15s ease;
+    text-align: center;
+}
+
+.reading-tab:hover {
+    color: var(--text-primary);
+}
+
+.reading-tab.active {
+    background: var(--reading-border);
+    border-color: var(--reading-text);
+    color: white;
+}
+
+.library-attribution {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: center;
+    border-top: 1px dashed var(--border-color);
+}
+
+/* ============================================
    Reading - Story List
    ============================================ */
 .story-list {
@@ -1417,6 +1459,7 @@ body {
 .story-content {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: var(--spacing-lg);
@@ -1427,6 +1470,18 @@ body {
     margin-bottom: var(--spacing-lg);
     min-height: 200px;
     overflow-y: auto;
+    gap: var(--spacing-md);
+}
+
+.story-image {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: var(--border-radius-md);
+    object-fit: contain;
+}
+
+.story-image.hidden {
+    display: none;
 }
 
 #story-text {

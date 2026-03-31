@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kidsmaths-v1';
+const CACHE_NAME = 'kidsmaths-v2';
 const ASSETS = [
     './',
     './index.html',
@@ -15,6 +15,7 @@ const ASSETS = [
     './data/modules.json',
     './data/rewards.json',
     './data/stories.json',
+    './data/library.json',
     './manifest.json'
 ];
 

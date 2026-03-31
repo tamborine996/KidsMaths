@@ -22,6 +22,7 @@ class KidsMathsApp {
         this.modules = [];
         this.rewards = [];
         this.storyLevels = [];
+        this.libraryLevels = [];
 
         // Current state
         this.currentProblem = null;
@@ -73,18 +74,22 @@ class KidsMathsApp {
 
     async _loadData() {
         try {
-            const [modulesRes, rewardsRes, storiesRes] = await Promise.all([
+            const [modulesRes, rewardsRes, storiesRes, libraryRes] = await Promise.all([
                 fetch('data/modules.json'),
                 fetch('data/rewards.json'),
-                fetch('data/stories.json')
+                fetch('data/stories.json'),
+                fetch('data/library.json')
             ]);
             const modulesData = await modulesRes.json();
             const rewardsData = await rewardsRes.json();
             const storiesData = await storiesRes.json();
+            const libraryData = await libraryRes.json();
 
             this.modules = modulesData.modules;
             this.rewards = rewardsData.rewards;
             this.storyLevels = storiesData.levels;
+            this.libraryLevels = libraryData.levels;
+            this.libraryAttribution = libraryData.attribution;
         } catch (e) {
             console.error('Failed to load data:', e);
         }
@@ -854,9 +859,21 @@ class KidsMathsApp {
     // ===== READING SECTION =====
 
     _bindReadingEvents() {
+        // Tab switching
+        document.querySelectorAll('.reading-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                document.querySelectorAll('.reading-tab').forEach(t => t.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                state.set('readingTab', e.currentTarget.dataset.readingTab);
+                this._populateLevelSelector();
+                this._renderStoryList();
+            });
+        });
+
         // Level selector
         document.getElementById('reading-level-select').addEventListener('change', (e) => {
-            state.set('readingLevel', e.target.value);
+            const tab = state.get('readingTab') || 'library';
+            state.set(tab === 'library' ? 'libraryLevel' : 'readingLevel', e.target.value);
             this._renderStoryList();
         });
 
@@ -874,29 +891,55 @@ class KidsMathsApp {
     }
 
     _renderReadingScreen() {
-        const select = document.getElementById('reading-level-select');
-        select.innerHTML = '';
-
-        this.storyLevels.forEach(level => {
-            const option = document.createElement('option');
-            option.value = level.id;
-            option.textContent = `${level.name} (Age ${level.ageRange})`;
-            select.appendChild(option);
+        // Set active tab
+        const tab = state.get('readingTab') || 'library';
+        document.querySelectorAll('.reading-tab').forEach(t => {
+            t.classList.toggle('active', t.dataset.readingTab === tab);
         });
 
-        // Restore or default level
-        const currentLevel = state.get('readingLevel') || (this.storyLevels[0]?.id);
-        if (currentLevel) {
-            select.value = currentLevel;
-            state.set('readingLevel', currentLevel);
-        }
-
+        this._populateLevelSelector();
         this._renderStoryList();
     }
 
+    _populateLevelSelector() {
+        const tab = state.get('readingTab') || 'library';
+        const levels = tab === 'library' ? this.libraryLevels : this.storyLevels;
+        const stateKey = tab === 'library' ? 'libraryLevel' : 'readingLevel';
+
+        const select = document.getElementById('reading-level-select');
+        select.innerHTML = '';
+
+        levels.forEach(level => {
+            const option = document.createElement('option');
+            option.value = level.id;
+            option.textContent = tab === 'library'
+                ? `${level.name} (Age ${level.ageRange})`
+                : `${level.name} (Age ${level.ageRange})`;
+            select.appendChild(option);
+        });
+
+        const currentLevel = state.get(stateKey) || (levels[0]?.id);
+        if (currentLevel) {
+            select.value = currentLevel;
+            state.set(stateKey, currentLevel);
+        }
+
+        // Show/hide attribution
+        const attr = document.getElementById('library-attribution');
+        if (tab === 'library' && this.libraryAttribution) {
+            attr.textContent = this.libraryAttribution;
+            attr.classList.remove('hidden');
+        } else {
+            attr.classList.add('hidden');
+        }
+    }
+
     _renderStoryList() {
-        const levelId = state.get('readingLevel');
-        const level = this.storyLevels.find(l => l.id === levelId);
+        const tab = state.get('readingTab') || 'library';
+        const stateKey = tab === 'library' ? 'libraryLevel' : 'readingLevel';
+        const levels = tab === 'library' ? this.libraryLevels : this.storyLevels;
+        const levelId = state.get(stateKey);
+        const level = levels.find(l => l.id === levelId);
         const list = document.getElementById('story-list');
         list.innerHTML = '';
 
@@ -906,14 +949,16 @@ class KidsMathsApp {
 
         level.stories.forEach(story => {
             const isRead = readStories.includes(story.id);
+            const hasImages = story.pages[0]?.image;
             const card = document.createElement('div');
             card.className = 'story-card';
             card.dataset.storyId = story.id;
+            card.dataset.source = tab;
             card.innerHTML = `
-                <span class="story-card-icon">\u{1F4D6}</span>
+                <span class="story-card-icon">${hasImages ? '\u{1F5BC}\uFE0F' : '\u{1F4D6}'}</span>
                 <div class="story-card-info">
                     <div class="story-card-title">${story.title}</div>
-                    <div class="story-card-pages">${story.pages.length} pages</div>
+                    <div class="story-card-pages">${story.pages.length} pages${story.author ? ' \u00B7 ' + story.author : ''}</div>
                 </div>
                 <span class="story-card-status">${isRead ? '\u2705' : ''}</span>
             `;
@@ -922,22 +967,25 @@ class KidsMathsApp {
     }
 
     _startStory(storyId) {
-        // Find story across all levels
-        for (const level of this.storyLevels) {
+        // Find story across all level sources
+        const allLevels = [...this.storyLevels, ...this.libraryLevels];
+        for (const level of allLevels) {
             const story = level.stories.find(s => s.id === storyId);
             if (story) {
                 this.currentStory = story;
                 this.currentStoryPage = 0;
 
-                // Start timer for reading session
-                this.timerUI.show();
-                this.timerManager.start();
+                // Start timer for reading session (only if not already running)
+                if (!this.timerManager.isRunning) {
+                    this.timerUI.show();
+                    this.timerManager.start();
 
-                // Override session module to 'reading'
-                const session = state.get('currentSession');
-                if (session) {
-                    session.module = 'reading';
-                    state.set('currentSession', session);
+                    // Override session module to 'reading'
+                    const session = state.get('currentSession');
+                    if (session) {
+                        session.module = 'reading';
+                        state.set('currentSession', session);
+                    }
                 }
 
                 this._showScreen('story');
@@ -958,6 +1006,17 @@ class KidsMathsApp {
             `Page ${this.currentStoryPage + 1} of ${story.pages.length}`;
         document.getElementById('story-progress-fill').style.width =
             `${((this.currentStoryPage + 1) / story.pages.length) * 100}%`;
+
+        // Show/hide illustration
+        const img = document.getElementById('story-image');
+        if (page.image) {
+            img.src = page.image;
+            img.alt = `Illustration for ${story.title}`;
+            img.classList.remove('hidden');
+        } else {
+            img.classList.add('hidden');
+            img.src = '';
+        }
 
         // Show/hide nav buttons
         document.getElementById('story-prev-btn').style.visibility =
