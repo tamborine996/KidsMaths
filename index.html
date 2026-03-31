@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>KidsMaths</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="KidsMaths">
+    <meta name="theme-color" content="#F4A460">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icon-192.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
@@ -144,6 +150,44 @@
                 <h3>Great Effort!</h3>
                 <p id="test-result"></p>
                 <button class="primary-btn" id="test-done-btn">Done</button>
+            </div>
+        </div>
+
+        <!-- Reading Level Select Screen -->
+        <div id="reading-screen" class="screen">
+            <header class="screen-header">
+                <button class="back-btn" data-to="home">&larr;</button>
+                <h2>Reading</h2>
+            </header>
+            <div class="level-selector">
+                <label for="reading-level-select">Level:</label>
+                <select id="reading-level-select" class="level-select">
+                    <!-- Levels injected by JS -->
+                </select>
+            </div>
+            <div class="story-list" id="story-list">
+                <!-- Stories injected by JS -->
+            </div>
+        </div>
+
+        <!-- Reading Story Screen -->
+        <div id="story-screen" class="screen">
+            <header class="screen-header">
+                <button class="back-btn" data-to="reading">&larr;</button>
+                <h2 id="story-title">Story</h2>
+            </header>
+            <div class="story-progress">
+                <span id="story-page-text">Page 1 of 4</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="story-progress-fill"></div>
+                </div>
+            </div>
+            <div class="story-content" id="story-content">
+                <p id="story-text"></p>
+            </div>
+            <div class="story-nav">
+                <button class="secondary-btn" id="story-prev-btn">&larr; Back</button>
+                <button class="primary-btn" id="story-next-btn">Next &rarr;</button>
             </div>
         </div>
 

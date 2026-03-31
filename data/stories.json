@@ -1,0 +1,407 @@
+{
+  "levels": [
+    {
+      "id": "R1",
+      "name": "Beginning Reader",
+      "ageRange": "5-6",
+      "description": "Short sentences with common words",
+      "stories": [
+        {
+          "id": "r1-01",
+          "title": "The Red Ball",
+          "pages": [
+            {
+              "text": "I have a red ball. It is big. I like my ball."
+            },
+            {
+              "text": "I kick the ball. It goes up, up, up! The ball is in the tree."
+            },
+            {
+              "text": "My dad is tall. He can get the ball. He gets it for me."
+            },
+            {
+              "text": "I hug my dad. We kick the ball. We play and play. It is a good day."
+            }
+          ]
+        },
+        {
+          "id": "r1-02",
+          "title": "My Pet Cat",
+          "pages": [
+            {
+              "text": "I have a cat. My cat is soft. She is black and white."
+            },
+            {
+              "text": "My cat can run. She can jump. She sits on my bed."
+            },
+            {
+              "text": "I give her a pat. She goes purr, purr, purr. She is happy."
+            },
+            {
+              "text": "My cat is my friend. I love my cat. She loves me too."
+            }
+          ]
+        },
+        {
+          "id": "r1-03",
+          "title": "The Big Tree",
+          "pages": [
+            {
+              "text": "I see a big tree. It is in the park. The tree is very tall."
+            },
+            {
+              "text": "A bird is in the tree. It can sing. I like the song."
+            },
+            {
+              "text": "I sit by the tree. The leaves are green. One leaf falls down."
+            },
+            {
+              "text": "I pick up the leaf. I take it home. It is my leaf now."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "R2",
+      "name": "Growing Reader",
+      "ageRange": "6-7",
+      "description": "Simple sentences with short paragraphs and basic dialogue",
+      "stories": [
+        {
+          "id": "r2-01",
+          "title": "The Magic Garden",
+          "pages": [
+            {
+              "text": "Lily found a tiny door at the bottom of the garden fence. It was painted blue, and it was no bigger than her hand."
+            },
+            {
+              "text": "She opened the little door and peeped inside. There were flowers of every colour. Some of them were glowing softly in the shade."
+            },
+            {
+              "text": "\"Hello!\" said a small voice. A ladybird sat on a yellow petal. \"Welcome to the magic garden,\" she said."
+            },
+            {
+              "text": "\"Can I come in?\" asked Lily. \"Of course,\" said the ladybird. \"But you must promise to be gentle with the flowers.\""
+            },
+            {
+              "text": "Lily crept through the tiny door. She felt herself shrink down, down, down until she was the same size as the ladybird. They danced among the glowing petals until the sun went down. Lily smiled all the way home."
+            }
+          ]
+        },
+        {
+          "id": "r2-02",
+          "title": "Sam Goes Fishing",
+          "pages": [
+            {
+              "text": "Sam and his grandad walked to the pond. Sam carried the rods. Grandad carried the sandwiches."
+            },
+            {
+              "text": "They sat on the bank and put their lines in the water. \"Now we wait,\" said Grandad. They waited and waited."
+            },
+            {
+              "text": "\"I think the fish are sleeping,\" said Sam. Grandad laughed. \"Fish do not sleep like we do,\" he said. \"They are just shy.\""
+            },
+            {
+              "text": "Then Sam felt a tug on his rod. \"Grandad, look!\" he shouted. He pulled and pulled. Out came a little silver fish."
+            },
+            {
+              "text": "\"Well done, Sam!\" said Grandad. Sam looked at the fish. Its scales shone in the sun. \"Can we put it back?\" Sam asked. \"It wants to go home.\" Grandad nodded proudly. They let the fish swim away and ate their sandwiches together."
+            }
+          ]
+        },
+        {
+          "id": "r2-03",
+          "title": "The Lost Shoe",
+          "pages": [
+            {
+              "text": "Priya was about to go to school, but she could only find one shoe. \"Where is my other shoe?\" she asked."
+            },
+            {
+              "text": "She looked under the bed. She found a toy car and a dusty sock. But no shoe."
+            },
+            {
+              "text": "She looked behind the sofa. She found a biscuit wrapper and a crayon. But no shoe."
+            },
+            {
+              "text": "\"Has anyone seen my shoe?\" Priya called out. Her little brother Ravi giggled. He was sitting in the corner, wearing the shoe on his head like a hat."
+            },
+            {
+              "text": "\"Ravi! That is my shoe, not a hat!\" said Priya. She laughed and put it on her foot. She gave Ravi a real hat instead. He wore it all day long."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "R3",
+      "name": "Confident Reader",
+      "ageRange": "7-8",
+      "description": "Full paragraphs with varied sentence lengths, dialogue, and character feelings",
+      "stories": [
+        {
+          "id": "r3-01",
+          "title": "The Dragon's Tooth",
+          "pages": [
+            {
+              "text": "Tom was digging in the garden when his spade hit something hard. He brushed away the soil and found a large, curved tooth. It was white as bone and sharp at the tip. It was bigger than any animal tooth he had ever seen."
+            },
+            {
+              "text": "\"Mum, look what I found!\" he called, running into the kitchen. His mum turned it over in her hands. \"It looks very old,\" she said. \"Maybe it belongs to a dinosaur.\" But Tom had a different idea. He was sure it was a dragon's tooth."
+            },
+            {
+              "text": "That night, Tom put the tooth under his pillow. He could not sleep. His mind was full of dragons soaring over mountains and breathing streams of golden fire. He imagined a dragon landing in the garden, searching for its missing tooth."
+            },
+            {
+              "text": "In the morning, something had changed. Where the tooth had been, there was a small, folded note. It read: \"Thank you for keeping my tooth safe. I have been looking for it for a hundred years. Please accept this gift.\" Inside the note was a tiny golden scale that shimmered in the sunlight."
+            },
+            {
+              "text": "Tom held the scale up to the window. It caught the light and threw tiny rainbows across his bedroom wall. He smiled. He knew that somewhere far away, a very old dragon was smiling too."
+            },
+            {
+              "text": "From that day on, Tom kept the golden scale in his pocket. Whenever he felt nervous or afraid, he would hold it tightly and remember: even dragons need a little help sometimes. And that made him feel brave."
+            }
+          ]
+        },
+        {
+          "id": "r3-02",
+          "title": "Grandma's Secret Recipe",
+          "pages": [
+            {
+              "text": "Every Saturday, Aisha visited her grandma. The house always smelled of spices and warm bread. But the best thing of all was Grandma's special biscuits. They were golden and crumbly, and they tasted like nothing else in the world."
+            },
+            {
+              "text": "\"Grandma, can you teach me how to make them?\" Aisha asked one morning. Grandma smiled and opened a very old tin box. Inside was a piece of paper, yellow with age. \"This recipe has been in our family for four generations,\" she said."
+            },
+            {
+              "text": "They worked together in the warm kitchen. Grandma showed Aisha how to measure the flour and rub in the butter until it looked like breadcrumbs. \"The secret,\" Grandma whispered, \"is a tiny pinch of cardamom. Not too much. Just enough to make people wonder what the magic ingredient is.\""
+            },
+            {
+              "text": "Aisha carefully stirred in the cardamom. She rolled the dough and cut out shapes: stars, moons, and little hearts. They slid the tray into the oven and waited. The kitchen filled with the most wonderful smell."
+            },
+            {
+              "text": "When the biscuits were ready, they sat at the kitchen table with cups of tea. Aisha bit into one. It tasted perfect. \"These are just as good as yours, Grandma,\" she said proudly."
+            },
+            {
+              "text": "Grandma reached across and squeezed her hand. \"They are even better,\" she said, \"because you made them with love.\" Aisha carefully copied the recipe into her own notebook. One day, she would teach it to someone special too."
+            }
+          ]
+        },
+        {
+          "id": "r3-03",
+          "title": "The Night the Stars Fell",
+          "pages": [
+            {
+              "text": "It was a warm summer night, and Zara could not sleep. She crept to the window and looked out. The sky was full of stars, more than she had ever seen before. Then something amazing happened. One of the stars moved. It streaked across the sky, leaving a trail of silver light."
+            },
+            {
+              "text": "\"A shooting star!\" Zara whispered. Then another fell, and another. Soon the whole sky was alive with falling stars, like fireworks made of diamonds. She pressed her face against the glass, her eyes wide with wonder."
+            },
+            {
+              "text": "She grabbed her dressing gown and tiptoed downstairs. The back door was already open. Her dad was sitting on the garden bench, looking up. \"I thought you might come down,\" he said softly. \"Come and watch with me.\""
+            },
+            {
+              "text": "They sat together in the cool night air. Her dad explained that the falling stars were called meteors. Tiny pieces of rock burning up high above the Earth. \"They have travelled millions of miles to put on this show for us,\" he said."
+            },
+            {
+              "text": "Zara leaned against her dad's shoulder. \"Can I make a wish?\" she asked. \"You can make as many as you like,\" he said. She closed her eyes and wished. She wished for this moment to last forever."
+            },
+            {
+              "text": "The stars kept falling until Zara's eyes grew heavy. Her dad carried her inside and tucked her into bed. As she drifted off to sleep, she smiled. She did not need her wish to come true. She already had everything she needed, right here."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "R4",
+      "name": "Strong Reader",
+      "ageRange": "8-9",
+      "description": "Multi-paragraph pages with complex vocabulary and richer descriptions",
+      "stories": [
+        {
+          "id": "r4-01",
+          "title": "The Clockmaker's Apprentice",
+          "pages": [
+            {
+              "text": "The clock shop stood at the end of a cobbled lane that most people walked straight past. Its window was dusty, and the sign above the door had faded so badly that only the letter C was still visible. But inside, every wall was covered with clocks. Tall ones, tiny ones, cuckoo clocks, and grandfather clocks. They ticked and tocked in a gentle chorus that made the whole room hum."
+            },
+            {
+              "text": "Elara had passed the shop a hundred times on her way to school. One grey Tuesday morning, she noticed the door was open. A handwritten sign in the window read: \"Apprentice wanted. Must be patient and curious.\" Elara was both of those things, though she had never thought of them as useful before."
+            },
+            {
+              "text": "She stepped inside. An old man with round spectacles looked up from his workbench. Tiny gears and springs were spread out before him like a metal jigsaw puzzle. \"Ah,\" he said, peering at her over his glasses. \"You must be my new apprentice.\" Elara blinked. \"But I have not applied yet,\" she said. The clockmaker smiled. \"And yet here you are. That is application enough.\""
+            },
+            {
+              "text": "Every day after school, Elara came to the shop. The clockmaker, whose name was Mr Harmon, taught her how clocks worked. She learned about escapements and pendulums, about balance wheels and mainsprings. At first, the tiny pieces slipped through her fingers. She dropped screws. She put gears in backwards. But Mr Harmon never scolded her. \"Mistakes are just lessons wearing a disguise,\" he would say."
+            },
+            {
+              "text": "After three months, Mr Harmon placed a broken pocket watch on the bench. Its glass was cracked, and it had not ticked for years. \"This was my very first watch,\" he said quietly. \"I have never been able to fix it. Perhaps fresh eyes will see what old eyes cannot.\" He left the room."
+            },
+            {
+              "text": "Elara opened the back of the watch carefully. She studied the mechanism, turning it this way and that under the magnifying lamp. Then she saw it: a tiny gear, no bigger than a sesame seed, had slipped off its post. She held her breath, steadied her hand, and nudged it back into place with the tip of her smallest tool."
+            },
+            {
+              "text": "Tick. Tick. Tick. The sound was so faint she thought she had imagined it. But then it grew stronger, steadier, like a small heart waking up. When Mr Harmon returned, his eyes glistened. \"You did it,\" he whispered. Elara grinned. She had not just fixed a watch. She had discovered something important about herself: with patience and curiosity, she could bring broken things back to life."
+            }
+          ]
+        },
+        {
+          "id": "r4-02",
+          "title": "Island of Whispers",
+          "pages": [
+            {
+              "text": "Nobody in the village went near the island. It sat half a mile offshore, a low hump of dark trees surrounded by grey water. The fishermen steered around it. Parents told their children to stay away. They said the island whispered to anyone who came too close, and that those whispers could lure you in and never let you leave."
+            },
+            {
+              "text": "Kai did not believe in whispers. He was eleven, practical, and good at science. When his older cousin Mina dared him to row out to the island, he said yes before he could think about it. They borrowed Uncle Joe's rowing boat early one misty Saturday morning, when the sea was flat and still."
+            },
+            {
+              "text": "As they drew closer, Kai heard something. It was not quite a voice and not quite the wind. It sounded like words spoken underwater, just beyond understanding. Mina gripped the sides of the boat. \"Do you hear that?\" she whispered. Kai nodded slowly. His confidence was beginning to wobble."
+            },
+            {
+              "text": "They pulled the boat onto a narrow strip of pebbles and stepped into the trees. The whispering grew louder. It seemed to come from everywhere at once: from the branches above, from the moss below, from the air itself. Mina reached for Kai's hand, and he did not pull away."
+            },
+            {
+              "text": "They followed a faint path to the centre of the island, where they found the source. It was not a ghost. It was not magic. It was a natural wonder. A circle of hollow rocks stood around a deep pool, and as the breeze passed through them, they sang. Each rock was a different shape and made a different note, like a stone orchestra playing to an audience of trees."
+            },
+            {
+              "text": "\"It is the wind,\" Kai breathed. \"The rocks are hollow, and the wind passes through them. That is what everyone has been hearing all these years.\" Mina laughed, half in relief and half in amazement. They sat and listened to the strange, beautiful music for a long time."
+            },
+            {
+              "text": "When they rowed home, Kai felt different. He still believed in science, but he had learned something new. Sometimes the most extraordinary things have ordinary explanations, and sometimes ordinary explanations are the most extraordinary of all. He decided he would not tell the village the truth. Some mysteries, he thought, are better left whispering."
+            }
+          ]
+        },
+        {
+          "id": "r4-03",
+          "title": "The Last Library",
+          "pages": [
+            {
+              "text": "In the city of Millhaven, nobody read books any more. Screens had replaced pages long ago. The public library stood empty, its shelves gathering dust, its reading lamps dark. A notice on the door said it would be demolished in thirty days to make room for a car park."
+            },
+            {
+              "text": "Noor walked past the library every morning. She had never been inside, because nobody she knew ever went there. But something about the demolition notice made her stop. Thirty days. After that, the building and everything in it would be gone forever. She pushed open the heavy door and went in."
+            },
+            {
+              "text": "The library was enormous. Shelves stretched from floor to ceiling, row after row, disappearing into the gloom. The air smelled of old paper and quiet. Noor ran her fingers along the spines. Each book was a different colour, a different thickness, a different world waiting to be opened."
+            },
+            {
+              "text": "She pulled out a book at random. It was a story about a girl who sailed across the ocean in a boat she had built herself. Noor sat down on the dusty floor and began to read. She did not stop until she had finished the last page. When she looked up, two hours had passed, and her cheeks were wet with tears. She had never felt anything like it."
+            },
+            {
+              "text": "Noor came back the next day, and the day after that. She told her friend Ethan, who told his sister, who told her classmates. Within a week, a small group of children were visiting the library every afternoon. They read stories aloud to each other and swapped their favourites."
+            },
+            {
+              "text": "Word spread. Parents came. Then teachers. Then local journalists. Someone started a petition. \"Save the Last Library\" posters appeared in shop windows across Millhaven. The city council received more letters about the library than they had received about anything in years."
+            },
+            {
+              "text": "On the twenty-ninth day, the council announced that the library would stay. Noor stood outside, surrounded by a crowd of people cheering and holding books in the air. She thought about the girl in the story who had built her own boat. That girl had sailed across an ocean. Noor had only walked through a door. But sometimes, she realised, walking through a door is the bravest journey of all."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "R5",
+      "name": "Advanced Reader",
+      "ageRange": "9-10",
+      "description": "Longer, more sophisticated narratives with advanced vocabulary and complex plots",
+      "stories": [
+        {
+          "id": "r5-01",
+          "title": "The Cartographer's Compass",
+          "pages": [
+            {
+              "text": "Rumi found the compass in the back of a drawer in his grandmother's house in Karachi. It was old, made of tarnished brass, and its glass face was scratched with age. But the needle still moved, swinging gently before settling on a direction. The strange thing was, it did not point north. It pointed towards the kitchen wall."
+            },
+            {
+              "text": "His grandmother, Nani, was sorting through boxes in the next room. When Rumi showed her the compass, her expression changed. She sat down slowly, holding it as though it were made of glass. \"This belonged to your great-grandfather,\" she said. \"He was a cartographer. A mapmaker. He charted the northern valleys before Partition, places that no longer appear on any modern map.\""
+            },
+            {
+              "text": "\"Why does it not point north?\" Rumi asked. Nani turned the compass in her hands. \"He always said this compass did not show you where north was. It showed you where you needed to go.\" She paused. \"I never believed him. But he believed it with his whole heart, and it led him to some remarkable places.\""
+            },
+            {
+              "text": "Rumi took the compass to school the next day. During lunch, he held it under the table and watched the needle. It pointed steadily towards the old part of the school building, the part that was locked up and used for storage. After the final bell, when the corridors were empty, he followed the needle to a door marked \"Archives.\" It was unlocked."
+            },
+            {
+              "text": "Inside, he found shelves of forgotten things: old textbooks, dusty trophies, and rolled-up posters. But the compass pulled him further, towards a wooden cabinet in the corner. He opened it and found a large, folded sheet of paper, yellowed and brittle. He unfolded it carefully. It was a hand-drawn map, exquisitely detailed, showing mountains, rivers, and tiny villages with names written in elegant Urdu script. In the corner, in faded ink, was a signature: \"A. R. Khan, 1946.\" His great-grandfather."
+            },
+            {
+              "text": "Rumi brought the map home to Nani. She spread it out on the dining table, her hands trembling. \"I thought this was lost,\" she said, her voice barely above a whisper. \"He drew this the year before everything changed. These villages... some of them do not exist any more. But they existed to him.\" She traced a line along a river with her fingertip. \"He walked every mile of this. He said that making a map was a way of saying, 'I was here. This place mattered.'\""
+            },
+            {
+              "text": "That evening, Rumi sat with the compass on his desk and the map pinned to his wall. He thought about his great-grandfather, walking through mountain passes with a notebook and a compass that pointed not north, but towards something meaningful. He picked up a pencil and a blank sheet of paper. He did not know exactly what he would draw, but he knew it was time to start his own map."
+            },
+            {
+              "text": "He began with his street, then his school, then the park where he played cricket with his cousins. It was not a grand map of uncharted valleys. But it was his world, drawn in his own hand, and every line said the same thing his great-grandfather's map had said a lifetime ago: I am here. This place matters. And that, Rumi decided, was the truest kind of cartography there was."
+            }
+          ]
+        },
+        {
+          "id": "r5-02",
+          "title": "The Keeper of Forgotten Things",
+          "pages": [
+            {
+              "text": "There are things people lose and never think about again. A single glove left on a park bench. A marble that rolled under a radiator. A letter written but never posted. Most people assume these things simply disappear. But Iris Blackwood knew better. She knew exactly where they went, because it was her job to look after them."
+            },
+            {
+              "text": "Iris was twelve years old, and she was the Keeper of Forgotten Things. The role had been passed down through her family for as long as anyone could remember. Her mother had been Keeper before her, and her grandmother before that. The Forgotten Room, as they called it, was hidden behind a false wall in the cellar of their house in Bath. It was vast, far larger than the house above it, which Iris had long since stopped trying to understand."
+            },
+            {
+              "text": "The shelves were organised by year and by type. There were thousands of lost toys, sorted by decade. There were buckets full of keys that no longer matched any lock. There were handwritten notes, expired passports, and faded photographs of people smiling on holidays they had since forgotten. Every object hummed with a faint warmth, as though it remembered being loved, even if its owner did not."
+            },
+            {
+              "text": "One Tuesday, a new object appeared on the arrivals shelf: a small, battered notebook with a green cover. Iris opened it. Inside, in neat handwriting, was a story. It was about a girl who could fly, but only when nobody was watching. The story was unfinished. The last line read: \"She spread her arms and\" \u2014 and then nothing. The rest of the pages were blank."
+            },
+            {
+              "text": "Something about the unfinished story troubled Iris. She could not stop thinking about the girl who could fly. That night, she did something she had never done before. She broke the most important rule of the Keepers: she took the notebook out of the Forgotten Room and brought it upstairs."
+            },
+            {
+              "text": "Using the faint clues inside the notebook \u2014 a school crest stamped on the first page, a date, a first name (\"Maya\") \u2014 Iris began to search. It took her three weeks. She visited the local records office, searched old school registers, and eventually found a woman named Maya Chowdhury who had attended a primary school in Bristol in 1989."
+            },
+            {
+              "text": "Iris posted the notebook with a short, unsigned note: \"I believe this belongs to you. The story deserves an ending.\" She heard nothing for two months. Then, one morning, a parcel arrived at her door. Inside was the green notebook. The story had been finished. On the last page, Maya had written: \"She spread her arms and rose above the rooftops, higher than the birds, higher than the clouds, until the whole world looked small and beautiful and possible.\""
+            },
+            {
+              "text": "There was a note tucked inside the cover. \"I wrote this when I was nine,\" it said. \"I lost it and forgot about it, and I forgot the girl who believed she could fly. Thank you for reminding me. I am a pilot now.\" Iris placed the notebook back on the shelf, but in a different section. Not Forgotten Things. Remembered Things. It was a new category. She had a feeling it was going to grow."
+            }
+          ]
+        },
+        {
+          "id": "r5-03",
+          "title": "Beyond the Storm",
+          "pages": [
+            {
+              "text": "The weather station on Tern Rock had been abandoned for twenty years. It stood on the highest point of the island, battered by wind and salt spray, its instruments rusted and its windows cracked. Nobody had any reason to visit it. Nobody, that is, except Freya."
+            },
+            {
+              "text": "Freya was thirteen, and she loved storms. Not in the reckless way that some people do, running outside to feel the rain. She loved them scientifically. She tracked low-pressure systems on her laptop, recorded wind speeds with a handheld anemometer, and kept a detailed weather journal that went back four years. Her ambition was to become a meteorologist, someone who could predict the weather and warn people before disaster struck."
+            },
+            {
+              "text": "One October evening, her barometer dropped faster than she had ever seen. The sky in the west turned a peculiar shade of green. Freya checked the forecast on three different websites. None of them predicted anything unusual. But her instruments told a different story. Something big was coming, something the computers had missed."
+            },
+            {
+              "text": "She tried to tell her parents, but they smiled and said the forecast was clear. She tried her science teacher, who said the same thing. \"Barometers can be faulty, Freya,\" he said gently. \"Trust the professionals.\" But Freya trusted her data. She had calibrated that barometer herself, and it had never been wrong."
+            },
+            {
+              "text": "That night, she climbed the path to the old weather station. The wind was already strengthening, tugging at her coat. She had brought her father's emergency radio. If the storm hit the way she expected, the fishing boats would still be out in the channel, with no warning. She could not let that happen."
+            },
+            {
+              "text": "Inside the weather station, she set up the radio and tuned it to the maritime frequency. Her hands were shaking, not from cold, but from the weight of what she was about to do. If she was wrong, she would be in serious trouble. Wasting emergency frequencies was an offence. But if she was right, and she did nothing, people could be hurt."
+            },
+            {
+              "text": "She pressed the transmit button. \"This is Tern Rock weather station,\" she said, her voice steadier than she felt. \"Severe storm warning. Rapidly deepening low pressure, estimated arrival ninety minutes. All vessels in the western channel, return to harbour immediately. This is not a drill.\" She released the button and waited. For a long, terrible moment, there was only static."
+            },
+            {
+              "text": "Then a voice crackled through. \"Tern Rock, this is the fishing vessel Northern Star. Message received. Turning back now. Thank you.\" Then another vessel responded, and another. Within an hour, every boat in the channel was heading home. The storm hit forty minutes later. It was the worst in a decade. Trees came down. Power lines snapped. Waves crashed over the harbour wall. But every boat was safely in port. Every crew member was home."
+            },
+            {
+              "text": "The next morning, Freya's father found her asleep in the weather station, the radio still clutched in her hand. The story made the local newspaper, and then the national news. A thirteen-year-old girl with a barometer and a radio had done what the professional forecasters had failed to do. When a journalist asked her how she had known, Freya gave a simple answer. \"I paid attention,\" she said. \"The sky was trying to tell us. I just listened.\""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

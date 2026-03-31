@@ -21,12 +21,17 @@ class KidsMathsApp {
         // Data
         this.modules = [];
         this.rewards = [];
+        this.storyLevels = [];
 
         // Current state
         this.currentProblem = null;
         this.testProblems = [];
         this.testIndex = 0;
         this.testCorrect = 0;
+
+        // Reading state
+        this.currentStory = null;
+        this.currentStoryPage = 0;
 
         // Initialize after DOM ready
         this._init();
@@ -55,6 +60,12 @@ class KidsMathsApp {
         // Bind events
         this._bindEvents();
 
+        // History API - trap back button
+        this._initHistoryTrapping();
+
+        // Register service worker for PWA
+        this._registerServiceWorker();
+
         // Render initial screen
         this._renderHomeScreen();
         this._updateCoinDisplay();
@@ -62,15 +73,18 @@ class KidsMathsApp {
 
     async _loadData() {
         try {
-            const [modulesRes, rewardsRes] = await Promise.all([
+            const [modulesRes, rewardsRes, storiesRes] = await Promise.all([
                 fetch('data/modules.json'),
-                fetch('data/rewards.json')
+                fetch('data/rewards.json'),
+                fetch('data/stories.json')
             ]);
             const modulesData = await modulesRes.json();
             const rewardsData = await rewardsRes.json();
+            const storiesData = await storiesRes.json();
 
             this.modules = modulesData.modules;
             this.rewards = rewardsData.rewards;
+            this.storyLevels = storiesData.levels;
         } catch (e) {
             console.error('Failed to load data:', e);
         }
@@ -84,7 +98,7 @@ class KidsMathsApp {
         // Back buttons
         document.querySelectorAll('.back-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const target = e.target.dataset.to;
+                const target = e.currentTarget.dataset.to;
                 if (target === 'home') {
                     this.timerManager.stop();
                     this.timerUI.hide();
@@ -142,6 +156,9 @@ class KidsMathsApp {
 
         // Store screen
         this._bindStoreEvents();
+
+        // Reading screen
+        this._bindReadingEvents();
     }
 
     _bindParentEvents() {
@@ -230,9 +247,20 @@ class KidsMathsApp {
             case 'parent':
                 this._showParentPinOverlay();
                 break;
+            case 'reading':
+                this._renderReadingScreen();
+                break;
+            case 'story':
+                this._renderStoryPage();
+                break;
         }
 
+        // Push history state for back button trapping
+        const prevScreen = state.get('currentScreen');
         state.set('currentScreen', screenName);
+        if (screenName !== prevScreen) {
+            history.pushState({ screen: screenName }, '', '');
+        }
     }
 
     // ===== HOME SCREEN =====
@@ -252,6 +280,17 @@ class KidsMathsApp {
             btn.addEventListener('click', () => this._selectModule(module.id));
             grid.appendChild(btn);
         });
+
+        // Add Reading button
+        const readingBtn = document.createElement('button');
+        readingBtn.className = 'module-btn';
+        readingBtn.dataset.module = 'reading';
+        readingBtn.innerHTML = `
+            <span class="module-icon">\u{1F4D6}</span>
+            <span class="module-name">Reading</span>
+        `;
+        readingBtn.addEventListener('click', () => this._showScreen('reading'));
+        grid.appendChild(readingBtn);
     }
 
     _selectModule(moduleId) {
@@ -810,6 +849,219 @@ class KidsMathsApp {
             `;
             container.appendChild(entry);
         });
+    }
+
+    // ===== READING SECTION =====
+
+    _bindReadingEvents() {
+        // Level selector
+        document.getElementById('reading-level-select').addEventListener('change', (e) => {
+            state.set('readingLevel', e.target.value);
+            this._renderStoryList();
+        });
+
+        // Story navigation
+        document.getElementById('story-prev-btn').addEventListener('click', () => this._storyPrevPage());
+        document.getElementById('story-next-btn').addEventListener('click', () => this._storyNextPage());
+
+        // Delegated click for story cards
+        document.getElementById('story-list').addEventListener('click', (e) => {
+            const card = e.target.closest('.story-card');
+            if (card) {
+                this._startStory(card.dataset.storyId);
+            }
+        });
+    }
+
+    _renderReadingScreen() {
+        const select = document.getElementById('reading-level-select');
+        select.innerHTML = '';
+
+        this.storyLevels.forEach(level => {
+            const option = document.createElement('option');
+            option.value = level.id;
+            option.textContent = `${level.name} (Age ${level.ageRange})`;
+            select.appendChild(option);
+        });
+
+        // Restore or default level
+        const currentLevel = state.get('readingLevel') || (this.storyLevels[0]?.id);
+        if (currentLevel) {
+            select.value = currentLevel;
+            state.set('readingLevel', currentLevel);
+        }
+
+        this._renderStoryList();
+    }
+
+    _renderStoryList() {
+        const levelId = state.get('readingLevel');
+        const level = this.storyLevels.find(l => l.id === levelId);
+        const list = document.getElementById('story-list');
+        list.innerHTML = '';
+
+        if (!level) return;
+
+        const readStories = state.get('readStories') || [];
+
+        level.stories.forEach(story => {
+            const isRead = readStories.includes(story.id);
+            const card = document.createElement('div');
+            card.className = 'story-card';
+            card.dataset.storyId = story.id;
+            card.innerHTML = `
+                <span class="story-card-icon">\u{1F4D6}</span>
+                <div class="story-card-info">
+                    <div class="story-card-title">${story.title}</div>
+                    <div class="story-card-pages">${story.pages.length} pages</div>
+                </div>
+                <span class="story-card-status">${isRead ? '\u2705' : ''}</span>
+            `;
+            list.appendChild(card);
+        });
+    }
+
+    _startStory(storyId) {
+        // Find story across all levels
+        for (const level of this.storyLevels) {
+            const story = level.stories.find(s => s.id === storyId);
+            if (story) {
+                this.currentStory = story;
+                this.currentStoryPage = 0;
+
+                // Start timer for reading session
+                this.timerUI.show();
+                this.timerManager.start();
+
+                // Override session module to 'reading'
+                const session = state.get('currentSession');
+                if (session) {
+                    session.module = 'reading';
+                    state.set('currentSession', session);
+                }
+
+                this._showScreen('story');
+                return;
+            }
+        }
+    }
+
+    _renderStoryPage() {
+        if (!this.currentStory) return;
+
+        const story = this.currentStory;
+        const page = story.pages[this.currentStoryPage];
+
+        document.getElementById('story-title').textContent = story.title;
+        document.getElementById('story-text').textContent = page.text;
+        document.getElementById('story-page-text').textContent =
+            `Page ${this.currentStoryPage + 1} of ${story.pages.length}`;
+        document.getElementById('story-progress-fill').style.width =
+            `${((this.currentStoryPage + 1) / story.pages.length) * 100}%`;
+
+        // Show/hide nav buttons
+        document.getElementById('story-prev-btn').style.visibility =
+            this.currentStoryPage > 0 ? 'visible' : 'hidden';
+
+        const nextBtn = document.getElementById('story-next-btn');
+        if (this.currentStoryPage >= story.pages.length - 1) {
+            nextBtn.textContent = 'Finish \u2713';
+        } else {
+            nextBtn.innerHTML = 'Next &rarr;';
+        }
+    }
+
+    _storyPrevPage() {
+        if (this.currentStoryPage > 0) {
+            this.currentStoryPage--;
+            this._renderStoryPage();
+        }
+    }
+
+    _storyNextPage() {
+        if (!this.currentStory) return;
+
+        if (this.currentStoryPage < this.currentStory.pages.length - 1) {
+            this.currentStoryPage++;
+            this._renderStoryPage();
+        } else {
+            // Story complete — mark as read
+            const readStories = state.get('readStories') || [];
+            if (!readStories.includes(this.currentStory.id)) {
+                readStories.push(this.currentStory.id);
+                state.set('readStories', readStories);
+            }
+
+            this.celebration.trigger();
+
+            // Go back to reading level screen (timer keeps running)
+            setTimeout(() => {
+                this._showScreen('reading');
+            }, 1500);
+        }
+    }
+
+    // ===== HISTORY API - BACK BUTTON TRAPPING =====
+
+    _initHistoryTrapping() {
+        // Push initial state
+        history.replaceState({ screen: 'home' }, '', '');
+
+        window.addEventListener('popstate', (e) => {
+            const targetScreen = e.state?.screen || 'home';
+            const currentScreen = state.get('currentScreen');
+
+            if (currentScreen === 'home') {
+                // Already on home — push state again to prevent leaving
+                history.pushState({ screen: 'home' }, '', '');
+                return;
+            }
+
+            // Navigate to the screen from history, or go to parent screen
+            const parentMap = {
+                'story': 'reading',
+                'reading': 'home',
+                'module': 'home',
+                'learn': 'module',
+                'practice': 'module',
+                'test': 'module',
+                'store': 'home',
+                'parent': 'home'
+            };
+
+            const destination = parentMap[currentScreen] || 'home';
+
+            // Stop timer if going home
+            if (destination === 'home') {
+                this.timerManager.stop();
+                this.timerUI.hide();
+            }
+
+            // Navigate without pushing another state (we're already popping)
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const screen = document.getElementById(`${destination}-screen`);
+            if (screen) screen.classList.add('active');
+
+            state.set('currentScreen', destination);
+
+            // Re-render destination
+            switch (destination) {
+                case 'home': this._renderHomeScreen(); break;
+                case 'module': this._renderModuleScreen(); break;
+                case 'reading': this._renderReadingScreen(); break;
+                case 'store': this._renderStoreScreen(); break;
+            }
+        });
+    }
+
+    // ===== SERVICE WORKER REGISTRATION =====
+
+    _registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(err => {
+                console.warn('SW registration failed:', err);
+            });
+        }
     }
 
     // ===== UTILITY =====

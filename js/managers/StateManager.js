@@ -47,10 +47,14 @@ export class StateManager {
                 'times-tables': {},
                 multiplication: {},
                 division: {},
-                percentages: {}
+                percentages: {},
+                reading: {}
             },
             // Redeemed rewards
             redeemedRewards: [],
+            // Reading
+            readStories: [],
+            readingLevel: 'R1',
             // Parent PIN (default: 1234)
             parentPin: '1234',
             // Current screen state

@@ -16,6 +16,11 @@
     /* Pattern overlay for texture */
     --bg-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23E8DFD0' fill-opacity='0.35'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 
+    /* Reading module */
+    --reading-bg: #FFFEF7;
+    --reading-border: #A3D5E8;
+    --reading-text: #4A6A7A;
+
     /* Module Colors - Storybook pastels with bold borders */
     --addition-bg: #FFFEF7;
     --addition-border: #E8A3A3;
@@ -1324,6 +1329,137 @@ body {
         transform: translateY(-30px);
         opacity: 0;
     }
+}
+
+/* ============================================
+   Reading Module Button (Home Screen)
+   ============================================ */
+.module-btn[data-module="reading"] {
+    border-color: var(--reading-border);
+    box-shadow: var(--shadow-offset) var(--reading-border);
+    color: var(--reading-text);
+}
+.module-btn[data-module="reading"]:hover {
+    box-shadow: 6px 6px 0 var(--reading-border);
+}
+
+/* ============================================
+   Reading - Story List
+   ============================================ */
+.story-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    flex: 1;
+    overflow-y: auto;
+}
+
+.story-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: var(--bg-card);
+    border: var(--border-width) solid var(--reading-border);
+    border-radius: var(--border-radius-lg);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow-offset) var(--reading-border);
+}
+
+.story-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--reading-border);
+}
+
+.story-card:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--reading-border);
+}
+
+.story-card-icon {
+    font-size: 2.2rem;
+    flex-shrink: 0;
+}
+
+.story-card-info {
+    flex: 1;
+}
+
+.story-card-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.story-card-pages {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.story-card-status {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+/* ============================================
+   Reading - Story View
+   ============================================ */
+.story-progress {
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.story-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-lg);
+    background: var(--bg-card);
+    border: var(--border-width) solid var(--reading-border);
+    border-radius: var(--border-radius-xl);
+    box-shadow: var(--shadow-offset-lg) var(--reading-border);
+    margin-bottom: var(--spacing-lg);
+    min-height: 200px;
+    overflow-y: auto;
+}
+
+#story-text {
+    font-family: var(--font-body);
+    font-size: 1.5rem;
+    line-height: 2;
+    color: var(--text-primary);
+    text-align: left;
+    white-space: pre-line;
+    max-width: 100%;
+}
+
+.story-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+}
+
+.story-nav .primary-btn,
+.story-nav .secondary-btn {
+    flex: 1;
+}
+
+.story-complete-message {
+    text-align: center;
+    padding: var(--spacing-xl);
+}
+
+.story-complete-message h3 {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    color: var(--correct-color);
+    margin-bottom: var(--spacing-md);
 }
 
 /* ============================================
