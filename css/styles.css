@@ -8,6 +8,9 @@
 
 /* CSS Variables / Design Tokens */
 :root {
+    /* Prevent browser-forced dark mode (Android Auto-Dark) */
+    color-scheme: only light;
+
     /* Backgrounds - Light warm cream */
     --bg-page: #FFFDF7;
     --bg-card: #FFFFFF;
