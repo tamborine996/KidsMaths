@@ -9,54 +9,47 @@
       "levels": [
         {
           "id": "L1",
-          "name": "Single + Single (Visual)",
-          "description": "Add numbers 1-9 with objects to count",
+          "name": "Numbers to 5",
+          "description": "Add numbers 1-5 with visual objects",
           "config": {
-            "operand1": { "min": 1, "max": 9 },
-            "operand2": { "min": 1, "max": 9 },
+            "operand1": { "min": 1, "max": 5 },
+            "operand2": { "min": 1, "max": 5 },
             "visual": true,
-            "visualType": "apples"
+            "visualType": "apples",
+            "mastery": true
           }
         },
         {
           "id": "L2",
-          "name": "Single + Single (Rapid)",
-          "description": "Mental addition without objects",
+          "name": "Numbers to 10",
+          "description": "Add any two numbers from 1 to 10",
           "config": {
-            "operand1": { "min": 1, "max": 9 },
-            "operand2": { "min": 1, "max": 9 },
-            "visual": false
+            "operand1": { "min": 1, "max": 10 },
+            "operand2": { "min": 1, "max": 10 },
+            "visual": false,
+            "mastery": true
           }
         },
         {
           "id": "L3",
-          "name": "Double + Single",
-          "description": "Add a single digit to a double digit number",
+          "name": "Numbers to 15",
+          "description": "Add any two numbers from 1 to 15",
           "config": {
-            "operand1": { "min": 10, "max": 99 },
-            "operand2": { "min": 1, "max": 9 },
-            "visual": false
+            "operand1": { "min": 1, "max": 15 },
+            "operand2": { "min": 1, "max": 15 },
+            "visual": false,
+            "mastery": true
           }
         },
         {
           "id": "L4",
-          "name": "Double + Double (No Carry)",
-          "description": "Add two double digit numbers without carrying",
+          "name": "Numbers to 20",
+          "description": "Add any two numbers from 1 to 20",
           "config": {
-            "operand1": { "min": 10, "max": 99 },
-            "operand2": { "min": 10, "max": 99 },
+            "operand1": { "min": 1, "max": 20 },
+            "operand2": { "min": 1, "max": 20 },
             "visual": false,
-            "noCarry": true
-          }
-        },
-        {
-          "id": "L5",
-          "name": "Double + Double (With Carry)",
-          "description": "Add two double digit numbers with carrying",
-          "config": {
-            "operand1": { "min": 10, "max": 99 },
-            "operand2": { "min": 10, "max": 99 },
-            "visual": false
+            "mastery": true
           }
         }
       ]

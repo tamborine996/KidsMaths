@@ -89,6 +89,63 @@
     /* Typography */
     --font-display: 'Comic Neue', cursive;
     --font-body: 'Comic Neue', cursive;
+
+    /* Warm accent for dark mode */
+    --accent-warm: #F4A460;
+}
+
+/* Dark mode - cosy evening storybook feel */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-page: #1E1A14;
+        --bg-card: #2A2520;
+        --bg-elevated: #332E28;
+
+        --bg-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233D352A' fill-opacity='0.35'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+
+        --reading-bg: #2A2520;
+        --reading-border: #5A8A9E;
+        --reading-text: #8BB8CC;
+
+        --addition-bg: #2A2520;
+        --addition-border: #C47070;
+        --addition-text: #D4A0A0;
+
+        --subtraction-bg: #2A2520;
+        --subtraction-border: #6A8EB8;
+        --subtraction-text: #9AB4D0;
+
+        --times-bg: #2A2520;
+        --times-border: #7AAE6A;
+        --times-text: #A0C890;
+
+        --multiply-bg: #2A2520;
+        --multiply-border: #A070C0;
+        --multiply-text: #C0A0D8;
+
+        --division-bg: #2A2520;
+        --division-border: #C0A060;
+        --division-text: #D4C090;
+
+        --percent-bg: #2A2520;
+        --percent-border: #C07888;
+        --percent-text: #D8A0B0;
+
+        --correct-color: #7FB069;
+        --correct-bg: #2A3A22;
+        --gentle-wrong: #D49050;
+        --gentle-wrong-bg: #3A2A1A;
+        --hint-color: #D4B860;
+        --hint-bg: #2E2A1A;
+
+        --text-primary: #E0D5C5;
+        --text-secondary: #B0A090;
+        --text-muted: #807060;
+        --text-heading: #E0C060;
+        --text-white: #F0EDE5;
+
+        --border-color: #4A3F30;
+    }
 }
 
 /* Persistent update bar (top-left, long-press anywhere on it to trigger) */
@@ -1133,6 +1190,96 @@ body {
 .session-date {
     font-weight: 700;
     color: var(--text-primary) !important;
+}
+
+/* Addition Mastery Grid */
+.mastery-section {
+    margin-top: var(--spacing-lg);
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-md);
+}
+
+.mastery-section h4 {
+    font-family: var(--font-display);
+    color: var(--text-heading);
+    margin-bottom: var(--spacing-sm);
+}
+
+.mastery-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    font-size: 0.85rem;
+}
+
+.mastery-stat {
+    padding: 4px 10px;
+    border-radius: var(--border-radius-sm);
+    background: var(--bg-main);
+    font-weight: 700;
+}
+
+.mastery-stat.mastery-green { color: #2e7d32; }
+.mastery-stat.mastery-amber { color: #f57f17; }
+.mastery-stat.mastery-grey { color: #757575; }
+
+.mastery-grid-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mastery-grid {
+    border-collapse: collapse;
+    font-size: 0.65rem;
+}
+
+.mastery-grid th {
+    width: 22px;
+    height: 22px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--text-secondary);
+    font-size: 0.6rem;
+    padding: 0;
+}
+
+.mastery-grid td {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid var(--border-color);
+}
+
+.mastery-grid tr:first-child th {
+    border-bottom: 2px solid var(--text-secondary);
+}
+
+.mastery-grid th:first-child {
+    border-right: 2px solid var(--text-secondary);
+}
+
+td.mastery-unseen {
+    background: #f5f5f5;
+}
+
+td.mastery-attempted {
+    background: #fff3e0;
+}
+
+td.mastery-mastered {
+    background: #c8e6c9;
+}
+
+@media (min-width: 700px) {
+    .mastery-grid th,
+    .mastery-grid td {
+        width: 28px;
+        height: 28px;
+        font-size: 0.7rem;
+    }
 }
 
 /* Coin Management */

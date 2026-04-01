@@ -425,8 +425,9 @@ class KidsMathsApp {
 
         if (!level) return;
 
-        // Generate problem
-        this.currentProblem = this.problemGenerator.generate(moduleId, level.config);
+        // Generate problem (pass mastery data for addition)
+        const mastery = moduleId === 'addition' ? (state.get('additionMastery') || {}) : null;
+        this.currentProblem = this.problemGenerator.generate(moduleId, level.config, mastery);
 
         // Update display
         this._renderProblem(this.currentProblem);
@@ -487,6 +488,20 @@ class KidsMathsApp {
         }
 
         this.timerManager.incrementProblems();
+
+        // Track addition mastery
+        if (this.currentProblem.pairKey) {
+            const mastery = state.get('additionMastery') || {};
+            const key = this.currentProblem.pairKey;
+            if (!mastery[key]) {
+                mastery[key] = { correct: 0, attempts: 0 };
+            }
+            mastery[key].attempts++;
+            if (userAnswer === this.currentProblem.answer) {
+                mastery[key].correct++;
+            }
+            state.set('additionMastery', mastery);
+        }
 
         if (userAnswer === this.currentProblem.answer) {
             // Correct!
@@ -549,9 +564,10 @@ class KidsMathsApp {
         if (!level) return;
 
         // Generate 10 test problems
+        const mastery = moduleId === 'addition' ? (state.get('additionMastery') || {}) : null;
         this.testProblems = [];
         for (let i = 0; i < 10; i++) {
-            this.testProblems.push(this.problemGenerator.generate(moduleId, level.config));
+            this.testProblems.push(this.problemGenerator.generate(moduleId, level.config, mastery));
         }
 
         this.testIndex = 0;
@@ -620,6 +636,20 @@ class KidsMathsApp {
 
         const problem = this.testProblems[this.testIndex];
         const correct = userAnswer === problem.answer;
+
+        // Track addition mastery
+        if (problem.pairKey) {
+            const mastery = state.get('additionMastery') || {};
+            const key = problem.pairKey;
+            if (!mastery[key]) {
+                mastery[key] = { correct: 0, attempts: 0 };
+            }
+            mastery[key].attempts++;
+            if (correct) {
+                mastery[key].correct++;
+            }
+            state.set('additionMastery', mastery);
+        }
 
         if (correct) {
             this.testCorrect++;
@@ -826,6 +856,88 @@ class KidsMathsApp {
         });
 
         container.appendChild(grid);
+
+        // Addition mastery grid
+        this._renderMasteryGrid(container);
+    }
+
+    _renderMasteryGrid(container) {
+        const mastery = state.get('additionMastery') || {};
+
+        // Count stats for full 20x20
+        let totalPairs = 0;
+        let masteredCount = 0;
+        let attemptedCount = 0;
+
+        for (let a = 1; a <= 20; a++) {
+            for (let b = 1; b <= 20; b++) {
+                totalPairs++;
+                const data = mastery[`${a}+${b}`];
+                if (data && data.correct >= 3) {
+                    masteredCount++;
+                } else if (data && data.attempts > 0) {
+                    attemptedCount++;
+                }
+            }
+        }
+
+        const section = document.createElement('div');
+        section.className = 'mastery-section';
+
+        const header = document.createElement('h4');
+        header.textContent = 'Addition Mastery';
+        section.appendChild(header);
+
+        const summary = document.createElement('div');
+        summary.className = 'mastery-summary';
+        summary.innerHTML = `
+            <span class="mastery-stat mastery-green">${masteredCount} mastered</span>
+            <span class="mastery-stat mastery-amber">${attemptedCount} in progress</span>
+            <span class="mastery-stat mastery-grey">${totalPairs - masteredCount - attemptedCount} unseen</span>
+            <span class="mastery-stat">${masteredCount} / ${totalPairs}</span>
+        `;
+        section.appendChild(summary);
+
+        // Build 20x20 grid table
+        const wrapper = document.createElement('div');
+        wrapper.className = 'mastery-grid-wrapper';
+
+        const table = document.createElement('table');
+        table.className = 'mastery-grid';
+
+        // Header row with + and column numbers
+        const thead = document.createElement('tr');
+        thead.innerHTML = '<th>+</th>';
+        for (let b = 1; b <= 20; b++) {
+            thead.innerHTML += `<th>${b}</th>`;
+        }
+        table.appendChild(thead);
+
+        // Data rows
+        for (let a = 1; a <= 20; a++) {
+            const row = document.createElement('tr');
+            row.innerHTML = `<th>${a}</th>`;
+
+            for (let b = 1; b <= 20; b++) {
+                const key = `${a}+${b}`;
+                const data = mastery[key];
+                let cls = 'mastery-unseen';
+
+                if (data && data.correct >= 3) {
+                    cls = 'mastery-mastered';
+                } else if (data && data.attempts > 0) {
+                    cls = 'mastery-attempted';
+                }
+
+                row.innerHTML += `<td class="${cls}" title="${a}+${b}=${a + b}"></td>`;
+            }
+
+            table.appendChild(row);
+        }
+
+        wrapper.appendChild(table);
+        section.appendChild(wrapper);
+        container.appendChild(section);
     }
 
     _formatLastPracticed(dateStr) {

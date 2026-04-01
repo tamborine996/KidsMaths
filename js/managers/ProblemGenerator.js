@@ -10,9 +10,12 @@ export class ProblemGenerator {
     /**
      * Generate a problem based on module and level config
      */
-    generate(module, levelConfig) {
+    generate(module, levelConfig, mastery = null) {
         switch (module) {
             case 'addition':
+                if (levelConfig.mastery && mastery) {
+                    return this._generateAdditionWithMastery(levelConfig, mastery);
+                }
                 return this._generateAddition(levelConfig);
             case 'subtraction':
                 return this._generateSubtraction(levelConfig);
@@ -46,6 +49,70 @@ export class ProblemGenerator {
             operand2: op2,
             operator: '+',
             answer: op1 + op2,
+            visual: config.visual || false,
+            visualType: config.visualType || 'apples'
+        };
+    }
+
+    /**
+     * Generate addition problem with mastery-aware selection.
+     * Prioritises struggling pairs, then unseen, then mastered for review.
+     */
+    _generateAdditionWithMastery(config, mastery) {
+        const min1 = config.operand1.min;
+        const max1 = config.operand1.max;
+        const min2 = config.operand2.min;
+        const max2 = config.operand2.max;
+
+        const unseen = [];
+        const struggling = [];
+        const masteredPairs = [];
+
+        for (let a = min1; a <= max1; a++) {
+            for (let b = min2; b <= max2; b++) {
+                const key = `${a}+${b}`;
+                const data = mastery[key];
+
+                if (!data || data.attempts === 0) {
+                    unseen.push({ op1: a, op2: b, key });
+                } else if (data.correct >= 3) {
+                    masteredPairs.push({ op1: a, op2: b, key });
+                } else {
+                    struggling.push({ op1: a, op2: b, key });
+                }
+            }
+        }
+
+        // Priority: struggling 50%, unseen 40%, mastered review 10%
+        let pool;
+        const rand = Math.random();
+
+        if (struggling.length > 0 && rand < 0.5) {
+            pool = struggling;
+        } else if (unseen.length > 0 && rand < 0.9) {
+            pool = unseen;
+        } else if (masteredPairs.length > 0) {
+            pool = masteredPairs;
+        } else if (unseen.length > 0) {
+            pool = unseen;
+        } else if (struggling.length > 0) {
+            pool = struggling;
+        } else {
+            pool = masteredPairs;
+        }
+
+        if (!pool || pool.length === 0) {
+            pool = [{ op1: 1, op2: 1, key: '1+1' }];
+        }
+
+        const pair = pool[Math.floor(Math.random() * pool.length)];
+
+        return {
+            operand1: pair.op1,
+            operand2: pair.op2,
+            operator: '+',
+            answer: pair.op1 + pair.op2,
+            pairKey: pair.key,
             visual: config.visual || false,
             visualType: config.visualType || 'apples'
         };

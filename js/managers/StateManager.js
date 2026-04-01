@@ -52,6 +52,8 @@ export class StateManager {
             },
             // Redeemed rewards
             redeemedRewards: [],
+            // Addition mastery tracking: { "3+5": { correct: 2, attempts: 4 }, ... }
+            additionMastery: {},
             // Reading
             readStories: [],
             readingLevel: 'R1',
