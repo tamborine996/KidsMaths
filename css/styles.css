@@ -8,13 +8,14 @@
 
 /* CSS Variables / Design Tokens */
 :root {
-    /* Backgrounds - Warm paper/parchment feel */
-    --bg-page: #F7F3E9;
-    --bg-card: #FFFEF7;
+    /* Backgrounds - Light warm cream */
+    --bg-page: #FFFDF7;
+    --bg-card: #FFFFFF;
     --bg-elevated: #FFFFFF;
+    --bg-main: #FBF9F3;
 
-    /* Pattern overlay for texture */
-    --bg-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23E8DFD0' fill-opacity='0.35'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    /* Pattern overlay removed — was making background look muddy */
+    --bg-pattern: none;
 
     /* Reading module */
     --reading-bg: #FFFEF7;
@@ -78,6 +79,7 @@
     /* Shadows - Playful offset shadows */
     --shadow-offset: 4px 4px 0;
     --shadow-offset-lg: 6px 6px 0;
+    --shadow-color: #D4C9B0;
 
     /* Spacing */
     --spacing-xs: 4px;
@@ -1197,9 +1199,9 @@ body {
     border: 1px solid #e0ddd5;
 }
 
-td.cell-unseen { background: #f0ede5; }
-td.cell-attempted { background: #ffe0a0; }
-td.cell-mastered { background: #7ecb7e; }
+td.cell-unseen { background: #f8f6f0; }
+td.cell-attempted { background: #ffe8b3; }
+td.cell-mastered { background: #8ed88e; }
 
 .grid-summary {
     text-align: center;
@@ -1354,15 +1356,15 @@ td.cell-mastered { background: #7ecb7e; }
 }
 
 td.mastery-unseen {
-    background: #f5f5f5;
+    background: #f8f6f0;
 }
 
 td.mastery-attempted {
-    background: #fff3e0;
+    background: #ffe8b3;
 }
 
 td.mastery-mastered {
-    background: #c8e6c9;
+    background: #a5d6a5;
 }
 
 @media (min-width: 700px) {
