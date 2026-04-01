@@ -176,6 +176,8 @@ body {
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 #app {
@@ -1680,6 +1682,39 @@ body {
 
     .story-content {
         padding: var(--spacing-xl);
+    }
+}
+
+/* Tablet landscape */
+@media (orientation: landscape) and (min-width: 700px) {
+    #app {
+        max-width: 100%;
+    }
+
+    .module-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .mode-buttons {
+        flex-direction: row;
+    }
+
+    .mode-btn {
+        flex: 1;
+    }
+
+    .rewards-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .progress-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .story-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        align-items: start;
     }
 }
 
