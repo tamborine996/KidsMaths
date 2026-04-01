@@ -67,6 +67,9 @@ class KidsMathsApp {
         // Register service worker for PWA
         this._registerServiceWorker();
 
+        // Long-press update button
+        this._setupUpdateButton();
+
         // Render initial screen
         this._renderHomeScreen();
         this._updateCoinDisplay();
@@ -202,6 +205,11 @@ class KidsMathsApp {
                 this._updateCoinDisplay();
                 this._renderParentDashboard();
             }
+        });
+
+        // Check for updates (settings tab button)
+        document.getElementById('check-update-btn').addEventListener('click', () => {
+            this._checkForUpdates(null);
         });
 
         // Change PIN
@@ -1117,9 +1125,108 @@ class KidsMathsApp {
 
     _registerServiceWorker() {
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(err => {
+            navigator.serviceWorker.register('sw.js').then(reg => {
+                // Check for updates every 30 minutes
+                setInterval(() => reg.update(), 30 * 60 * 1000);
+            }).catch(err => {
                 console.warn('SW registration failed:', err);
             });
+
+            // Auto-reload when a new service worker activates
+            navigator.serviceWorker.addEventListener('message', (event) => {
+                if (event.data?.type === 'SW_UPDATED') {
+                    window.location.reload();
+                }
+            });
+        }
+    }
+
+    _setupUpdateButton() {
+        const btn = document.getElementById('update-btn');
+        const HOLD_DURATION = 3000;
+        let pressTimer = null;
+        let animFrame = null;
+        let startTime = 0;
+
+        const startPress = (e) => {
+            e.preventDefault();
+            startTime = Date.now();
+            btn.classList.add('pressing');
+
+            const animate = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min((elapsed / HOLD_DURATION) * 100, 100);
+                btn.style.setProperty('--press-progress', `${progress}%`);
+                if (progress < 100) {
+                    animFrame = requestAnimationFrame(animate);
+                }
+            };
+            animFrame = requestAnimationFrame(animate);
+
+            pressTimer = setTimeout(() => {
+                btn.classList.remove('pressing');
+                btn.classList.add('checking');
+                this._checkForUpdates(btn);
+            }, HOLD_DURATION);
+        };
+
+        const cancelPress = () => {
+            clearTimeout(pressTimer);
+            cancelAnimationFrame(animFrame);
+            btn.classList.remove('pressing');
+            btn.style.setProperty('--press-progress', '0%');
+        };
+
+        btn.addEventListener('pointerdown', startPress);
+        btn.addEventListener('pointerup', cancelPress);
+        btn.addEventListener('pointercancel', cancelPress);
+        btn.addEventListener('pointerleave', cancelPress);
+    }
+
+    async _checkForUpdates(indicatorBtn) {
+        const statusEl = document.getElementById('update-status');
+        const settingsBtn = document.getElementById('check-update-btn');
+
+        if (settingsBtn) {
+            settingsBtn.disabled = true;
+            statusEl.textContent = 'Checking...';
+        }
+
+        try {
+            const reg = await navigator.serviceWorker.getRegistration();
+            if (!reg) {
+                if (indicatorBtn) { indicatorBtn.classList.remove('checking'); }
+                if (statusEl) { statusEl.textContent = 'Service worker not found.'; }
+                if (settingsBtn) { settingsBtn.disabled = false; }
+                return;
+            }
+
+            await reg.update();
+
+            if (reg.installing || reg.waiting) {
+                if (statusEl) { statusEl.textContent = 'Update found! Applying...'; }
+                const worker = reg.installing || reg.waiting;
+                worker.addEventListener('statechange', () => {
+                    if (worker.state === 'activated') {
+                        window.location.reload();
+                    }
+                });
+                if (reg.waiting) {
+                    reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                }
+            } else {
+                if (indicatorBtn) {
+                    indicatorBtn.classList.remove('checking');
+                    indicatorBtn.classList.add('done');
+                    setTimeout(() => indicatorBtn.classList.remove('done'), 2000);
+                }
+                if (statusEl) { statusEl.textContent = 'You\'re on the latest version.'; }
+                if (settingsBtn) { settingsBtn.disabled = false; }
+            }
+        } catch (err) {
+            if (indicatorBtn) { indicatorBtn.classList.remove('checking'); }
+            if (statusEl) { statusEl.textContent = 'Update check failed. Are you online?'; }
+            if (settingsBtn) { settingsBtn.disabled = false; }
         }
     }
 

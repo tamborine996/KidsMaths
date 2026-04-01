@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kidsmaths-v2';
+const CACHE_NAME = 'kidsmaths-v3';
 const ASSETS = [
     './',
     './index.html',
@@ -35,7 +35,18 @@ self.addEventListener('activate', (event) => {
                 .map(key => caches.delete(key))
             )
         ).then(() => self.clients.claim())
+         .then(() => {
+             self.clients.matchAll().then(clients => {
+                 clients.forEach(client => client.postMessage({ type: 'SW_UPDATED' }));
+             });
+         })
     );
+});
+
+self.addEventListener('message', (event) => {
+    if (event.data?.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });
 
 self.addEventListener('fetch', (event) => {

@@ -17,6 +17,9 @@
 </head>
 <body>
     <div id="app">
+        <!-- Update button (long-press 3s to check) -->
+        <div id="update-btn" class="update-btn" aria-label="Check for updates"></div>
+
         <!-- Timer Bar (always visible during practice) -->
         <div id="timer-bar" class="timer-bar hidden">
             <div class="timer-display">
@@ -259,6 +262,11 @@
                         <div class="settings-section">
                             <h4>PIN Settings</h4>
                             <button class="secondary-btn" id="change-pin-btn">Change PIN</button>
+                        </div>
+                        <div class="settings-section">
+                            <h4>App Updates</h4>
+                            <button class="secondary-btn" id="check-update-btn">Check for Updates</button>
+                            <p class="update-status" id="update-status"></p>
                         </div>
                         <div class="settings-section">
                             <h4>Reset Data</h4>

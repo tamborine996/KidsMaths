@@ -91,6 +91,43 @@
     --font-body: 'Comic Neue', cursive;
 }
 
+/* Persistent update button (top-left, long-press to trigger) */
+.update-btn {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--border-color);
+    opacity: 0.3;
+    z-index: 9999;
+    touch-action: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.update-btn.pressing {
+    opacity: 0.7;
+    background: conic-gradient(var(--accent-warm) var(--press-progress, 0%), var(--border-color) 0%);
+}
+
+.update-btn.checking {
+    opacity: 0.8;
+    background: var(--accent-warm);
+    animation: update-pulse 1s ease-in-out infinite;
+}
+
+.update-btn.done {
+    opacity: 0.8;
+    background: var(--accent-green);
+}
+
+@keyframes update-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+}
+
 /* Reset & Base Styles */
 *, *::before, *::after {
     box-sizing: border-box;
@@ -1120,6 +1157,12 @@ body {
 .settings-section {
     margin-bottom: var(--spacing-xl);
     text-align: left;
+}
+
+.settings-section .update-status {
+    margin-top: var(--spacing-sm);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
 }
 
 .settings-section h4 {
