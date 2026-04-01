@@ -91,20 +91,34 @@
     --font-body: 'Comic Neue', cursive;
 }
 
-/* Persistent update button (top-left, long-press to trigger) */
-.update-btn {
+/* Persistent update bar (top-left, long-press dot to trigger) */
+.update-bar {
     position: fixed;
     top: 10px;
     left: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 9999;
+}
+
+.build-stamp {
+    font-size: 0.6rem;
+    color: var(--text-secondary);
+    opacity: 0.4;
+    font-family: var(--font-body);
+}
+
+.update-btn {
     width: 18px;
     height: 18px;
     border-radius: 50%;
     background: var(--border-color);
     opacity: 0.3;
-    z-index: 9999;
     touch-action: none;
     cursor: pointer;
     transition: opacity 0.2s;
+    flex-shrink: 0;
 }
 
 .update-btn.pressing {

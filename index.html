@@ -17,8 +17,11 @@
 </head>
 <body>
     <div id="app">
-        <!-- Update button (long-press 3s to check) -->
-        <div id="update-btn" class="update-btn" aria-label="Check for updates"></div>
+        <!-- Update button (long-press 3s to check) + build stamp -->
+        <div class="update-bar">
+            <div id="update-btn" class="update-btn" aria-label="Check for updates"></div>
+            <span id="build-stamp" class="build-stamp"></span>
+        </div>
 
         <!-- Timer Bar (always visible during practice) -->
         <div id="timer-bar" class="timer-bar hidden">

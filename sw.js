@@ -1,4 +1,5 @@
-const CACHE_NAME = 'kidsmaths-v3';
+const CACHE_NAME = 'kidsmaths-v4';
+const BUILD_TIME = '2026-04-01 22:45';
 const ASSETS = [
     './',
     './index.html',
@@ -46,6 +47,9 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('message', (event) => {
     if (event.data?.type === 'SKIP_WAITING') {
         self.skipWaiting();
+    }
+    if (event.data?.type === 'GET_BUILD_TIME') {
+        event.source.postMessage({ type: 'BUILD_TIME', buildTime: BUILD_TIME });
     }
 });
 

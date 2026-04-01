@@ -1132,11 +1132,20 @@ class KidsMathsApp {
                 console.warn('SW registration failed:', err);
             });
 
-            // Auto-reload when a new service worker activates
+            // Listen for messages from service worker
             navigator.serviceWorker.addEventListener('message', (event) => {
                 if (event.data?.type === 'SW_UPDATED') {
                     window.location.reload();
                 }
+                if (event.data?.type === 'BUILD_TIME') {
+                    const stamp = document.getElementById('build-stamp');
+                    if (stamp) stamp.textContent = event.data.buildTime;
+                }
+            });
+
+            // Request build time once SW is ready
+            navigator.serviceWorker.ready.then(reg => {
+                reg.active.postMessage({ type: 'GET_BUILD_TIME' });
             });
         }
     }
