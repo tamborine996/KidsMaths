@@ -9,8 +9,9 @@
       "levels": [
         {
           "id": "L1",
-          "name": "Numbers to 5",
-          "description": "Add numbers 1-5 with visual objects",
+          "name": "Easy",
+          "label": "1 to 5",
+          "description": "Add numbers 1-5",
           "config": {
             "operand1": { "min": 1, "max": 5 },
             "operand2": { "min": 1, "max": 5 },
@@ -21,8 +22,9 @@
         },
         {
           "id": "L2",
-          "name": "Numbers to 10",
-          "description": "Add any two numbers from 1 to 10",
+          "name": "Medium",
+          "label": "1 to 10",
+          "description": "Add numbers 1-10",
           "config": {
             "operand1": { "min": 1, "max": 10 },
             "operand2": { "min": 1, "max": 10 },
@@ -32,19 +34,9 @@
         },
         {
           "id": "L3",
-          "name": "Numbers to 15",
-          "description": "Add any two numbers from 1 to 15",
-          "config": {
-            "operand1": { "min": 1, "max": 15 },
-            "operand2": { "min": 1, "max": 15 },
-            "visual": false,
-            "mastery": true
-          }
-        },
-        {
-          "id": "L4",
-          "name": "Numbers to 20",
-          "description": "Add any two numbers from 1 to 20",
+          "name": "Hard",
+          "label": "1 to 20",
+          "description": "Add numbers 1-20",
           "config": {
             "operand1": { "min": 1, "max": 20 },
             "operand2": { "min": 1, "max": 20 },

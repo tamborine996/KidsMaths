@@ -324,6 +324,24 @@ class KidsMathsApp {
 
         document.getElementById('module-title').textContent = module.name;
 
+        const additionContent = document.getElementById('addition-content');
+        const levelSelector = document.querySelector('#module-screen .level-selector');
+        const modeButtons = document.querySelector('#module-screen .mode-buttons');
+
+        if (moduleId === 'addition') {
+            // Show addition-specific layout
+            levelSelector.classList.add('hidden');
+            modeButtons.classList.add('hidden');
+            additionContent.classList.remove('hidden');
+            this._renderAdditionModuleScreen(module);
+            return;
+        }
+
+        // Standard module layout
+        additionContent.classList.add('hidden');
+        levelSelector.classList.remove('hidden');
+        modeButtons.classList.remove('hidden');
+
         // Render level selector
         const select = document.getElementById('level-select');
         select.innerHTML = '';
@@ -339,6 +357,83 @@ class KidsMathsApp {
         if (currentLevel) {
             select.value = currentLevel;
         }
+    }
+
+    _renderAdditionModuleScreen(module) {
+        const mastery = state.get('additionMastery') || {};
+        const gridContainer = document.getElementById('addition-grid-container');
+        const diffContainer = document.getElementById('addition-difficulty');
+
+        // Build 20x20 grid
+        let gridHTML = '<div class="child-mastery-wrapper"><table class="child-mastery-grid">';
+
+        // Header row
+        gridHTML += '<tr><th class="grid-corner">+</th>';
+        for (let b = 1; b <= 20; b++) {
+            gridHTML += `<th>${b}</th>`;
+        }
+        gridHTML += '</tr>';
+
+        // Data rows
+        for (let a = 1; a <= 20; a++) {
+            gridHTML += `<tr><th>${a}</th>`;
+            for (let b = 1; b <= 20; b++) {
+                const key = `${a}+${b}`;
+                const data = mastery[key];
+                let cls = 'cell-unseen';
+                if (data && data.correct >= 3) cls = 'cell-mastered';
+                else if (data && data.attempts > 0) cls = 'cell-attempted';
+                gridHTML += `<td class="${cls}"></td>`;
+            }
+            gridHTML += '</tr>';
+        }
+        gridHTML += '</table></div>';
+
+        // Summary
+        let total = 0, masteredCount = 0;
+        for (let a = 1; a <= 20; a++) {
+            for (let b = 1; b <= 20; b++) {
+                total++;
+                const d = mastery[`${a}+${b}`];
+                if (d && d.correct >= 3) masteredCount++;
+            }
+        }
+        gridHTML += `<p class="grid-summary">${masteredCount} of ${total} mastered</p>`;
+
+        gridContainer.innerHTML = gridHTML;
+
+        // Difficulty buttons
+        diffContainer.innerHTML = '';
+        const difficulties = [
+            { level: 'L1', name: 'Easy', range: '1 to 5', max: 5, color: 'easy' },
+            { level: 'L2', name: 'Medium', range: '1 to 10', max: 10, color: 'medium' },
+            { level: 'L3', name: 'Hard', range: '1 to 20', max: 20, color: 'hard' }
+        ];
+
+        difficulties.forEach(diff => {
+            // Count mastered in this range
+            let rangeTotal = diff.max * diff.max;
+            let rangeMastered = 0;
+            for (let a = 1; a <= diff.max; a++) {
+                for (let b = 1; b <= diff.max; b++) {
+                    const d = mastery[`${a}+${b}`];
+                    if (d && d.correct >= 3) rangeMastered++;
+                }
+            }
+
+            const btn = document.createElement('button');
+            btn.className = `difficulty-btn difficulty-${diff.color}`;
+            btn.innerHTML = `
+                <span class="diff-name">${diff.name}</span>
+                <span class="diff-range">${diff.range}</span>
+                <span class="diff-progress">${rangeMastered}/${rangeTotal}</span>
+            `;
+            btn.addEventListener('click', () => {
+                state.set('currentLevel', diff.level);
+                this._startMode('practice');
+            });
+            diffContainer.appendChild(btn);
+        });
     }
 
     // ===== MODE STARTING =====
