@@ -1151,7 +1151,8 @@ class KidsMathsApp {
     }
 
     _setupUpdateButton() {
-        const btn = document.getElementById('update-btn');
+        const bar = document.getElementById('update-btn');
+        const dot = bar.querySelector('.update-dot');
         const HOLD_DURATION = 3000;
         let pressTimer = null;
         let animFrame = null;
@@ -1160,12 +1161,12 @@ class KidsMathsApp {
         const startPress = (e) => {
             e.preventDefault();
             startTime = Date.now();
-            btn.classList.add('pressing');
+            bar.classList.add('pressing');
 
             const animate = () => {
                 const elapsed = Date.now() - startTime;
                 const progress = Math.min((elapsed / HOLD_DURATION) * 100, 100);
-                btn.style.setProperty('--press-progress', `${progress}%`);
+                dot.style.setProperty('--press-progress', `${progress}%`);
                 if (progress < 100) {
                     animFrame = requestAnimationFrame(animate);
                 }
@@ -1173,23 +1174,23 @@ class KidsMathsApp {
             animFrame = requestAnimationFrame(animate);
 
             pressTimer = setTimeout(() => {
-                btn.classList.remove('pressing');
-                btn.classList.add('checking');
-                this._checkForUpdates(btn);
+                bar.classList.remove('pressing');
+                bar.classList.add('checking');
+                this._checkForUpdates(bar);
             }, HOLD_DURATION);
         };
 
         const cancelPress = () => {
             clearTimeout(pressTimer);
             cancelAnimationFrame(animFrame);
-            btn.classList.remove('pressing');
-            btn.style.setProperty('--press-progress', '0%');
+            bar.classList.remove('pressing');
+            dot.style.setProperty('--press-progress', '0%');
         };
 
-        btn.addEventListener('pointerdown', startPress);
-        btn.addEventListener('pointerup', cancelPress);
-        btn.addEventListener('pointercancel', cancelPress);
-        btn.addEventListener('pointerleave', cancelPress);
+        bar.addEventListener('pointerdown', startPress);
+        bar.addEventListener('pointerup', cancelPress);
+        bar.addEventListener('pointercancel', cancelPress);
+        bar.addEventListener('pointerleave', cancelPress);
     }
 
     async _checkForUpdates(indicatorBtn) {

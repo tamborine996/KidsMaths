@@ -91,15 +91,31 @@
     --font-body: 'Comic Neue', cursive;
 }
 
-/* Persistent update bar (top-left, long-press dot to trigger) */
+/* Persistent update bar (top-left, long-press anywhere on it to trigger) */
 .update-bar {
     position: fixed;
-    top: 10px;
-    left: 10px;
+    top: 8px;
+    left: 8px;
     display: flex;
     align-items: center;
     gap: 6px;
     z-index: 9999;
+    touch-action: none;
+    cursor: pointer;
+    padding: 4px 8px 4px 4px;
+    border-radius: 12px;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.update-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--border-color);
+    opacity: 0.4;
+    flex-shrink: 0;
+    transition: opacity 0.2s;
 }
 
 .build-stamp {
@@ -107,33 +123,30 @@
     color: var(--text-secondary);
     opacity: 0.4;
     font-family: var(--font-body);
+    white-space: nowrap;
 }
 
-.update-btn {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--border-color);
-    opacity: 0.3;
-    touch-action: none;
-    cursor: pointer;
-    transition: opacity 0.2s;
-    flex-shrink: 0;
-}
-
-.update-btn.pressing {
-    opacity: 0.7;
+.update-bar.pressing .update-dot {
+    opacity: 0.8;
     background: conic-gradient(var(--accent-warm) var(--press-progress, 0%), var(--border-color) 0%);
 }
 
-.update-btn.checking {
-    opacity: 0.8;
+.update-bar.pressing .build-stamp {
+    opacity: 0.7;
+}
+
+.update-bar.checking .update-dot {
+    opacity: 1;
     background: var(--accent-warm);
     animation: update-pulse 1s ease-in-out infinite;
 }
 
-.update-btn.done {
+.update-bar.checking .build-stamp {
     opacity: 0.8;
+}
+
+.update-bar.done .update-dot {
+    opacity: 1;
     background: var(--accent-green);
 }
 
