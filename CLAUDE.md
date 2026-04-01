@@ -10,6 +10,11 @@ A children's maths learning web app designed to help a 6-year-old achieve Year 6
 - **Local Dev**: `npx serve -l 3005`
 - **Deploys**: Automatically on push to `master` (GitHub Pages, legacy build)
 
+### Deploy Checklist (MANDATORY before every push)
+1. **Update `BUILD_TIME`** in `sw.js` to the actual current time (`date '+%Y-%m-%d %H:%M'`)
+2. **Bump `CACHE_NAME`** version in `sw.js` (e.g. `kidsmaths-v5` → `kidsmaths-v6`)
+3. Commit and push — these two changes force the PWA to update on the tablet
+
 ## Core Philosophy
 
 1. **Parent always present** - App is a tool to amplify parent-led teaching, not replace it
