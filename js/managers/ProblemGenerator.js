@@ -5,6 +5,8 @@ export class ProblemGenerator {
     constructor() {
         // Visual object types
         this.visualTypes = ['apples', 'stars', 'blocks'];
+        // Track last pair to prevent back-to-back repeats
+        this._lastPairKey = null;
     }
 
     /**
@@ -105,7 +107,13 @@ export class ProblemGenerator {
             pool = [{ op1: 1, op2: 1, key: '1+1' }];
         }
 
+        // Avoid repeating the last pair (filter it out if pool has alternatives)
+        if (pool.length > 1 && this._lastPairKey) {
+            pool = pool.filter(p => p.key !== this._lastPairKey);
+        }
+
         const pair = pool[Math.floor(Math.random() * pool.length)];
+        this._lastPairKey = pair.key;
 
         return {
             operand1: pair.op1,
