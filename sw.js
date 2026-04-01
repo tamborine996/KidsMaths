@@ -1,5 +1,5 @@
-const CACHE_NAME = 'kidsmaths-v7';
-const BUILD_TIME = '2026-04-01 11:35';
+const CACHE_NAME = 'kidsmaths-v8';
+const BUILD_TIME = '2026-04-01 11:38';
 const ASSETS = [
     './',
     './index.html',
@@ -23,7 +23,13 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then(cache => cache.addAll(ASSETS))
+            .then(cache => {
+                // Bypass browser HTTP cache to get fresh files
+                const requests = ASSETS.map(url =>
+                    fetch(url, { cache: 'reload' }).then(res => cache.put(url, res))
+                );
+                return Promise.all(requests);
+            })
             .then(() => self.skipWaiting())
     );
 });
@@ -55,7 +61,7 @@ self.addEventListener('message', (event) => {
 
 self.addEventListener('fetch', (event) => {
     event.respondWith(
-        fetch(event.request)
+        fetch(event.request, { cache: 'no-cache' })
             .then(response => {
                 const clone = response.clone();
                 caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
