@@ -43,6 +43,13 @@
                 <h1>KidsMaths</h1>
                 <p class="subtitle">Let's learn together!</p>
             </header>
+            <div class="search-bar" id="search-bar">
+                <span class="search-icon">&#128269;</span>
+                <input type="text" id="search-input" class="search-input" placeholder="Search stories..." autocomplete="off">
+            </div>
+            <div class="search-results hidden" id="search-results">
+                <!-- Search results injected by JS -->
+            </div>
             <div class="module-grid" id="module-grid">
                 <!-- Modules injected by JS -->
             </div>
@@ -193,6 +200,7 @@
             <header class="screen-header">
                 <button class="back-btn" data-to="reading">&larr;</button>
                 <h2 id="story-title">Story</h2>
+                <button class="bookmark-btn" id="bookmark-btn" title="Bookmark this page">&#128278;</button>
             </header>
             <div class="story-progress">
                 <span id="story-page-text">Page 1 of 4</span>

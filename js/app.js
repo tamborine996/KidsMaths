@@ -34,6 +34,9 @@ class KidsMathsApp {
         this.currentStory = null;
         this.currentStoryPage = 0;
 
+        // Search index (built after data loads)
+        this._storyIndex = [];
+
         // Initialize after DOM ready
         this._init();
     }
@@ -93,9 +96,30 @@ class KidsMathsApp {
             this.storyLevels = storiesData.levels;
             this.libraryLevels = libraryData.levels;
             this.libraryAttribution = libraryData.attribution;
+            this._buildStoryIndex();
         } catch (e) {
             console.error('Failed to load data:', e);
         }
+    }
+
+    _buildStoryIndex() {
+        this._storyIndex = [];
+        const addLevel = (levels, source) => {
+            for (const level of levels) {
+                for (const story of level.stories) {
+                    this._storyIndex.push({
+                        id: story.id,
+                        title: story.title,
+                        author: story.author || '',
+                        pages: story.pages.length,
+                        level: level.name,
+                        source
+                    });
+                }
+            }
+        };
+        addLevel(this.storyLevels, 'ours');
+        addLevel(this.libraryLevels, 'library');
     }
 
     _bindEvents() {
@@ -167,6 +191,9 @@ class KidsMathsApp {
 
         // Reading screen
         this._bindReadingEvents();
+
+        // Search
+        this._bindSearchEvents();
     }
 
     _bindParentEvents() {
@@ -279,7 +306,17 @@ class KidsMathsApp {
     // ===== HOME SCREEN =====
 
     _renderHomeScreen() {
+        // Clear search state
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        if (searchInput) searchInput.value = '';
+        if (searchResults) {
+            searchResults.classList.add('hidden');
+            searchResults.innerHTML = '';
+        }
+
         const grid = document.getElementById('module-grid');
+        grid.classList.remove('hidden');
         grid.innerHTML = '';
 
         this.modules.forEach(module => {
@@ -1096,11 +1133,23 @@ class KidsMathsApp {
         document.getElementById('story-prev-btn').addEventListener('click', () => this._storyPrevPage());
         document.getElementById('story-next-btn').addEventListener('click', () => this._storyNextPage());
 
+        // Bookmark button
+        document.getElementById('bookmark-btn').addEventListener('click', () => {
+            if (!this.currentStory) return;
+            const bookmarks = state.get('bookmarks') || {};
+            if (bookmarks[this.currentStory.id]) {
+                this._removeBookmark();
+            } else {
+                this._saveBookmark();
+            }
+        });
+
         // Delegated click for story cards
         document.getElementById('story-list').addEventListener('click', (e) => {
             const card = e.target.closest('.story-card');
             if (card) {
-                this._startStory(card.dataset.storyId);
+                const resumePage = card.dataset.resumePage;
+                this._startStory(card.dataset.storyId, resumePage ? parseInt(resumePage) : undefined);
             }
         });
     }
@@ -1161,19 +1210,23 @@ class KidsMathsApp {
         if (!level) return;
 
         const readStories = state.get('readStories') || [];
+        const bookmarks = state.get('bookmarks') || {};
 
         level.stories.forEach(story => {
             const isRead = readStories.includes(story.id);
             const hasImages = story.pages[0]?.image;
+            const bm = bookmarks[story.id];
             const card = document.createElement('div');
             card.className = 'story-card';
             card.dataset.storyId = story.id;
             card.dataset.source = tab;
+            if (bm) card.dataset.resumePage = bm.page;
             card.innerHTML = `
                 <span class="story-card-icon">${hasImages ? '\u{1F5BC}\uFE0F' : '\u{1F4D6}'}</span>
                 <div class="story-card-info">
                     <div class="story-card-title">${story.title}</div>
                     <div class="story-card-pages">${story.pages.length} pages${story.author ? ' \u00B7 ' + story.author : ''}</div>
+                    ${bm ? `<div class="story-card-bookmark">\u{1F516} Page ${bm.page + 1} of ${bm.total}</div>` : ''}
                 </div>
                 <span class="story-card-status">${isRead ? '\u2705' : ''}</span>
             `;
@@ -1181,14 +1234,21 @@ class KidsMathsApp {
         });
     }
 
-    _startStory(storyId) {
+    _startStory(storyId, resumePage) {
         // Find story across all level sources
         const allLevels = [...this.storyLevels, ...this.libraryLevels];
         for (const level of allLevels) {
             const story = level.stories.find(s => s.id === storyId);
             if (story) {
                 this.currentStory = story;
-                this.currentStoryPage = 0;
+                // Resume from bookmark if available
+                if (resumePage !== undefined) {
+                    this.currentStoryPage = resumePage;
+                } else {
+                    const bookmarks = state.get('bookmarks') || {};
+                    const bm = bookmarks[storyId];
+                    this.currentStoryPage = bm ? bm.page : 0;
+                }
 
                 // Start timer for reading session (only if not already running)
                 if (!this.timerManager.isRunning) {
@@ -1243,12 +1303,16 @@ class KidsMathsApp {
         } else {
             nextBtn.innerHTML = 'Next &rarr;';
         }
+
+        // Update bookmark button state
+        this._updateBookmarkButton();
     }
 
     _storyPrevPage() {
         if (this.currentStoryPage > 0) {
             this.currentStoryPage--;
             this._renderStoryPage();
+            this._autoSaveBookmark();
         }
     }
 
@@ -1258,12 +1322,19 @@ class KidsMathsApp {
         if (this.currentStoryPage < this.currentStory.pages.length - 1) {
             this.currentStoryPage++;
             this._renderStoryPage();
+            this._autoSaveBookmark();
         } else {
-            // Story complete — mark as read
+            // Story complete — mark as read and clear bookmark
             const readStories = state.get('readStories') || [];
             if (!readStories.includes(this.currentStory.id)) {
                 readStories.push(this.currentStory.id);
                 state.set('readStories', readStories);
+            }
+            // Remove bookmark since story is finished
+            const bookmarks = state.get('bookmarks') || {};
+            if (bookmarks[this.currentStory.id]) {
+                delete bookmarks[this.currentStory.id];
+                state.set('bookmarks', bookmarks);
             }
 
             this.celebration.trigger();
@@ -1272,6 +1343,119 @@ class KidsMathsApp {
             setTimeout(() => {
                 this._showScreen('reading');
             }, 1500);
+        }
+    }
+
+    // ===== SEARCH =====
+
+    _bindSearchEvents() {
+        const input = document.getElementById('search-input');
+        const results = document.getElementById('search-results');
+
+        input.addEventListener('input', () => {
+            const query = input.value.trim().toLowerCase();
+            if (query.length < 2) {
+                results.classList.add('hidden');
+                results.innerHTML = '';
+                document.getElementById('module-grid').classList.remove('hidden');
+                return;
+            }
+            this._renderSearchResults(query);
+        });
+
+        // Clear search when leaving home screen
+        input.addEventListener('focus', () => {
+            if (input.value.trim().length >= 2) {
+                this._renderSearchResults(input.value.trim().toLowerCase());
+            }
+        });
+
+        // Delegated click on search results
+        results.addEventListener('click', (e) => {
+            const card = e.target.closest('.search-result-card');
+            if (card) {
+                const storyId = card.dataset.storyId;
+                const resumePage = card.dataset.resumePage;
+                input.value = '';
+                results.classList.add('hidden');
+                results.innerHTML = '';
+                document.getElementById('module-grid').classList.remove('hidden');
+                this._startStory(storyId, resumePage ? parseInt(resumePage) : undefined);
+            }
+        });
+    }
+
+    _renderSearchResults(query) {
+        const results = document.getElementById('search-results');
+        const bookmarks = state.get('bookmarks') || {};
+        const matches = this._storyIndex.filter(s =>
+            s.title.toLowerCase().includes(query) ||
+            s.author.toLowerCase().includes(query)
+        );
+
+        if (matches.length === 0) {
+            results.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:var(--spacing-md);">No stories found</div>';
+            results.classList.remove('hidden');
+            document.getElementById('module-grid').classList.add('hidden');
+            return;
+        }
+
+        results.innerHTML = matches.map(s => {
+            const bm = bookmarks[s.id];
+            const bmText = bm ? `Page ${bm.page + 1} of ${s.pages}` : '';
+            return `
+                <div class="search-result-card" data-story-id="${s.id}" ${bm ? `data-resume-page="${bm.page}"` : ''}>
+                    <span class="story-card-icon">\u{1F4D6}</span>
+                    <div class="search-result-info">
+                        <div class="search-result-title">${s.title}</div>
+                        <div class="search-result-meta">${s.author ? s.author + ' \u00B7 ' : ''}${s.level} \u00B7 ${s.pages} pages</div>
+                        ${bmText ? `<div class="search-result-bookmark">\u{1F516} ${bmText}</div>` : ''}
+                    </div>
+                </div>`;
+        }).join('');
+
+        results.classList.remove('hidden');
+        document.getElementById('module-grid').classList.add('hidden');
+    }
+
+    // ===== BOOKMARKS =====
+
+    _saveBookmark() {
+        if (!this.currentStory) return;
+        const bookmarks = state.get('bookmarks') || {};
+        bookmarks[this.currentStory.id] = {
+            page: this.currentStoryPage,
+            title: this.currentStory.title,
+            total: this.currentStory.pages.length,
+            date: new Date().toISOString()
+        };
+        state.set('bookmarks', bookmarks);
+        this._updateBookmarkButton();
+    }
+
+    _removeBookmark() {
+        if (!this.currentStory) return;
+        const bookmarks = state.get('bookmarks') || {};
+        delete bookmarks[this.currentStory.id];
+        state.set('bookmarks', bookmarks);
+        this._updateBookmarkButton();
+    }
+
+    _updateBookmarkButton() {
+        const btn = document.getElementById('bookmark-btn');
+        if (!this.currentStory) return;
+        const bookmarks = state.get('bookmarks') || {};
+        const hasBookmark = bookmarks[this.currentStory.id] !== undefined;
+        btn.classList.toggle('active', hasBookmark);
+        btn.title = hasBookmark ? 'Remove bookmark' : 'Bookmark this page';
+    }
+
+    _autoSaveBookmark() {
+        if (!this.currentStory) return;
+        const bookmarks = state.get('bookmarks') || {};
+        // Auto-save if bookmark exists OR story has 20+ pages (long stories)
+        if (bookmarks[this.currentStory.id] || this.currentStory.pages.length >= 20) {
+            this._saveBookmark();
         }
     }
 

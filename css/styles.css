@@ -289,6 +289,87 @@ body {
     font-weight: 400;
 }
 
+/* Search Bar */
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--bg-card);
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    margin-bottom: var(--spacing-md);
+    box-shadow: var(--shadow-offset) var(--shadow-color);
+}
+
+.search-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--text-primary);
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: var(--text-muted);
+}
+
+.search-results {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.search-result-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--bg-card);
+    border: var(--border-width) solid var(--reading-border);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 2px 2px 0 var(--reading-border);
+}
+
+.search-result-card:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 var(--reading-border);
+}
+
+.search-result-info {
+    flex: 1;
+}
+
+.search-result-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+}
+
+.search-result-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.search-result-bookmark {
+    font-size: 0.75rem;
+    color: var(--accent-gold);
+    font-weight: 700;
+}
+
 .module-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -436,6 +517,26 @@ body {
     font-weight: 700;
     flex: 1;
     color: var(--text-heading);
+}
+
+.bookmark-btn {
+    width: 48px;
+    height: 48px;
+    border: none;
+    background: transparent;
+    font-size: 1.5rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    opacity: 0.5;
+    transition: opacity 0.2s, transform 0.15s;
+}
+
+.bookmark-btn.active {
+    opacity: 1;
+}
+
+.bookmark-btn:active {
+    transform: scale(1.2);
 }
 
 .back-btn {
@@ -1755,6 +1856,13 @@ td.mastery-mastered {
 .story-card-pages {
     font-size: 0.85rem;
     color: var(--text-muted);
+}
+
+.story-card-bookmark {
+    font-size: 0.8rem;
+    color: var(--accent-gold);
+    font-weight: 700;
+    margin-top: 2px;
 }
 
 .story-card-status {
