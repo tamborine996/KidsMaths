@@ -1885,7 +1885,7 @@ td.mastery-mastered {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     padding: var(--spacing-lg);
     background: var(--bg-card);
     border: var(--border-width) solid var(--reading-border);
@@ -1894,6 +1894,8 @@ td.mastery-mastered {
     margin-bottom: var(--spacing-lg);
     min-height: 200px;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
     gap: var(--spacing-md);
 }
 

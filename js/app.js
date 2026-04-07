@@ -33,6 +33,8 @@ class KidsMathsApp {
         // Reading state
         this.currentStory = null;
         this.currentStoryPage = 0;
+        this._storyTouchStartX = 0;
+        this._storyTouchStartY = 0;
 
         // Search index (built after data loads)
         this._storyIndex = [];
@@ -1133,6 +1135,32 @@ class KidsMathsApp {
         document.getElementById('story-prev-btn').addEventListener('click', () => this._storyPrevPage());
         document.getElementById('story-next-btn').addEventListener('click', () => this._storyNextPage());
 
+        // Story swipe navigation (storybook-style page turns)
+        const storyContent = document.getElementById('story-content');
+        storyContent.addEventListener('touchstart', (e) => {
+            if (!this.currentStory || e.touches.length !== 1) return;
+            this._storyTouchStartX = e.touches[0].clientX;
+            this._storyTouchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        storyContent.addEventListener('touchend', (e) => {
+            if (!this.currentStory || e.changedTouches.length !== 1) return;
+
+            const deltaX = e.changedTouches[0].clientX - this._storyTouchStartX;
+            const deltaY = e.changedTouches[0].clientY - this._storyTouchStartY;
+            const absX = Math.abs(deltaX);
+            const absY = Math.abs(deltaY);
+
+            // Only trigger when the gesture is clearly horizontal
+            if (absX < 50 || absX <= absY * 1.25) return;
+
+            if (deltaX < 0) {
+                this._storyNextPage();
+            } else {
+                this._storyPrevPage();
+            }
+        }, { passive: true });
+
         // Bookmark button
         document.getElementById('bookmark-btn').addEventListener('click', () => {
             if (!this.currentStory) return;
@@ -1292,6 +1320,10 @@ class KidsMathsApp {
             img.classList.add('hidden');
             img.src = '';
         }
+
+        // Reset scroll position so each new page starts at the top
+        const storyContent = document.getElementById('story-content');
+        storyContent.scrollTop = 0;
 
         // Show/hide nav buttons
         document.getElementById('story-prev-btn').style.visibility =
