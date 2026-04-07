@@ -1312,17 +1312,20 @@ class KidsMathsApp {
 
         // Show/hide illustration
         const img = document.getElementById('story-image');
+        const storyContent = document.getElementById('story-content');
         if (page.image) {
             img.src = page.image;
-            img.alt = `Illustration for ${story.title}`;
+            img.alt = page.imageAlt || `Illustration for ${story.title}`;
             img.classList.remove('hidden');
+            storyContent.classList.add('has-image');
         } else {
             img.classList.add('hidden');
             img.src = '';
+            img.alt = '';
+            storyContent.classList.remove('has-image');
         }
 
         // Reset scroll position so each new page starts at the top
-        const storyContent = document.getElementById('story-content');
         storyContent.scrollTop = 0;
 
         // Show/hide nav buttons

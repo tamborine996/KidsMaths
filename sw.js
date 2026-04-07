@@ -1,5 +1,5 @@
-const CACHE_NAME = 'kidsmaths-v19';
-const BUILD_TIME = '2026-04-07 22:00';
+const CACHE_NAME = 'kidsmaths-v20';
+const BUILD_TIME = '2026-04-07 22:12';
 const ASSETS = [
     './',
     './index.html',
@@ -17,7 +17,8 @@ const ASSETS = [
     './data/rewards.json',
     './data/stories.json',
     './data/library.json',
-    './manifest.json'
+    './manifest.json',
+    './assets/stories/alice-page-1-white-rabbit.jpg'
 ];
 
 self.addEventListener('install', (event) => {

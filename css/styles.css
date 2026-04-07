@@ -1904,6 +1904,7 @@ td.mastery-mastered {
     max-height: 300px;
     border-radius: var(--border-radius-md);
     object-fit: contain;
+    flex-shrink: 0;
 }
 
 .story-image.hidden {
@@ -1918,6 +1919,7 @@ td.mastery-mastered {
     text-align: left;
     white-space: pre-line;
     max-width: 100%;
+    width: 100%;
 }
 
 .story-nav {
@@ -2036,6 +2038,30 @@ td.mastery-mastered {
 
     .story-content {
         padding: var(--spacing-xl);
+    }
+
+    .story-content.has-image {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: var(--spacing-xl);
+    }
+
+    .story-content.has-image .story-image {
+        width: min(38%, 340px);
+        max-height: none;
+        position: sticky;
+        top: 0;
+        align-self: flex-start;
+    }
+
+    .story-content.has-image #story-text {
+        flex: 1;
+    }
+}
+
+@media (max-width: 699px) {
+    .story-content.has-image {
+        flex-direction: column;
     }
 }
 
