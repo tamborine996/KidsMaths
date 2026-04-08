@@ -72,6 +72,9 @@ class KidsMathsApp {
         // Register service worker for PWA
         this._registerServiceWorker();
 
+        // Prefer portrait so small hand movements don't rotate the app
+        this._lockPortraitOrientation();
+
         // Long-press update button
         this._setupUpdateButton();
 
@@ -1992,6 +1995,16 @@ class KidsMathsApp {
             if (indicatorBtn) { indicatorBtn.classList.remove('checking'); }
             if (statusEl) { statusEl.textContent = 'Update check failed. Are you online?'; }
             if (settingsBtn) { settingsBtn.disabled = false; }
+        }
+    }
+
+    _lockPortraitOrientation() {
+        try {
+            if (screen.orientation?.lock) {
+                screen.orientation.lock('portrait-primary').catch(() => {});
+            }
+        } catch (_) {
+            // Ignore unsupported browsers/platforms
         }
     }
 
