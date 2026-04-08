@@ -128,6 +128,12 @@ class KidsMathsApp {
         // Home screen buttons
         document.getElementById('store-btn').addEventListener('click', () => this._showScreen('store'));
         document.getElementById('parent-btn').addEventListener('click', () => this._showScreen('parent'));
+        document.getElementById('home-reading-hub').addEventListener('click', () => this._showScreen('reading'));
+        document.getElementById('home-maths-hub').addEventListener('click', () => {
+            document.getElementById('module-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        document.getElementById('home-next-up').addEventListener('click', (e) => this._handleHomeShortcutClick(e));
+        document.getElementById('home-resume').addEventListener('click', (e) => this._handleHomeShortcutClick(e));
 
         // Back buttons
         document.querySelectorAll('.back-btn').forEach(btn => {
@@ -308,44 +314,352 @@ class KidsMathsApp {
     // ===== HOME SCREEN =====
 
     _renderHomeScreen() {
-        // Clear search state
         const searchInput = document.getElementById('search-input');
         const searchResults = document.getElementById('search-results');
+        const homeDashboard = document.getElementById('home-dashboard');
+
         if (searchInput) searchInput.value = '';
         if (searchResults) {
             searchResults.classList.add('hidden');
             searchResults.innerHTML = '';
         }
+        if (homeDashboard) {
+            homeDashboard.classList.remove('hidden');
+        }
 
+        this._renderHomeNextUp();
+        this._renderHomeResume();
+        this._renderHomeLearningAreas();
+        this._renderHomeModules();
+    }
+
+    _renderHomeNextUp() {
+        const container = document.getElementById('home-next-up');
+        const nextItem = this._getPrimaryNextUp();
+
+        if (!nextItem) {
+            container.innerHTML = `
+                <button class="next-up-card" data-kind="screen" data-screen="reading">
+                    <div class="next-up-label">Next up</div>
+                    <div class="next-up-title">Start a story or pick a maths module</div>
+                    <div class="next-up-meta">Reading and maths now each have their own space on the home screen.</div>
+                    <div class="next-up-cta">Open Reading &rarr;</div>
+                </button>
+            `;
+            return;
+        }
+
+        const icon = nextItem.type === 'story' ? '📖' : (nextItem.icon || '➕');
+        const dataAttrs = nextItem.type === 'story'
+            ? `data-kind="story" data-story-id="${nextItem.storyId}" data-page="${nextItem.page}"`
+            : `data-kind="module" data-module-id="${nextItem.moduleId}" data-level-id="${nextItem.levelId || ''}" data-mode="${nextItem.mode || ''}"`;
+        const meta = nextItem.type === 'story'
+            ? `Page ${nextItem.page + 1} of ${nextItem.totalPages} · ${nextItem.levelName}`
+            : `${nextItem.levelName || 'Pick up where you left off'}${nextItem.modeLabel ? ' · ' + nextItem.modeLabel : ''}`;
+
+        container.innerHTML = `
+            <button class="next-up-card" ${dataAttrs}>
+                <div class="next-up-label">Next up</div>
+                <div class="next-up-main">
+                    <span class="next-up-icon">${icon}</span>
+                    <div>
+                        <div class="next-up-title">${nextItem.title}</div>
+                        <div class="next-up-meta">${meta}</div>
+                    </div>
+                </div>
+                <div class="next-up-cta">${nextItem.cta}</div>
+            </button>
+        `;
+    }
+
+    _renderHomeResume() {
+        const container = document.getElementById('home-resume');
+        const items = this._getResumeItems();
+
+        if (items.length === 0) {
+            container.innerHTML = `
+                <div class="home-empty-state">
+                    <div class="home-empty-title">No recent activity yet</div>
+                    <div class="home-empty-copy">Start with Reading or choose a maths module below, and shortcuts will appear here automatically.</div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = items.map(item => {
+            if (item.type === 'story') {
+                return `
+                    <button class="home-resume-card" data-kind="story" data-story-id="${item.storyId}" data-page="${item.page}">
+                        <div class="home-resume-top">
+                            <span class="home-resume-icon">📖</span>
+                            <span class="home-resume-chip">Reading</span>
+                        </div>
+                        <div class="home-resume-title">${item.title}</div>
+                        <div class="home-resume-meta">Page ${item.page + 1} of ${item.totalPages} · ${item.levelName}</div>
+                        <div class="home-resume-foot">${item.cta}</div>
+                    </button>
+                `;
+            }
+
+            return `
+                <button class="home-resume-card" data-kind="module" data-module-id="${item.moduleId}" data-level-id="${item.levelId || ''}" data-mode="${item.mode || ''}">
+                    <div class="home-resume-top">
+                        <span class="home-resume-icon">${item.icon || '➕'}</span>
+                        <span class="home-resume-chip">Maths</span>
+                    </div>
+                    <div class="home-resume-title">${item.title}</div>
+                    <div class="home-resume-meta">${item.levelName || 'Start here'}${item.modeLabel ? ' · ' + item.modeLabel : ''}</div>
+                    <div class="home-resume-foot">${item.cta}</div>
+                </button>
+            `;
+        }).join('');
+    }
+
+    _renderHomeLearningAreas() {
+        const mathsHub = document.getElementById('home-maths-hub');
+        const readingHub = document.getElementById('home-reading-hub');
+        const bookmarks = Object.values(state.get('bookmarks') || {});
+        const readStories = state.get('readStories') || [];
+        const totalTime = this.progressManager.getTotalPracticeTime();
+        const streak = this.progressManager.getStreak();
+        const recentMaths = this._getRecentMathsItem();
+        const recentStory = this._getRecentStoryItem();
+
+        mathsHub.innerHTML = `
+            <div class="learning-area-top">
+                <span class="learning-area-icon">🧮</span>
+                <span class="learning-area-badge">Main area</span>
+            </div>
+            <div class="learning-area-title">Maths</div>
+            <div class="learning-area-copy">Six skill areas with practice and tests.</div>
+            <div class="learning-area-stats">${totalTime} minutes practised · ${streak} day${streak !== 1 ? 's' : ''} streak</div>
+            <div class="learning-area-foot">${recentMaths ? 'Last used: ' + recentMaths.title : 'Scroll down to pick a module'} &rarr;</div>
+        `;
+
+        readingHub.innerHTML = `
+            <div class="learning-area-top">
+                <span class="learning-area-icon">📚</span>
+                <span class="learning-area-badge">Main area</span>
+            </div>
+            <div class="learning-area-title">Reading</div>
+            <div class="learning-area-copy">Story library, originals, bookmarks, and longer books.</div>
+            <div class="learning-area-stats">${bookmarks.length} bookmarked · ${readStories.length} finished</div>
+            <div class="learning-area-foot">${recentStory ? 'Continue: ' + recentStory.title : 'Open the reading library'} &rarr;</div>
+        `;
+    }
+
+    _renderHomeModules() {
         const grid = document.getElementById('module-grid');
         grid.classList.remove('hidden');
         grid.innerHTML = '';
 
         this.modules.forEach(module => {
+            const summary = this.progressManager.getModuleSummary(module.id);
+            const recentLevel = this._getMostRecentLevelInfo(module.id);
+            const totalLevels = module.levels.length;
+            const progressPercent = totalLevels > 0 ? Math.round((summary.levelsAttempted / totalLevels) * 100) : 0;
+            const statusLine = recentLevel ? `Continue ${recentLevel.levelName}` : 'Start here';
+            const secondaryLine = summary.lastPracticed
+                ? `Last practised ${this._formatLastPracticed(summary.lastPracticed)}`
+                : `${totalLevels} levels ready`;
+
             const btn = document.createElement('button');
             btn.className = 'module-btn';
             btn.dataset.module = module.id;
             btn.innerHTML = `
-                <span class="module-icon">${module.icon}</span>
-                <span class="module-name">${module.name}</span>
+                <div class="module-card-top">
+                    <span class="module-icon">${module.icon}</span>
+                    <div class="module-copy">
+                        <span class="module-name">${module.name}</span>
+                        <span class="module-meta">${statusLine}</span>
+                    </div>
+                </div>
+                <div class="module-progress-track">
+                    <div class="module-progress-fill" style="width:${progressPercent}%"></div>
+                </div>
+                <div class="module-card-bottom">
+                    <span class="module-secondary">${secondaryLine}</span>
+                    <span class="module-secondary">${summary.totalProblems || 0} problems</span>
+                </div>
             `;
             btn.addEventListener('click', () => this._selectModule(module.id));
             grid.appendChild(btn);
         });
+    }
 
-        // Add Reading button
-        const readingBtn = document.createElement('button');
-        readingBtn.className = 'module-btn';
-        readingBtn.dataset.module = 'reading';
-        readingBtn.innerHTML = `
-            <span class="module-icon">\u{1F4D6}</span>
-            <span class="module-name">Reading</span>
-        `;
-        readingBtn.addEventListener('click', () => this._showScreen('reading'));
-        grid.appendChild(readingBtn);
+    _getPrimaryNextUp() {
+        const currentSession = state.get('currentSession');
+        if (currentSession?.module === 'reading') {
+            return this._getRecentStoryItem() || this._getResumeItems()[0] || null;
+        }
+        if (currentSession?.module) {
+            return this._buildModuleResumeItem(currentSession.module, state.get('currentLevel'), currentSession.mode, currentSession.startTime);
+        }
+        return this._getResumeItems()[0] || null;
+    }
+
+    _getResumeItems() {
+        const items = [];
+        const seen = new Set();
+        const bookmarks = state.get('bookmarks') || {};
+
+        Object.entries(bookmarks)
+            .sort((a, b) => (b[1].date || '').localeCompare(a[1].date || ''))
+            .forEach(([storyId, bm]) => {
+                const item = this._buildStoryResumeItem(storyId, bm.page, bm.date);
+                if (item && !seen.has(item.key)) {
+                    seen.add(item.key);
+                    items.push(item);
+                }
+            });
+
+        (state.get('recentItems') || []).forEach(raw => {
+            let item = null;
+            if (raw.type === 'story') {
+                const page = bookmarks[raw.storyId]?.page ?? raw.page ?? 0;
+                item = this._buildStoryResumeItem(raw.storyId, page, raw.updatedAt);
+            } else if (raw.type === 'module') {
+                item = this._buildModuleResumeItem(raw.moduleId, raw.levelId, raw.mode, raw.updatedAt);
+            }
+
+            if (item && !seen.has(item.key) && items.length < 4) {
+                seen.add(item.key);
+                items.push(item);
+            }
+        });
+
+        return items.slice(0, 4);
+    }
+
+    _getRecentStoryItem() {
+        return this._getResumeItems().find(item => item.type === 'story') || null;
+    }
+
+    _getRecentMathsItem() {
+        return this._getResumeItems().find(item => item.type === 'module') || null;
+    }
+
+    _buildStoryResumeItem(storyId, page = 0, date = null) {
+        const storyMatch = this._findStoryById(storyId);
+        if (!storyMatch) return null;
+
+        return {
+            key: `story:${storyId}`,
+            type: 'story',
+            storyId,
+            page: Math.max(0, Math.min(page || 0, storyMatch.story.pages.length - 1)),
+            totalPages: storyMatch.story.pages.length,
+            title: storyMatch.story.title,
+            levelName: storyMatch.level.name,
+            updatedAt: date || new Date().toISOString(),
+            cta: 'Resume story →'
+        };
+    }
+
+    _buildModuleResumeItem(moduleId, levelId, mode = null, updatedAt = null) {
+        const module = this.modules.find(m => m.id === moduleId);
+        if (!module) return null;
+
+        const fallbackLevel = this._getMostRecentLevelInfo(moduleId)?.levelId || module.levels[0]?.id || null;
+        const resolvedLevelId = levelId || fallbackLevel;
+        const level = module.levels.find(l => l.id === resolvedLevelId) || module.levels[0];
+
+        return {
+            key: `module:${moduleId}`,
+            type: 'module',
+            moduleId,
+            levelId: level?.id || null,
+            mode,
+            modeLabel: mode ? mode.charAt(0).toUpperCase() + mode.slice(1) : '',
+            title: module.name,
+            icon: module.icon,
+            levelName: level?.name || 'Choose level',
+            updatedAt: updatedAt || new Date().toISOString(),
+            cta: mode ? `Resume ${mode} →` : 'Open module →'
+        };
+    }
+
+    _getMostRecentLevelInfo(moduleId) {
+        const moduleProgress = state.get(`moduleProgress.${moduleId}`) || {};
+        let best = null;
+
+        Object.entries(moduleProgress).forEach(([levelId, info]) => {
+            if (!info?.lastPracticed) return;
+            if (!best || info.lastPracticed > best.lastPracticed) {
+                const module = this.modules.find(m => m.id === moduleId);
+                const level = module?.levels.find(l => l.id === levelId);
+                best = {
+                    levelId,
+                    levelName: level?.name || levelId,
+                    lastPracticed: info.lastPracticed
+                };
+            }
+        });
+
+        return best;
+    }
+
+    _findStoryById(storyId) {
+        const allLevels = [...this.storyLevels, ...this.libraryLevels];
+        for (const level of allLevels) {
+            const story = level.stories.find(s => s.id === storyId);
+            if (story) {
+                return { story, level };
+            }
+        }
+        return null;
+    }
+
+    _recordRecentItem(item) {
+        if (!item?.key) return;
+        const existing = state.get('recentItems') || [];
+        const next = [
+            { ...item, updatedAt: new Date().toISOString() },
+            ...existing.filter(entry => entry.key !== item.key)
+        ].slice(0, 8);
+        state.set('recentItems', next);
+    }
+
+    _handleHomeShortcutClick(e) {
+        const target = e.target.closest('[data-kind]');
+        if (!target) return;
+
+        const kind = target.dataset.kind;
+        if (kind === 'story') {
+            this._startStory(target.dataset.storyId, parseInt(target.dataset.page || '0', 10));
+            return;
+        }
+
+        if (kind === 'module') {
+            this._launchModule(target.dataset.moduleId, target.dataset.levelId || null, target.dataset.mode || null);
+            return;
+        }
+
+        if (kind === 'screen' && target.dataset.screen) {
+            this._showScreen(target.dataset.screen);
+        }
+    }
+
+    _launchModule(moduleId, levelId = null, mode = null) {
+        state.set('currentModule', moduleId);
+        if (levelId) {
+            state.set('currentLevel', levelId);
+        } else {
+            const module = this.modules.find(m => m.id === moduleId);
+            if (module?.levels?.length) {
+                state.set('currentLevel', module.levels[0].id);
+            }
+        }
+
+        if (mode) {
+            this._startMode(mode);
+        } else {
+            this._showScreen('module');
+        }
     }
 
     _selectModule(moduleId) {
+        this._recordRecentItem(this._buildModuleResumeItem(moduleId, null, null));
         state.set('currentModule', moduleId);
         const module = this.modules.find(m => m.id === moduleId);
         if (module && module.levels.length > 0) {
@@ -479,6 +793,11 @@ class KidsMathsApp {
 
     _startMode(mode) {
         state.set('currentMode', mode);
+        this._recordRecentItem(this._buildModuleResumeItem(
+            state.get('currentModule'),
+            state.get('currentLevel'),
+            mode
+        ));
 
         switch (mode) {
             case 'learn':
@@ -1278,6 +1597,8 @@ class KidsMathsApp {
                     this.currentStoryPage = bm ? bm.page : 0;
                 }
 
+                this._recordRecentItem(this._buildStoryResumeItem(storyId, this.currentStoryPage));
+
                 // Start timer for reading session (only if not already running)
                 if (!this.timerManager.isRunning) {
                     this.timerUI.show();
@@ -1388,6 +1709,7 @@ class KidsMathsApp {
     _bindSearchEvents() {
         const input = document.getElementById('search-input');
         const results = document.getElementById('search-results');
+        const homeDashboard = document.getElementById('home-dashboard');
 
         input.addEventListener('input', () => {
             const query = input.value.trim().toLowerCase();
@@ -1395,6 +1717,7 @@ class KidsMathsApp {
                 results.classList.add('hidden');
                 results.innerHTML = '';
                 document.getElementById('module-grid').classList.remove('hidden');
+                if (homeDashboard) homeDashboard.classList.remove('hidden');
                 return;
             }
             this._renderSearchResults(query);
@@ -1417,6 +1740,7 @@ class KidsMathsApp {
                 results.classList.add('hidden');
                 results.innerHTML = '';
                 document.getElementById('module-grid').classList.remove('hidden');
+                if (homeDashboard) homeDashboard.classList.remove('hidden');
                 this._startStory(storyId, resumePage ? parseInt(resumePage) : undefined);
             }
         });
@@ -1424,6 +1748,7 @@ class KidsMathsApp {
 
     _renderSearchResults(query) {
         const results = document.getElementById('search-results');
+        const homeDashboard = document.getElementById('home-dashboard');
         const bookmarks = state.get('bookmarks') || {};
         const matches = this._storyIndex.filter(s =>
             s.title.toLowerCase().includes(query) ||
@@ -1434,6 +1759,7 @@ class KidsMathsApp {
             results.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:var(--spacing-md);">No stories found</div>';
             results.classList.remove('hidden');
             document.getElementById('module-grid').classList.add('hidden');
+            if (homeDashboard) homeDashboard.classList.add('hidden');
             return;
         }
 
@@ -1452,6 +1778,7 @@ class KidsMathsApp {
         }).join('');
 
         results.classList.remove('hidden');
+        if (homeDashboard) homeDashboard.classList.add('hidden');
         document.getElementById('module-grid').classList.add('hidden');
     }
 
@@ -1676,7 +2003,6 @@ class KidsMathsApp {
     }
 }
 
-// Start the app
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new KidsMathsApp();
-});
+// Initialize app
+new KidsMathsApp();
+

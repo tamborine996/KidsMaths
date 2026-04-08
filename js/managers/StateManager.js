@@ -56,7 +56,11 @@ export class StateManager {
             additionMastery: {},
             // Reading
             readStories: [],
+            bookmarks: {},
             readingLevel: 'R1',
+            libraryLevel: 'L1',
+            // Home shortcuts / recent activity
+            recentItems: [],
             // Parent PIN (default: 1234)
             parentPin: '1234',
             // Current screen state

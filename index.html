@@ -41,17 +41,53 @@
         <div id="home-screen" class="screen active">
             <header class="home-header">
                 <h1>KidsMaths</h1>
-                <p class="subtitle">Let's learn together!</p>
+                <p class="subtitle">Choose your next learning adventure</p>
             </header>
+            <div id="home-next-up" class="home-next-up">
+                <!-- Next up card injected by JS -->
+            </div>
             <div class="search-bar" id="search-bar">
                 <span class="search-icon">&#128269;</span>
-                <input type="text" id="search-input" class="search-input" placeholder="Search stories..." autocomplete="off">
+                <input type="text" id="search-input" class="search-input" placeholder="Search story titles..." autocomplete="off">
             </div>
             <div class="search-results hidden" id="search-results">
                 <!-- Search results injected by JS -->
             </div>
-            <div class="module-grid" id="module-grid">
-                <!-- Modules injected by JS -->
+            <div id="home-dashboard" class="home-dashboard">
+                <section class="home-section">
+                    <div class="section-heading">
+                        <h3>Continue where we left off</h3>
+                        <p>Quick shortcuts back to recent learning.</p>
+                    </div>
+                    <div id="home-resume" class="home-resume-list">
+                        <!-- Resume cards injected by JS -->
+                    </div>
+                </section>
+
+                <section class="home-section">
+                    <div class="section-heading">
+                        <h3>Choose a learning area</h3>
+                        <p>Reading now sits alongside maths as its own main area.</p>
+                    </div>
+                    <div class="learning-area-grid">
+                        <button id="home-maths-hub" class="learning-area-card learning-area-maths">
+                            <!-- Maths hub injected by JS -->
+                        </button>
+                        <button id="home-reading-hub" class="learning-area-card learning-area-reading">
+                            <!-- Reading hub injected by JS -->
+                        </button>
+                    </div>
+                </section>
+
+                <section class="home-section">
+                    <div class="section-heading">
+                        <h3>Maths modules</h3>
+                        <p>Pick a skill to explore or continue.</p>
+                    </div>
+                    <div class="module-grid" id="module-grid">
+                        <!-- Modules injected by JS -->
+                    </div>
+                </section>
             </div>
             <div class="home-footer">
                 <button id="store-btn" class="footer-btn">
