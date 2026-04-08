@@ -1318,11 +1318,13 @@ class KidsMathsApp {
             img.alt = page.imageAlt || `Illustration for ${story.title}`;
             img.classList.remove('hidden');
             storyContent.classList.add('has-image');
+            storyContent.classList.toggle('side-image-layout', page.imageLayout === 'side');
         } else {
             img.classList.add('hidden');
             img.src = '';
             img.alt = '';
             storyContent.classList.remove('has-image');
+            storyContent.classList.remove('side-image-layout');
         }
 
         // Reset scroll position so each new page starts at the top
