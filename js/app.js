@@ -39,6 +39,13 @@ class KidsMathsApp {
         this._selectedUrduWord = null;
         this._showUrduTranslation = false;
         this._showUrduSavedWords = false;
+        this._baseUrduLevels = [];
+        this._bbcFeedItems = [];
+        this._bbcFeedExpanded = false;
+        this._bbcFeedLoading = false;
+        this._bbcFeedError = '';
+        this._bbcFeedFetchedAt = '';
+        this._bbcImportingUrl = '';
 
         // Search index (built after data loads)
         this._storyIndex = [];
@@ -106,9 +113,10 @@ class KidsMathsApp {
             this.rewards = rewardsData.rewards;
             this.storyLevels = storiesData.levels;
             this.libraryLevels = libraryData.levels;
-            this.urduLevels = urduData.levels;
+            this._baseUrduLevels = urduData.levels || [];
             this.libraryAttribution = libraryData.attribution;
             this.urduAttribution = urduData.attribution;
+            this._hydrateUrduLevels();
             this._buildStoryIndex();
         } catch (e) {
             console.error('Failed to load data:', e);
@@ -1586,6 +1594,25 @@ class KidsMathsApp {
 
         // Delegated click for story cards
         document.getElementById('story-list').addEventListener('click', (e) => {
+            const bbcBtn = e.target.closest('[data-bbc-feed-action]');
+            if (bbcBtn) {
+                const action = bbcBtn.dataset.bbcFeedAction;
+                const url = bbcBtn.dataset.url;
+
+                if (action === 'toggle') {
+                    this._bbcFeedExpanded = !this._bbcFeedExpanded;
+                    this._renderStoryList();
+                    if (this._bbcFeedExpanded && !this._bbcFeedItems.length && !this._bbcFeedLoading) {
+                        this._loadBbcFeed();
+                    }
+                } else if (action === 'refresh') {
+                    this._loadBbcFeed({ force: true });
+                } else if (action === 'add' && url) {
+                    this._importBbcFeedItem(url);
+                }
+                return;
+            }
+
             const actionBtn = e.target.closest('[data-urdu-story-action]');
             if (actionBtn) {
                 const storyId = actionBtn.dataset.storyId;
@@ -1635,6 +1662,296 @@ class KidsMathsApp {
         state.set('archivedUrduStoryIds', archived);
         state.set('showArchivedUrdu', true);
         this._renderStoryList();
+    }
+
+    _getCustomUrduStories() {
+        return state.get('customUrduStories') || [];
+    }
+
+    _setCustomUrduStories(stories) {
+        state.set('customUrduStories', stories);
+        this._hydrateUrduLevels();
+        this._buildStoryIndex();
+    }
+
+    _hydrateUrduLevels() {
+        const importedStories = this._getCustomUrduStories();
+        const importedLevel = importedStories.length ? [{
+            id: 'U_IMPORTED',
+            name: 'Imported Urdu',
+            ageRange: 'Family',
+            description: 'Articles and stories you added yourself.',
+            stories: importedStories
+        }] : [];
+        this.urduLevels = [...this._baseUrduLevels, ...importedLevel];
+    }
+
+    _normalizeBbcUrl(url = '') {
+        return String(url || '')
+            .trim()
+            .replace(/[?#].*$/, '')
+            .replace(/\.lite$/, '')
+            .replace(/\/$/, '');
+    }
+
+    _isExistingUrduSourceUrl(url) {
+        const normalized = this._normalizeBbcUrl(url);
+        if (!normalized) return false;
+        return this._getAllUrduStories().some(story => this._normalizeBbcUrl(story.originalUrl) === normalized);
+    }
+
+    _proxyUrlsFor(url, kind = 'html') {
+        const encoded = encodeURIComponent(url);
+        const feedProxy = `https://api.allorigins.win/raw?url=${encoded}`;
+        const codeTabsProxy = `https://api.codetabs.com/v1/proxy?quest=${encoded}`;
+        return kind === 'feed'
+            ? [feedProxy, codeTabsProxy]
+            : [codeTabsProxy, feedProxy];
+    }
+
+    async _fetchTextWithProxy(url, kind = 'html') {
+        let lastError = null;
+
+        for (const proxyUrl of this._proxyUrlsFor(url, kind)) {
+            try {
+                const response = await fetch(proxyUrl, { cache: 'no-store' });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const text = await response.text();
+                if (!text || text.length < 50) {
+                    throw new Error('Empty response');
+                }
+
+                return text;
+            } catch (error) {
+                lastError = error;
+            }
+        }
+
+        throw lastError || new Error('Unable to fetch remote content');
+    }
+
+    _extractBbcArticleId(url = '') {
+        const match = String(url).match(/\/articles\/([a-z0-9]+)/i);
+        return match ? match[1].toLowerCase() : null;
+    }
+
+    _buildBbcStoryId(url = '') {
+        const articleId = this._extractBbcArticleId(url);
+        return articleId ? `bbc-urdu-${articleId}` : `bbc-urdu-${Date.now()}`;
+    }
+
+    _cleanBbcFeedTitle(text = '') {
+        return String(text || '').replace(/\s+/g, ' ').trim();
+    }
+
+    _formatFeedFetchedAt() {
+        if (!this._bbcFeedFetchedAt) return '';
+        const date = new Date(this._bbcFeedFetchedAt);
+        if (Number.isNaN(date.getTime())) return '';
+        return `Updated ${date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+    }
+
+    _buildBbcFeedSelectionSection() {
+        const feedHint = this._formatFeedFetchedAt();
+        const buttonLabel = this._bbcFeedExpanded ? 'Hide BBC list' : 'Add from BBC Urdu';
+
+        let panel = '';
+        if (this._bbcFeedExpanded) {
+            let body = '';
+            if (this._bbcFeedLoading) {
+                body = '<div class="urdu-bbc-empty">Loading the latest BBC Urdu articles…</div>';
+            } else if (this._bbcFeedError) {
+                body = `<div class="urdu-bbc-empty urdu-bbc-error">${this._escapeHtml(this._bbcFeedError)}</div>`;
+            } else if (!this._bbcFeedItems.length) {
+                body = '<div class="urdu-bbc-empty">No BBC Urdu article choices are ready yet.</div>';
+            } else {
+                body = this._bbcFeedItems.map(item => {
+                    const alreadyAdded = this._isExistingUrduSourceUrl(item.url);
+                    const isImporting = this._bbcImportingUrl === item.url;
+                    const buttonText = alreadyAdded ? 'Added' : isImporting ? 'Adding…' : 'Add';
+                    return `
+                        <div class="urdu-bbc-feed-row">
+                            <div class="urdu-bbc-feed-main">
+                                <div class="urdu-bbc-feed-title" dir="rtl">${this._escapeHtml(item.title)}</div>
+                                <div class="urdu-bbc-feed-meta">BBC News Urdu • ${this._escapeHtml(this._formatUrduPublishedDate({ publishedAt: item.publishedAt, sourceType: 'news' }) || 'Latest')}</div>
+                                ${item.summary ? `<div class="urdu-bbc-feed-summary" dir="rtl">${this._escapeHtml(item.summary)}</div>` : ''}
+                            </div>
+                            <button class="primary-btn urdu-bbc-feed-add" type="button" data-bbc-feed-action="add" data-url="${this._escapeHtml(item.url)}" ${alreadyAdded || isImporting ? 'disabled' : ''}>${buttonText}</button>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            panel = `
+                <div class="urdu-bbc-panel">
+                    <div class="urdu-bbc-panel-head">
+                        <div>
+                            <div class="urdu-library-kicker">Fresh RSS list</div>
+                            <div class="urdu-bbc-panel-copy">Pick one BBC Urdu article to bring into your study list.</div>
+                        </div>
+                        <button class="secondary-btn urdu-bbc-refresh" type="button" data-bbc-feed-action="refresh">Refresh</button>
+                    </div>
+                    ${feedHint ? `<div class="urdu-bbc-feed-hint">${this._escapeHtml(feedHint)}</div>` : ''}
+                    <div class="urdu-bbc-feed-list">${body}</div>
+                </div>
+            `;
+        }
+
+        return `
+            <section class="urdu-library-section urdu-bbc-section">
+                <div class="urdu-library-heading-row">
+                    <div>
+                        <div class="urdu-library-kicker">BBC Urdu pipeline</div>
+                        <h3 class="urdu-library-heading">Choose a fresh article</h3>
+                    </div>
+                    <button class="secondary-btn urdu-bbc-toggle" type="button" data-bbc-feed-action="toggle">${buttonLabel}</button>
+                </div>
+                <div class="urdu-bbc-feed-hint">Uses the BBC Urdu RSS feed for discovery, then imports the full article into KidsMaths.</div>
+                ${panel}
+            </section>
+        `;
+    }
+
+    async _loadBbcFeed({ force = false } = {}) {
+        if (this._bbcFeedLoading) return;
+        if (this._bbcFeedItems.length && !force) return;
+
+        this._bbcFeedLoading = true;
+        this._bbcFeedError = '';
+        this._renderStoryList();
+
+        try {
+            const xml = await this._fetchTextWithProxy('https://feeds.bbci.co.uk/urdu/rss.xml', 'feed');
+            const doc = new DOMParser().parseFromString(xml, 'text/xml');
+            const items = [...doc.querySelectorAll('item')]
+                .map(item => ({
+                    title: this._cleanBbcFeedTitle(item.querySelector('title')?.textContent || ''),
+                    url: this._normalizeBbcUrl(item.querySelector('link')?.textContent || ''),
+                    publishedAt: item.querySelector('pubDate')?.textContent || '',
+                    summary: this._cleanBbcFeedTitle(item.querySelector('description')?.textContent || '')
+                }))
+                .filter(item => item.title && /\/articles\//.test(item.url))
+                .slice(0, 10);
+
+            this._bbcFeedItems = items;
+            this._bbcFeedFetchedAt = new Date().toISOString();
+        } catch (error) {
+            console.error('Failed to load BBC Urdu feed:', error);
+            this._bbcFeedError = 'Could not load the BBC Urdu article list just now.';
+        } finally {
+            this._bbcFeedLoading = false;
+            this._renderStoryList();
+        }
+    }
+
+    _looksLikeUrduText(text = '') {
+        const matches = String(text).match(/[؀-ۿ]/g) || [];
+        return matches.length >= 10;
+    }
+
+    _extractBbcLiteBlocks(doc) {
+        const main = doc.querySelector('main');
+        const title = this._cleanBbcFeedTitle(doc.querySelector('h1')?.textContent || '');
+        if (!main) return [];
+
+        return [...main.children]
+            .map(node => this._cleanBbcFeedTitle(node.textContent || ''))
+            .filter(text => {
+                if (!text) return false;
+                if (text === title) return false;
+                if (!this._looksLikeUrduText(text)) return false;
+                if (text.startsWith('آپ اس وقت اس ویب سائٹ')) return false;
+                if (text.startsWith('مجھے مرکزی ویب سائٹ')) return false;
+                if (text.startsWith('کم ڈیٹا استعمال کرنے والے ورژن')) return false;
+                if (text.startsWith('مضمون کی تفصیل')) return false;
+                if (text.startsWith('Skip ')) return false;
+                if (text.includes('سب سے زیادہ پڑھی جانے والی')) return false;
+                if (text.includes('Skip content and continue reading')) return false;
+                return true;
+            });
+    }
+
+    _chunkUrduArticleBlocks(blocks = []) {
+        const pages = [];
+        let current = [];
+        let currentChars = 0;
+
+        const pushCurrent = () => {
+            if (!current.length) return;
+            pages.push({ text: current.join('\n\n') });
+            current = [];
+            currentChars = 0;
+        };
+
+        blocks.forEach(block => {
+            const nextChars = currentChars + block.length;
+            if (current.length && (current.length >= 3 || nextChars > 900)) {
+                pushCurrent();
+            }
+            current.push(block);
+            currentChars += block.length;
+        });
+
+        pushCurrent();
+        return pages;
+    }
+
+    _createBbcStoryFromHtml(item, html) {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const title = this._cleanBbcFeedTitle(doc.querySelector('h1')?.textContent || item.title);
+        const blocks = this._extractBbcLiteBlocks(doc);
+        const pages = this._chunkUrduArticleBlocks(blocks);
+
+        if (!pages.length) {
+            throw new Error('No readable article paragraphs were found.');
+        }
+
+        return {
+            id: this._buildBbcStoryId(item.url),
+            title,
+            titleEnglish: '',
+            source: 'BBC News Urdu',
+            sourceType: 'news',
+            direction: 'rtl',
+            publishedAt: item.publishedAt || new Date().toISOString(),
+            originalUrl: item.url,
+            importSource: 'bbc-rss',
+            addedAt: new Date().toISOString(),
+            pages
+        };
+    }
+
+    async _importBbcFeedItem(url) {
+        const normalizedUrl = this._normalizeBbcUrl(url);
+        if (!normalizedUrl || this._bbcImportingUrl === normalizedUrl || this._isExistingUrduSourceUrl(normalizedUrl)) {
+            return;
+        }
+
+        const item = this._bbcFeedItems.find(feedItem => feedItem.url === normalizedUrl);
+        if (!item) return;
+
+        this._bbcImportingUrl = normalizedUrl;
+        this._bbcFeedError = '';
+        this._renderStoryList();
+
+        try {
+            const articleUrl = `${normalizedUrl}.lite`;
+            const html = await this._fetchTextWithProxy(articleUrl, 'html');
+            const story = this._createBbcStoryFromHtml(item, html);
+            const existing = this._getCustomUrduStories().filter(existingStory => this._normalizeBbcUrl(existingStory.originalUrl) !== normalizedUrl);
+            this._setCustomUrduStories([story, ...existing].slice(0, 40));
+            state.set('currentUrduStoryId', story.id);
+            state.set('archivedUrduStoryIds', (state.get('archivedUrduStoryIds') || []).filter(id => id !== story.id));
+        } catch (error) {
+            console.error('Failed to import BBC Urdu article:', error);
+            this._bbcFeedError = 'The article list loaded, but this article could not be brought in.';
+        } finally {
+            this._bbcImportingUrl = '';
+            this._renderStoryList();
+        }
     }
 
     _renderReadingScreen() {
@@ -1795,6 +2112,8 @@ class KidsMathsApp {
         const activeList = activeStories.filter(story => story.id !== currentStory?.id);
 
         list.innerHTML = `
+            ${this._buildBbcFeedSelectionSection()}
+
             <section class="urdu-library-section urdu-current-section ${currentStory ? '' : 'hidden'}">
                 <div class="urdu-library-heading-row">
                     <div>
