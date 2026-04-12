@@ -2358,12 +2358,10 @@ class KidsMathsApp {
     _getUrduVocabExclusionSets() {
         return {
             urdu: new Set([
-                'پاکستان', 'اسلام آباد', 'امریکہ', 'ایران', 'بھارت', 'انڈیا', 'بی بی سی', 'بی بی سی اردو',
-                'جے ڈی وینس', 'اسحاق ڈار', 'عاصم منیر', 'مشاہد حسین سید', 'زاہد حسین', 'طلعت حسین'
+                'بی بی سی', 'بی بی سی اردو'
             ]),
             english: new Set([
-                'Pakistan', 'Islamabad', 'United States', 'America', 'Iran', 'India', 'BBC', 'BBC Urdu',
-                'J D Vance', 'JD Vance', 'Ishaq Dar', 'Asim Munir', 'Mushahid Hussain Syed', 'Zahid Hussain', 'Talat Hussain'
+                'BBC', 'BBC Urdu'
             ])
         };
     }
@@ -2376,13 +2374,9 @@ class KidsMathsApp {
         const { urdu, english } = this._getUrduVocabExclusionSets();
         if (urdu.has(cleanWord) || english.has(cleanMeaning)) return true;
 
-        if (story?.sourceType === 'news') {
-            if (/^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*$/.test(cleanMeaning) && cleanWord.length <= 12) {
-                return true;
-            }
-            if (cleanMeaning.replace(/\s+/g, '').toLowerCase() === cleanWord.replace(/\s+/g, '').toLowerCase()) {
-                return true;
-            }
+        if (cleanWord.length <= 1) return true;
+        if (story?.sourceType === 'news' && cleanMeaning.replace(/\s+/g, '').toLowerCase() === cleanWord.replace(/\s+/g, '').toLowerCase()) {
+            return true;
         }
 
         return false;
@@ -2402,7 +2396,7 @@ class KidsMathsApp {
 
     _getEffectiveUrduVocabularyForPage(text = '', story = this.currentStory) {
         const vocabulary = story?.vocabulary || {};
-        const maxItems = story?.sourceType === 'news' ? 6 : 8;
+        const maxItems = story?.sourceType === 'news' ? 12 : 10;
         const selected = Object.entries(vocabulary)
             .filter(([word, meaning]) => this._pageContainsUrduWord(text, word) && !this._isTrivialUrduVocabCandidate(word, meaning, story))
             .sort((a, b) => this._scoreUrduVocabCandidate(b[0], b[1]) - this._scoreUrduVocabCandidate(a[0], a[1]))

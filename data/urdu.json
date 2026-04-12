@@ -353,23 +353,45 @@
           "publishedAt": "2026-04-12",
           "vocabulary": {
             "ثالثی": "mediation",
+            "اچھے میزبان": "good host",
+            "مذاکرات": "talks/negotiations",
+            "حاصل": "gain",
+            "راستہ": "path/way forward",
+            "پاکستان": "Pakistan",
+            "اسلام آباد": "Islamabad",
+            "امریکہ": "United States",
+            "ایران": "Iran",
             "سہولت کار": "facilitator",
             "جنگ بندی": "ceasefire",
+            "معاونت": "support/assistance",
+            "وفد": "delegation",
+            "ثالثی کی کوششوں": "mediation efforts",
+            "سفارتی": "diplomatic",
             "سفارتی کامیابی": "diplomatic success",
+            "عالمی سطح": "global level",
+            "مایوسی": "disappointment",
             "امن معاہدہ": "peace agreement",
+            "صلاحیت": "ability/capacity",
+            "ماہرین": "experts",
+            "بے نتیجہ": "inconclusive",
+            "شرائط": "conditions/terms",
+            "اختلاف رائے": "difference of opinion",
+            "معاہدہ": "agreement",
+            "جامع معاہدہ": "comprehensive agreement",
+            "بد اعتمادی": "mistrust",
             "غیر جانب دار": "neutral",
             "پیش رفت": "progress",
-            "اختلاف رائے": "difference of opinion",
+            "اہمیت": "importance",
             "تکنیکی ماہرین": "technical experts",
             "پیچیدہ مذاکرات": "complex negotiations",
-            "دفاعی معاہدہ": "defense agreement",
+            "رجوع": "turn back / return to",
             "عسکری ہم آہنگی": "military coordination",
             "امن و استحکام": "peace and stability",
             "پائیدار امن": "lasting peace",
-            "جامع معاہدہ": "comprehensive agreement",
-            "بد اعتمادی": "mistrust",
-            "محتاط امید": "cautious hope",
-            "علاقائی و بین الاقوامی سطح": "regional and international level"
+            "دفاعی معاہدہ": "defense agreement",
+            "فوجی دستہ": "military contingent",
+            "دباؤ": "pressure",
+            "ہمسایہ ملک": "neighboring country"
           },
           "pages": [
             {
@@ -419,8 +441,8 @@
           ],
           "analysisState": "smartened",
           "analysisLabel": "Smartened",
-          "analysisMethod": "hermes-curated",
-          "analysisUpdatedAt": "2026-04-12T19:48:00Z"
+          "analysisMethod": "hermes-curated-dense-support",
+          "analysisUpdatedAt": "2026-04-12T20:20:00Z"
         }
       ]
     }
