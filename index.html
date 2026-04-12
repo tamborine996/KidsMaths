@@ -279,21 +279,30 @@
                 <p id="story-text"></p>
             </div>
             <div class="urdu-story-tools hidden" id="urdu-story-tools">
-                <div class="urdu-story-actions">
-                    <button class="secondary-btn" id="urdu-translation-toggle-btn">Show English help</button>
-                    <button class="secondary-btn" id="urdu-saved-toggle-btn">Saved words (0)</button>
-                </div>
-                <div class="urdu-word-helper hidden" id="urdu-word-helper">
-                    <div class="urdu-word-helper-label">Word help</div>
-                    <div class="urdu-word-helper-main">
-                        <span class="urdu-word-helper-urdu" id="urdu-word-helper-urdu"></span>
-                        <span class="urdu-word-helper-arrow">→</span>
-                        <span class="urdu-word-helper-english" id="urdu-word-helper-english"></span>
+                <div class="urdu-support-card">
+                    <div class="urdu-support-header">
+                        <div class="urdu-support-copy">
+                            <div class="urdu-support-kicker">Reading help</div>
+                            <div class="urdu-support-title" id="urdu-support-title">Tap a purple word for quick help.</div>
+                        </div>
+                        <div class="urdu-support-status" id="urdu-support-status">No word selected yet</div>
                     </div>
-                    <button class="primary-btn urdu-save-word-btn" id="urdu-save-word-btn">Save word</button>
+                    <div class="urdu-story-actions">
+                        <button class="secondary-btn" id="urdu-translation-toggle-btn" aria-pressed="false">Show English help</button>
+                        <button class="secondary-btn" id="urdu-saved-toggle-btn" aria-pressed="false">Saved words (0)</button>
+                    </div>
+                    <div class="urdu-word-helper hidden" id="urdu-word-helper">
+                        <div class="urdu-word-helper-label">Selected word</div>
+                        <div class="urdu-word-helper-main">
+                            <span class="urdu-word-helper-urdu" id="urdu-word-helper-urdu"></span>
+                            <span class="urdu-word-helper-arrow">→</span>
+                            <span class="urdu-word-helper-english" id="urdu-word-helper-english"></span>
+                        </div>
+                        <button class="primary-btn urdu-save-word-btn" id="urdu-save-word-btn">Save this word</button>
+                    </div>
+                    <div class="urdu-page-translation hidden" id="urdu-page-translation"></div>
+                    <div class="urdu-saved-words-panel hidden" id="urdu-saved-words-panel"></div>
                 </div>
-                <div class="urdu-page-translation hidden" id="urdu-page-translation"></div>
-                <div class="urdu-saved-words-panel hidden" id="urdu-saved-words-panel"></div>
             </div>
             <div class="story-nav">
                 <button class="secondary-btn" id="story-prev-btn">&larr; Back</button>

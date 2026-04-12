@@ -775,7 +775,7 @@ body {
 .screen-header-actions {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-md);
     flex-shrink: 0;
 }
 
@@ -810,8 +810,8 @@ body {
 
 .back-btn,
 .home-btn {
-    width: 48px;
-    height: 48px;
+    width: 54px;
+    height: 54px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -819,9 +819,9 @@ body {
     border: var(--border-width) solid var(--border-color);
     border-radius: var(--border-radius-md);
     cursor: pointer;
-    font-size: 1.5rem;
+    font-size: 1.7rem;
     color: var(--text-secondary);
-    box-shadow: 3px 3px 0 var(--border-color);
+    box-shadow: 4px 4px 0 var(--border-color);
     transition: all 0.15s ease;
     flex-shrink: 0;
 }
@@ -829,7 +829,7 @@ body {
 .back-btn:hover,
 .home-btn:hover {
     transform: translate(-1px, -1px);
-    box-shadow: 4px 4px 0 var(--border-color);
+    box-shadow: 5px 5px 0 var(--border-color);
     color: var(--text-primary);
 }
 
@@ -2154,10 +2154,13 @@ td.mastery-mastered {
     text-align: center;
     font-weight: 700;
     color: var(--text-secondary);
+    width: 100%;
+    max-width: 560px;
+    align-self: center;
 }
 
 .story-content {
-    flex: 1;
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -2173,6 +2176,12 @@ td.mastery-mastered {
     -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
     gap: var(--spacing-md);
+}
+
+.story-content.urdu-story-layout {
+    flex: 0 1 auto;
+    min-height: clamp(180px, 28vh, 280px);
+    align-items: stretch;
 }
 
 .story-image {
@@ -2198,28 +2207,45 @@ td.mastery-mastered {
     width: 100%;
 }
 
+.story-content.urdu-story-layout #story-text {
+    margin-inline: auto;
+    max-width: 24ch;
+    font-size: 1.7rem;
+    line-height: 2.2;
+}
+
 #story-title[dir="rtl"],
 #story-text[dir="rtl"] {
+    direction: rtl;
     text-align: right;
+    unicode-bidi: plaintext;
 }
 
 .urdu-word-button {
     appearance: none;
     border: none;
     border-bottom: 2px dotted #8C6A9E;
-    background: transparent;
+    background: rgba(140, 106, 158, 0.09);
     color: inherit;
     font: inherit;
     line-height: inherit;
-    padding: 0 2px;
+    padding: 0.08em 0.24em;
     margin: 0 1px;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease, border-bottom-color 0.15s ease;
 }
 
 .urdu-word-button.active {
-    background: rgba(140, 106, 158, 0.14);
+    background: rgba(140, 106, 158, 0.2);
     border-bottom-style: solid;
+    border-bottom-color: #6E4E88;
+}
+
+.urdu-word-button:hover,
+.urdu-word-button:focus-visible {
+    background: rgba(140, 106, 158, 0.16);
+    outline: none;
 }
 
 .urdu-story-tools {
@@ -2227,6 +2253,55 @@ td.mastery-mastered {
     flex-direction: column;
     gap: var(--spacing-md);
     margin-bottom: var(--spacing-lg);
+}
+
+.urdu-support-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    background: rgba(255, 255, 255, 0.78);
+    border: 2px solid rgba(140, 106, 158, 0.24);
+    border-radius: var(--border-radius-xl);
+    padding: var(--spacing-md);
+    box-shadow: 0 8px 20px rgba(140, 106, 158, 0.08);
+}
+
+.urdu-support-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+}
+
+.urdu-support-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.urdu-support-kicker {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary);
+}
+
+.urdu-support-title {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--text-heading);
+}
+
+.urdu-support-status {
+    flex-shrink: 0;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(140, 106, 158, 0.12);
+    color: #6E4E88;
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.2;
 }
 
 .urdu-story-actions {
@@ -2241,11 +2316,17 @@ td.mastery-mastered {
     min-height: 44px;
 }
 
+.urdu-story-actions .secondary-btn.is-active {
+    background: rgba(140, 106, 158, 0.16);
+    border-color: #8C6A9E;
+    color: var(--text-primary);
+}
+
 .urdu-word-helper,
 .urdu-page-translation,
 .urdu-saved-words-panel {
-    background: rgba(255,255,255,0.78);
-    border: 2px solid rgba(140, 106, 158, 0.28);
+    background: rgba(255,255,255,0.86);
+    border: 2px solid rgba(140, 106, 158, 0.2);
     border-radius: var(--border-radius-lg);
     padding: var(--spacing-md);
 }
@@ -2271,6 +2352,7 @@ td.mastery-mastered {
 .urdu-word-helper-urdu {
     font-size: 1.5rem;
     font-weight: 700;
+    direction: rtl;
 }
 
 .urdu-word-helper-arrow {
@@ -2282,10 +2364,24 @@ td.mastery-mastered {
     color: var(--text-primary);
 }
 
+.urdu-save-word-btn[disabled] {
+    cursor: default;
+    opacity: 0.8;
+}
+
 .urdu-page-translation p {
     margin: 0;
     color: var(--text-primary);
     line-height: 1.8;
+}
+
+.urdu-saved-words-panel-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-sm);
 }
 
 .urdu-saved-word-row {
@@ -2320,6 +2416,12 @@ td.mastery-mastered {
     display: flex;
     justify-content: space-between;
     gap: var(--spacing-md);
+    position: sticky;
+    bottom: 0;
+    padding-top: var(--spacing-sm);
+    padding-bottom: max(var(--spacing-sm), env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(180deg, rgba(255, 247, 236, 0), rgba(255, 247, 236, 0.92) 35%, rgba(255, 247, 236, 1) 100%);
+    z-index: 2;
 }
 
 .story-nav .primary-btn,
@@ -2388,6 +2490,16 @@ td.mastery-mastered {
 
     .urdu-word-helper-urdu {
         font-size: 1.3rem;
+    }
+
+    .urdu-support-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .urdu-support-status {
+        width: 100%;
+        text-align: center;
     }
 
     .urdu-saved-word-row {
@@ -2465,6 +2577,15 @@ td.mastery-mastered {
 
     .story-content {
         padding: var(--spacing-xl);
+    }
+
+    .story-content.urdu-story-layout {
+        min-height: clamp(220px, 34vh, 420px);
+    }
+
+    .story-content.urdu-story-layout #story-text {
+        max-width: 29ch;
+        font-size: 1.85rem;
     }
 
 }
