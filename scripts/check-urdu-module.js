@@ -21,17 +21,29 @@ assert(urduData.levels[0].stories?.length > 0, 'Expected Urdu level to contain a
 assert(urduData.levels[0].stories[0].title, 'Expected first Urdu item to have a title');
 assert(urduData.levels[0].stories[0].pages?.length > 0, 'Expected first Urdu item to contain pages');
 assert(urduData.levels[0].stories[0].direction === 'rtl', 'Expected first Urdu item to be marked rtl');
+assert(urduData.levels[0].stories.length >= 3, 'Expected Urdu library to include multiple items');
+assert(urduData.levels[0].stories.some(story => story.id === 'urdu-reader-lion-mouse'), 'Expected Urdu Reader lion and mouse import');
+assert(urduData.levels[0].stories.some(story => story.id === 'urdu-reader-akbar-birbal'), 'Expected Urdu Reader Akbar and Birbal import');
+assert(urduData.levels[0].stories.some(story => story.source === 'Urdu Reader'), 'Expected imported Urdu Reader sources');
+assert(urduData.levels[0].stories.some(story => story.vocabulary && Object.keys(story.vocabulary).length > 20), 'Expected at least one Urdu story with vocabulary support');
+assert(urduData.levels[0].stories.some(story => story.pages.some(page => page.translation)), 'Expected at least one Urdu story with English help text');
 
 assert(indexHtml.includes('data-reading-tab="urdu"'), 'Expected reading screen to have an Urdu tab');
 assert(indexHtml.includes('>Urdu<'), 'Expected reading screen or home screen to mention Urdu');
+assert(indexHtml.includes('id="urdu-story-tools"'), 'Expected story screen to include Urdu support tools');
+assert(indexHtml.includes('id="urdu-save-word-btn"'), 'Expected explicit save-word button for Urdu stories');
 
 assert(appJs.includes("fetch('data/urdu.json')"), 'Expected app.js to load data/urdu.json');
 assert(appJs.includes('this.urduLevels'), 'Expected app.js to track urduLevels');
 assert(appJs.includes("tab === 'urdu'"), 'Expected app.js to support Urdu reading tab logic');
 assert(indexHtml.includes('id="home-urdu-hub"'), 'Expected home screen to expose Urdu as its own top-level hub');
 assert(appJs.includes('Open Urdu reading'), 'Expected Urdu hub copy in app.js');
+assert(appJs.includes('_storySupportsUrduTools'), 'Expected dedicated Urdu story enhancement logic');
+assert(appJs.includes('_renderInteractiveUrduText'), 'Expected Urdu text highlighting renderer');
+assert(appJs.includes('_saveSelectedUrduWord'), 'Expected saved-word workflow for Urdu');
 assert(appJs.includes('story.direction'), 'Expected story rendering to respect direction metadata');
 
 assert(stateJs.includes("urduLevel: 'U1'"), 'Expected default state to include urduLevel');
+assert(stateJs.includes('urduSavedWords'), 'Expected default state to include saved Urdu words');
 
 console.log('Urdu module checks passed.');

@@ -36,6 +36,9 @@ class KidsMathsApp {
         this.currentStoryPage = 0;
         this._storyTouchStartX = 0;
         this._storyTouchStartY = 0;
+        this._selectedUrduWord = null;
+        this._showUrduTranslation = false;
+        this._showUrduSavedWords = false;
 
         // Search index (built after data loads)
         this._storyIndex = [];
@@ -1554,6 +1557,33 @@ class KidsMathsApp {
             }
         });
 
+        document.getElementById('story-text').addEventListener('click', (e) => {
+            const wordBtn = e.target.closest('.urdu-word-button');
+            if (!wordBtn || !this.currentStory) return;
+            this._selectUrduWord(wordBtn.dataset.word, wordBtn.dataset.meaning);
+        });
+
+        document.getElementById('urdu-translation-toggle-btn').addEventListener('click', () => {
+            this._showUrduTranslation = !this._showUrduTranslation;
+            this._renderUrduSupportPanel();
+        });
+
+        document.getElementById('urdu-saved-toggle-btn').addEventListener('click', () => {
+            this._showUrduSavedWords = !this._showUrduSavedWords;
+            this._renderUrduSupportPanel();
+        });
+
+        document.getElementById('urdu-save-word-btn').addEventListener('click', () => {
+            this._saveSelectedUrduWord();
+        });
+
+        document.getElementById('urdu-saved-words-panel').addEventListener('click', (e) => {
+            const removeBtn = e.target.closest('[data-remove-urdu-word]');
+            if (removeBtn) {
+                this._removeUrduSavedWord(removeBtn.dataset.removeUrduWord);
+            }
+        });
+
         // Delegated click for story cards
         document.getElementById('story-list').addEventListener('click', (e) => {
             const card = e.target.closest('.story-card');
@@ -1630,11 +1660,14 @@ class KidsMathsApp {
             card.dataset.source = tab;
             if (bm) card.dataset.resumePage = bm.page;
             const dir = story.direction || 'ltr';
+            const metaLine = tab === 'urdu'
+                ? `${story.pages.length} pages${story.source ? ' · ' + story.source : ''}${story.ageHint ? ' · Age ' + story.ageHint : ''}`
+                : `${story.pages.length} pages${story.author ? ' · ' + story.author : ''}`;
             card.innerHTML = `
                 <span class="story-card-icon">${hasImages ? '\u{1F5BC}\uFE0F' : '\u{1F4D6}'}</span>
                 <div class="story-card-info">
                     <div class="story-card-title" dir="${dir}">${story.title}</div>
-                    <div class="story-card-pages">${story.pages.length} pages${story.author ? ' \u00B7 ' + story.author : ''}</div>
+                    <div class="story-card-pages">${metaLine}</div>
                     ${bm ? `<div class="story-card-bookmark">\u{1F516} Page ${bm.page + 1} of ${bm.total}</div>` : ''}
                 </div>
                 <span class="story-card-status">${isRead ? '\u2705' : ''}</span>
@@ -1686,13 +1719,18 @@ class KidsMathsApp {
         const story = this.currentStory;
         const page = story.pages[this.currentStoryPage];
         const direction = story.direction || 'ltr';
+        const isInteractiveUrdu = this._storySupportsUrduTools(story);
 
         const storyTitle = document.getElementById('story-title');
         const storyText = document.getElementById('story-text');
 
         storyTitle.textContent = story.title;
         storyTitle.dir = direction;
-        storyText.textContent = page.text;
+        if (isInteractiveUrdu) {
+            storyText.innerHTML = this._renderInteractiveUrduText(page.text, story.vocabulary || {});
+        } else {
+            storyText.textContent = page.text;
+        }
         storyText.dir = direction;
         document.getElementById('story-page-text').textContent =
             `Page ${this.currentStoryPage + 1} of ${story.pages.length}`;
@@ -1719,6 +1757,13 @@ class KidsMathsApp {
         // Reset scroll position so each new page starts at the top
         storyContent.scrollTop = 0;
 
+        if (!isInteractiveUrdu) {
+            this._selectedUrduWord = null;
+            this._showUrduTranslation = false;
+            this._showUrduSavedWords = false;
+        }
+        this._renderUrduSupportPanel();
+
         // Show/hide nav buttons
         document.getElementById('story-prev-btn').style.visibility =
             this.currentStoryPage > 0 ? 'visible' : 'hidden';
@@ -1732,6 +1777,136 @@ class KidsMathsApp {
 
         // Update bookmark button state
         this._updateBookmarkButton();
+    }
+
+    _storySupportsUrduTools(story = this.currentStory) {
+        return !!(story && story.direction === 'rtl' && story.vocabulary && Object.keys(story.vocabulary).length > 0);
+    }
+
+    _escapeHtml(text = '') {
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    _renderInteractiveUrduText(text, vocabulary) {
+        const escapedText = this._escapeHtml(text || '');
+        const sortedWords = Object.keys(vocabulary || {}).sort((a, b) => b.length - a.length);
+        const placeholders = [];
+        let rendered = escapedText;
+
+        sortedWords.forEach((word, index) => {
+            const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const placeholder = `__URDU_WORD_${index}__`;
+            const safeWord = this._escapeHtml(word);
+            const safeMeaning = this._escapeHtml(vocabulary[word]);
+            const buttonHtml = `<button class="urdu-word-button" data-word="${safeWord}" data-meaning="${safeMeaning}" type="button">${safeWord}</button>`;
+            placeholders.push({ placeholder, buttonHtml });
+            rendered = rendered.replace(new RegExp(escapedWord, 'g'), placeholder);
+        });
+
+        placeholders.forEach(({ placeholder, buttonHtml }) => {
+            rendered = rendered.replaceAll(placeholder, buttonHtml);
+        });
+
+        return rendered.replace(/\n/g, '<br>');
+    }
+
+    _selectUrduWord(word, meaning) {
+        this._selectedUrduWord = { word, meaning };
+        this._renderUrduSupportPanel();
+        document.querySelectorAll('.urdu-word-button.active').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll(`.urdu-word-button[data-word="${CSS.escape(word)}"]`).forEach(btn => btn.classList.add('active'));
+    }
+
+    _getUrduSavedWords() {
+        return state.get('urduSavedWords') || [];
+    }
+
+    _saveSelectedUrduWord() {
+        if (!this._selectedUrduWord || !this.currentStory) return;
+        const existing = this._getUrduSavedWords();
+        const key = `${this._selectedUrduWord.word}::${this._selectedUrduWord.meaning}`;
+        if (existing.some(item => item.key === key)) return;
+        state.set('urduSavedWords', [
+            {
+                key,
+                word: this._selectedUrduWord.word,
+                meaning: this._selectedUrduWord.meaning,
+                storyId: this.currentStory.id,
+                storyTitle: this.currentStory.title
+            },
+            ...existing
+        ].slice(0, 60));
+        this._showUrduSavedWords = true;
+        this._renderUrduSupportPanel();
+    }
+
+    _removeUrduSavedWord(key) {
+        state.set('urduSavedWords', this._getUrduSavedWords().filter(item => item.key !== key));
+        this._renderUrduSupportPanel();
+    }
+
+    _renderUrduSupportPanel() {
+        const tools = document.getElementById('urdu-story-tools');
+        const helper = document.getElementById('urdu-word-helper');
+        const translation = document.getElementById('urdu-page-translation');
+        const savedPanel = document.getElementById('urdu-saved-words-panel');
+        const translationBtn = document.getElementById('urdu-translation-toggle-btn');
+        const savedBtn = document.getElementById('urdu-saved-toggle-btn');
+
+        if (!this._storySupportsUrduTools()) {
+            tools.classList.add('hidden');
+            helper.classList.add('hidden');
+            translation.classList.add('hidden');
+            savedPanel.classList.add('hidden');
+            document.querySelectorAll('.urdu-word-button.active').forEach(btn => btn.classList.remove('active'));
+            return;
+        }
+
+        const page = this.currentStory.pages[this.currentStoryPage] || {};
+        const savedWords = this._getUrduSavedWords();
+        tools.classList.remove('hidden');
+        translationBtn.textContent = this._showUrduTranslation ? 'Hide English help' : 'Show English help';
+        savedBtn.textContent = `Saved words (${savedWords.length})`;
+
+        if (this._selectedUrduWord) {
+            helper.classList.remove('hidden');
+            document.getElementById('urdu-word-helper-urdu').textContent = this._selectedUrduWord.word;
+            document.getElementById('urdu-word-helper-english').textContent = this._selectedUrduWord.meaning;
+        } else {
+            helper.classList.add('hidden');
+        }
+
+        if (this._showUrduTranslation && page.translation) {
+            translation.classList.remove('hidden');
+            translation.innerHTML = `<div class="urdu-page-translation-label">English meaning</div><p>${this._escapeHtml(page.translation).replace(/\n/g, '<br>')}</p>`;
+        } else {
+            translation.classList.add('hidden');
+            translation.innerHTML = '';
+        }
+
+        if (this._showUrduSavedWords) {
+            savedPanel.classList.remove('hidden');
+            savedPanel.innerHTML = savedWords.length
+                ? savedWords.map(item => `
+                    <div class="urdu-saved-word-row">
+                        <div>
+                            <div class="urdu-saved-word-urdu">${this._escapeHtml(item.word)}</div>
+                            <div class="urdu-saved-word-english">${this._escapeHtml(item.meaning)}</div>
+                            <div class="urdu-saved-word-story">${this._escapeHtml(item.storyTitle)}</div>
+                        </div>
+                        <button class="secondary-btn urdu-remove-word-btn" type="button" data-remove-urdu-word="${this._escapeHtml(item.key)}">Remove</button>
+                    </div>
+                `).join('')
+                : '<div class="urdu-empty-state">Save a few words from a story and they will appear here.</div>';
+        } else {
+            savedPanel.classList.add('hidden');
+            savedPanel.innerHTML = '';
+        }
     }
 
     _storyPrevPage() {

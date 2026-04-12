@@ -2203,6 +2203,119 @@ td.mastery-mastered {
     text-align: right;
 }
 
+.urdu-word-button {
+    appearance: none;
+    border: none;
+    border-bottom: 2px dotted #8C6A9E;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    line-height: inherit;
+    padding: 0 2px;
+    margin: 0 1px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.urdu-word-button.active {
+    background: rgba(140, 106, 158, 0.14);
+    border-bottom-style: solid;
+}
+
+.urdu-story-tools {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.urdu-story-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.urdu-story-actions .secondary-btn,
+.urdu-save-word-btn,
+.urdu-remove-word-btn {
+    min-height: 44px;
+}
+
+.urdu-word-helper,
+.urdu-page-translation,
+.urdu-saved-words-panel {
+    background: rgba(255,255,255,0.78);
+    border: 2px solid rgba(140, 106, 158, 0.28);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-md);
+}
+
+.urdu-word-helper-label,
+.urdu-page-translation-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.urdu-word-helper-main {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.urdu-word-helper-urdu {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.urdu-word-helper-arrow {
+    color: var(--text-secondary);
+}
+
+.urdu-word-helper-english {
+    font-size: 1.05rem;
+    color: var(--text-primary);
+}
+
+.urdu-page-translation p {
+    margin: 0;
+    color: var(--text-primary);
+    line-height: 1.8;
+}
+
+.urdu-saved-word-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px dashed rgba(93, 78, 55, 0.18);
+}
+
+.urdu-saved-word-row:last-child {
+    border-bottom: none;
+}
+
+.urdu-saved-word-urdu {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.urdu-saved-word-english,
+.urdu-saved-word-story,
+.urdu-empty-state {
+    color: var(--text-secondary);
+}
+
+.urdu-saved-word-story {
+    font-size: 0.85rem;
+}
+
 .story-nav {
     display: flex;
     justify-content: space-between;
@@ -2271,6 +2384,15 @@ td.mastery-mastered {
 
     .home-footer {
         gap: var(--spacing-md);
+    }
+
+    .urdu-word-helper-urdu {
+        font-size: 1.3rem;
+    }
+
+    .urdu-saved-word-row {
+        align-items: flex-start;
+        flex-direction: column;
     }
 
     .celebration-text {

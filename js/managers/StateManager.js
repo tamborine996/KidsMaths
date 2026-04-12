@@ -57,6 +57,7 @@ export class StateManager {
             // Reading
             readStories: [],
             bookmarks: {},
+            urduSavedWords: [],
             readingLevel: 'R1',
             libraryLevel: 'L1',
             urduLevel: 'U1',

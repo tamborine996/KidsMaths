@@ -36,6 +36,13 @@ assert(css.includes('.next-up-cta,\n.home-resume-foot,\n.learning-area-foot {'),
 assert(css.includes('.home-search-section {'), 'Expected lower-priority search section styling');
 assert(css.includes('.home-footer-label {'), 'Expected styled grown-ups label');
 assert(css.includes('.learning-area-urdu {'), 'Expected dedicated Urdu hub styling');
+assert(html.includes('id="urdu-story-tools"'), 'Expected Urdu support tools to exist in the story view');
+assert(html.includes('id="urdu-page-translation"'), 'Expected Urdu page translation area');
+assert(js.includes("document.getElementById('story-text').addEventListener('click'"), 'Expected tap-to-help binding for Urdu words');
+assert(js.includes("Saved words (${savedWords.length})"), 'Expected saved words counter UI');
+assert(css.includes('.urdu-word-button {'), 'Expected tappable Urdu word styling');
+assert(css.includes('.urdu-story-tools {'), 'Expected Urdu support panel styling');
+assert(css.includes('.urdu-saved-word-row {'), 'Expected saved word rows styling');
 assert(css.includes('.home-resume-meta,\n    .learning-area-stats,\n    .module-card-bottom .module-secondary:last-child {'), 'Expected mobile metadata reduction');
 
 console.log('Mobile/tablet UX checks passed.');
