@@ -1661,12 +1661,13 @@ class KidsMathsApp {
             if (bm) card.dataset.resumePage = bm.page;
             const dir = story.direction || 'ltr';
             const metaLine = tab === 'urdu'
-                ? `${story.pages.length} pages${story.source ? ' · ' + story.source : ''}${story.ageHint ? ' · Age ' + story.ageHint : ''}`
+                ? `${story.pages.length} pages${story.source ? ' · ' + story.source : ''}${story.ageHint ? ' · ' + story.ageHint : ''}`
                 : `${story.pages.length} pages${story.author ? ' · ' + story.author : ''}`;
             card.innerHTML = `
                 <span class="story-card-icon">${hasImages ? '\u{1F5BC}\uFE0F' : '\u{1F4D6}'}</span>
                 <div class="story-card-info">
                     <div class="story-card-title" dir="${dir}">${story.title}</div>
+                    ${story.titleEnglish ? `<div class="story-card-subtitle">${story.titleEnglish}</div>` : ''}
                     <div class="story-card-pages">${metaLine}</div>
                     ${bm ? `<div class="story-card-bookmark">\u{1F516} Page ${bm.page + 1} of ${bm.total}</div>` : ''}
                 </div>
@@ -1722,10 +1723,18 @@ class KidsMathsApp {
         const isInteractiveUrdu = this._storySupportsUrduTools(story);
 
         const storyTitle = document.getElementById('story-title');
+        const storyTitleSubtitle = document.getElementById('story-title-subtitle');
         const storyText = document.getElementById('story-text');
 
         storyTitle.textContent = story.title;
         storyTitle.dir = direction;
+        if (story.titleEnglish) {
+            storyTitleSubtitle.textContent = story.titleEnglish;
+            storyTitleSubtitle.classList.remove('hidden');
+        } else {
+            storyTitleSubtitle.textContent = '';
+            storyTitleSubtitle.classList.add('hidden');
+        }
         if (isInteractiveUrdu) {
             storyText.innerHTML = this._renderInteractiveUrduText(page.text, story.vocabulary || {});
         } else {

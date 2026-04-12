@@ -1,7 +1,7 @@
 {
-  "source": "Urdu Wikisource + Urdu Reader",
+  "source": "Urdu Wikisource + Urdu Reader + BBC News Urdu",
   "license": "Mixed source-specific licenses/rights; see each item attribution/source.",
-  "attribution": "Urdu area combines Urdu Wikisource text and selected family-friendly Urdu Reader imports.",
+  "attribution": "Urdu area combines Urdu Wikisource text, selected family-friendly Urdu Reader imports, and a fresh BBC News Urdu article.",
   "levels": [
     {
       "id": "U1",
@@ -34,7 +34,8 @@
             }
           ],
           "ageHint": "6-8",
-          "sourceType": "poem"
+          "sourceType": "poem",
+          "titleEnglish": "Baby Sparrows"
         },
         {
           "id": "urdu-reader-lion-mouse",
@@ -337,6 +338,82 @@
             {
               "text": "آج بھی اکبر اور بیربل کی کہانیاں پورے جنوبی ایشیا میں مشہور ہیں۔ یہ کہانیاں ہمیں سکھاتی ہیں کہ ذہانت اور حاضر جوابی سے مشکل سے مشکل سوال کا جواب دیا جا سکتا ہے۔",
               "translation": "Even today, the stories of Akbar and Birbal are famous throughout South Asia. These stories teach us that with intelligence and quick wit, even the most difficult questions can be answered."
+            }
+          ]
+        },
+        {
+          "id": "bbc-urdu-pakistan-talks-2026-04-12",
+          "title": "ثالثی کے لیے ’اچھے میزبان‘ پاکستان کو مذاکرات سے کیا حاصل ہوا اور اب اس کے لیے آگے کا راستہ کیا ہے؟",
+          "titleEnglish": "What Did Pakistan Gain as a 'Good Host' for the Talks — and What Comes Next?",
+          "source": "BBC News Urdu",
+          "sourceType": "news",
+          "direction": "rtl",
+          "ageHint": "Family news",
+          "originalUrl": "https://www.bbc.com/urdu/articles/c5yj21r1z85o",
+          "publishedAt": "2026-04-12",
+          "vocabulary": {
+            "ثالثی": "mediation",
+            "میزبان": "host",
+            "مذاکرات": "talks/negotiations",
+            "حاصل": "gain",
+            "راستہ": "path/way",
+            "پاکستان": "Pakistan",
+            "اسلام آباد": "Islamabad",
+            "امریکہ": "United States",
+            "ایران": "Iran",
+            "سہولت کار": "facilitator",
+            "جنگ بندی": "ceasefire",
+            "معاونت": "support/assistance",
+            "وفد": "delegation",
+            "ثالثی کی کوششوں": "mediation efforts",
+            "سفارتی": "diplomatic",
+            "کامیابی": "success",
+            "عالمی سطح": "global level",
+            "مایوسی": "disappointment",
+            "امن معاہدہ": "peace agreement",
+            "صلاحیت": "ability/capacity",
+            "ماہرین": "experts",
+            "بے نتیجہ": "inconclusive",
+            "شرائط": "conditions/terms",
+            "اختلاف رائے": "difference of opinion",
+            "معاہدہ": "agreement",
+            "غیر جانب دار": "neutral",
+            "پیش رفت": "progress",
+            "اہمیت": "importance",
+            "تکنیکی ماہرین": "technical experts",
+            "پیچیدہ": "complex",
+            "رجوع": "turn back / return to",
+            "جنگ": "war",
+            "فوجی دستہ": "military contingent",
+            "دفاعی معاہدہ": "defense agreement",
+            "ہم آہنگی": "coordination",
+            "استحکام": "stability",
+            "دباؤ": "pressure"
+          },
+          "pages": [
+            {
+              "text": "پاکستان نے اسلام آباد مذاکرات بے نتیجہ رہنے کے باوجود اس عزم کا اظہار کیا ہے کہ وہ امریکہ اور ایران کے درمیان سہولت کار کا کردار ادا کرتا رہے گا۔\n\nپاکستان کے وزیرِ خارجہ اسحاق ڈار نے اُمید ظاہر کی ہے دونوں فریق جنگ بندی کے لیے اپنا عزم جاری رکھیں گے۔ اسحاق ڈار کا کہنا تھا کہ کئی دور کے مشکل اور تعمیری مذاکرات میں پاکستان نے دونوں طرف کی معاونت کی۔",
+              "translation": "Pakistan says it will keep trying to help the United States and Iran talk to each other, even though the Islamabad talks did not end in a final deal. Foreign Minister Ishaq Dar said both sides still appear committed to a ceasefire and that Pakistan helped during several difficult but constructive rounds of discussion."
+            },
+            {
+              "text": "امریکہ کے نائب صدر جے ڈی وینس اور ایرانی وفد نے بھی مذاکرات کے لیے پاکستان کی ثالثی کی کوششوں کو سراہتے ہوئے پاکستان کو اچھا میزبان قرار دیا۔\n\nبہت سے حلقوں نے اسلام آباد میں مذاکرات کی میز سجانے کو پاکستان کی بڑی سفارتی کامیابی قرار دیا، اگرچہ حتمی معاہدہ نہ ہونے پر کچھ مایوسی بھی پائی جاتی ہے۔",
+              "translation": "US Vice President JD Vance and the Iranian delegation both praised Pakistan’s mediation efforts and called Pakistan a good host. Many observers saw the very fact that talks were held in Islamabad as a major diplomatic success, even though people were disappointed that no final agreement was signed."
+            },
+            {
+              "text": "بی بی سی نے مختلف ماہرین سے پوچھا کہ پاکستان کو اسلام آباد مذاکرات سے کیا حاصل ہوا اور اگر جنگ دوبارہ شروع ہوئی تو پاکستان کے لیے آگے کا راستہ کیا ہو گا۔\n\nڈاکٹر فاروق حسنات کے مطابق ایسے مذاکرات اکثر وقت لیتے ہیں، اس لیے انھیں مکمل ناکامی نہیں کہا جا سکتا۔ ان کے خیال میں دونوں فریق ابھی کچھ شرائط پر سمجھوتہ نہیں کر پا رہے۔",
+              "translation": "BBC asked experts what Pakistan gained from hosting the Islamabad talks and what path Pakistan might face if the war starts again. Dr Farooq Hasnat said talks like these usually take time, so they should not be seen as a total failure. In his view, the two sides still disagree on some key conditions."
+            },
+            {
+              "text": "ایرانی وزارتِ خارجہ کے ترجمان نے کہا کہ متعدد نکات پر اتفاق ہوا، لیکن دو یا تین اہم نکات پر اختلاف رائے کے باعث جامع معاہدہ طے نہ ہو سکا۔\n\nڈاکٹر فاروق حسنات کہتے ہیں کہ پاکستان نے خود کو ایک غیر جانب دار فریق کے طور پر پیش کیا، اسی لیے دونوں فریق اسلام آباد آنے پر آمادہ ہوئے۔ ان کے مطابق یہی بڑی کامیابی ہے کہ پاکستان نے ایسے مخالفین کو آمنے سامنے بٹھایا جنھوں نے 1979 کے بعد براہِ راست مذاکرات نہیں کیے تھے۔",
+              "translation": "An Iranian foreign ministry spokesperson said there was agreement on several points, but two or three important disagreements prevented a full deal. Dr Hasnat said Pakistan managed to present itself as a neutral side, which is why both parties agreed to come to Islamabad. He sees Pakistan’s biggest success in bringing together two opponents who had not held direct talks since 1979."
+            },
+            {
+              "text": "مشاہد حسین سید کے مطابق مذاکرات کا جاری رہنا خود ایک اہم علامت ہے، کیونکہ امریکہ اور ایران نے بات چیت کے لیے ایک کھڑکی کھلی رکھی ہے۔\n\nزاہد حسین کہتے ہیں کہ اگر اگلا دور ہوا تو پاکستان کی اہمیت مزید بڑھے گی، کیونکہ اسلام آباد 21 گھنٹے تک جاری رہنے والے پیچیدہ مذاکرات کا مرکز رہا اور دونوں فریق دوبارہ پاکستان سے رجوع کر سکتے ہیں۔",
+              "translation": "Mushahid Hussain Syed said the fact that the talks are still alive is itself an important sign, because the United States and Iran have kept a window open for further discussion. Analyst Zahid Hussain said Pakistan’s importance could grow even more if there is another round, since Islamabad already hosted 21 hours of complex negotiations and both sides may return to Pakistan again."
+            },
+            {
+              "text": "مضمون کے آخر میں ماہرین نے خبردار کیا کہ اگر جنگ دوبارہ شروع ہوئی تو پاکستان کو مشکل صورتحال کا سامنا ہو سکتا ہے، خاص طور پر اگر خطے میں اتحادی ممالک پر حملوں کا دائرہ پھیل گیا۔\n\nاسی لیے اس خبر کا ایک اہم سبق یہ ہے کہ ثالثی، ہم آہنگی اور مسلسل بات چیت امن اور استحکام کے لیے بہت اہم رہتے ہیں۔",
+              "translation": "At the end of the article, experts warned that Pakistan could face a difficult situation if the war begins again, especially if attacks spread to allied countries in the region. One key lesson from the story is that mediation, coordination, and continued dialogue remain very important for peace and stability."
             }
           ]
         }
