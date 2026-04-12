@@ -23,6 +23,7 @@ class KidsMathsApp {
         this.rewards = [];
         this.storyLevels = [];
         this.libraryLevels = [];
+        this.urduLevels = [];
 
         // Current state
         this.currentProblem = null;
@@ -85,22 +86,26 @@ class KidsMathsApp {
 
     async _loadData() {
         try {
-            const [modulesRes, rewardsRes, storiesRes, libraryRes] = await Promise.all([
+            const [modulesRes, rewardsRes, storiesRes, libraryRes, urduRes] = await Promise.all([
                 fetch('data/modules.json'),
                 fetch('data/rewards.json'),
                 fetch('data/stories.json'),
-                fetch('data/library.json')
+                fetch('data/library.json'),
+                fetch('data/urdu.json')
             ]);
             const modulesData = await modulesRes.json();
             const rewardsData = await rewardsRes.json();
             const storiesData = await storiesRes.json();
             const libraryData = await libraryRes.json();
+            const urduData = await urduRes.json();
 
             this.modules = modulesData.modules;
             this.rewards = rewardsData.rewards;
             this.storyLevels = storiesData.levels;
             this.libraryLevels = libraryData.levels;
+            this.urduLevels = urduData.levels;
             this.libraryAttribution = libraryData.attribution;
+            this.urduAttribution = urduData.attribution;
             this._buildStoryIndex();
         } catch (e) {
             console.error('Failed to load data:', e);
@@ -125,6 +130,31 @@ class KidsMathsApp {
         };
         addLevel(this.storyLevels, 'ours');
         addLevel(this.libraryLevels, 'library');
+        addLevel(this.urduLevels, 'urdu');
+    }
+
+    _getReadingSourceConfig(tab = state.get('readingTab') || 'library') {
+        if (tab === 'urdu') {
+            return {
+                levels: this.urduLevels,
+                stateKey: 'urduLevel',
+                attribution: this.urduAttribution || ''
+            };
+        }
+
+        if (tab === 'ours') {
+            return {
+                levels: this.storyLevels,
+                stateKey: 'readingLevel',
+                attribution: ''
+            };
+        }
+
+        return {
+            levels: this.libraryLevels,
+            stateKey: 'libraryLevel',
+            attribution: this.libraryAttribution || ''
+        };
     }
 
     _bindEvents() {
@@ -488,6 +518,29 @@ class KidsMathsApp {
             btn.addEventListener('click', () => this._selectModule(module.id));
             grid.appendChild(btn);
         });
+
+        const readingBtn = document.createElement('button');
+        readingBtn.className = 'module-btn';
+        readingBtn.dataset.module = 'reading';
+        readingBtn.innerHTML = `
+            <span class="module-icon">\u{1F4D6}</span>
+            <span class="module-name">Reading</span>
+        `;
+        readingBtn.addEventListener('click', () => this._showScreen('reading'));
+        grid.appendChild(readingBtn);
+
+        const urduBtn = document.createElement('button');
+        urduBtn.className = 'module-btn';
+        urduBtn.dataset.module = 'urdu';
+        urduBtn.innerHTML = `
+            <span class="module-icon">\u0627\u064F</span>
+            <span class="module-name">Urdu</span>
+        `;
+        urduBtn.addEventListener('click', () => {
+            state.set('readingTab', 'urdu');
+            this._showScreen('reading');
+        });
+        grid.appendChild(urduBtn);
     }
 
     _getPrimaryNextUp() {
@@ -603,7 +656,7 @@ class KidsMathsApp {
     }
 
     _findStoryById(storyId) {
-        const allLevels = [...this.storyLevels, ...this.libraryLevels];
+        const allLevels = [...this.storyLevels, ...this.libraryLevels, ...this.urduLevels];
         for (const level of allLevels) {
             const story = level.stories.find(s => s.id === storyId);
             if (story) {
@@ -1448,8 +1501,8 @@ class KidsMathsApp {
 
         // Level selector
         document.getElementById('reading-level-select').addEventListener('change', (e) => {
-            const tab = state.get('readingTab') || 'library';
-            state.set(tab === 'library' ? 'libraryLevel' : 'readingLevel', e.target.value);
+            const { stateKey } = this._getReadingSourceConfig();
+            state.set(stateKey, e.target.value);
             this._renderStoryList();
         });
 
@@ -1517,8 +1570,7 @@ class KidsMathsApp {
 
     _populateLevelSelector() {
         const tab = state.get('readingTab') || 'library';
-        const levels = tab === 'library' ? this.libraryLevels : this.storyLevels;
-        const stateKey = tab === 'library' ? 'libraryLevel' : 'readingLevel';
+        const { levels, stateKey, attribution } = this._getReadingSourceConfig(tab);
 
         const select = document.getElementById('reading-level-select');
         select.innerHTML = '';
@@ -1540,8 +1592,8 @@ class KidsMathsApp {
 
         // Show/hide attribution
         const attr = document.getElementById('library-attribution');
-        if (tab === 'library' && this.libraryAttribution) {
-            attr.textContent = this.libraryAttribution;
+        if (attribution) {
+            attr.textContent = attribution;
             attr.classList.remove('hidden');
         } else {
             attr.classList.add('hidden');
@@ -1550,8 +1602,7 @@ class KidsMathsApp {
 
     _renderStoryList() {
         const tab = state.get('readingTab') || 'library';
-        const stateKey = tab === 'library' ? 'libraryLevel' : 'readingLevel';
-        const levels = tab === 'library' ? this.libraryLevels : this.storyLevels;
+        const { stateKey, levels } = this._getReadingSourceConfig(tab);
         const levelId = state.get(stateKey);
         const level = levels.find(l => l.id === levelId);
         const list = document.getElementById('story-list');
@@ -1571,10 +1622,11 @@ class KidsMathsApp {
             card.dataset.storyId = story.id;
             card.dataset.source = tab;
             if (bm) card.dataset.resumePage = bm.page;
+            const dir = story.direction || 'ltr';
             card.innerHTML = `
                 <span class="story-card-icon">${hasImages ? '\u{1F5BC}\uFE0F' : '\u{1F4D6}'}</span>
                 <div class="story-card-info">
-                    <div class="story-card-title">${story.title}</div>
+                    <div class="story-card-title" dir="${dir}">${story.title}</div>
                     <div class="story-card-pages">${story.pages.length} pages${story.author ? ' \u00B7 ' + story.author : ''}</div>
                     ${bm ? `<div class="story-card-bookmark">\u{1F516} Page ${bm.page + 1} of ${bm.total}</div>` : ''}
                 </div>
@@ -1586,7 +1638,7 @@ class KidsMathsApp {
 
     _startStory(storyId, resumePage) {
         // Find story across all level sources
-        const allLevels = [...this.storyLevels, ...this.libraryLevels];
+        const allLevels = [...this.storyLevels, ...this.libraryLevels, ...this.urduLevels];
         for (const level of allLevels) {
             const story = level.stories.find(s => s.id === storyId);
             if (story) {
@@ -1626,9 +1678,15 @@ class KidsMathsApp {
 
         const story = this.currentStory;
         const page = story.pages[this.currentStoryPage];
+        const direction = story.direction || 'ltr';
 
-        document.getElementById('story-title').textContent = story.title;
-        document.getElementById('story-text').textContent = page.text;
+        const storyTitle = document.getElementById('story-title');
+        const storyText = document.getElementById('story-text');
+
+        storyTitle.textContent = story.title;
+        storyTitle.dir = direction;
+        storyText.textContent = page.text;
+        storyText.dir = direction;
         document.getElementById('story-page-text').textContent =
             `Page ${this.currentStoryPage + 1} of ${story.pages.length}`;
         document.getElementById('story-progress-fill').style.width =

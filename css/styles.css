@@ -2077,6 +2077,10 @@ td.mastery-mastered {
     margin-bottom: 2px;
 }
 
+.story-card-title[dir="rtl"] {
+    text-align: right;
+}
+
 .story-card-pages {
     font-size: 0.85rem;
     color: var(--text-muted);
@@ -2144,6 +2148,11 @@ td.mastery-mastered {
     white-space: pre-line;
     max-width: 100%;
     width: 100%;
+}
+
+#story-title[dir="rtl"],
+#story-text[dir="rtl"] {
+    text-align: right;
 }
 
 .story-nav {

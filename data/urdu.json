@@ -1,0 +1,40 @@
+{
+  "source": "Urdu Wikisource",
+  "license": "CC BY-SA 4.0 (site terms) with original work marked PD-old on-page",
+  "attribution": "Urdu text sourced from Urdu Wikisource: \"چڑیا کے بچے\". Original page: https://ur.wikisource.org/wiki/چڑیا_کے_بچے",
+  "levels": [
+    {
+      "id": "U1",
+      "name": "Urdu Starter",
+      "ageRange": "6-8",
+      "description": "Short Urdu items with gentle rhythm and familiar ideas.",
+      "stories": [
+        {
+          "id": "urdu-01",
+          "title": "چڑیا کے بچے",
+          "source": "Urdu Wikisource",
+          "direction": "rtl",
+          "originalUrl": "https://ur.wikisource.org/wiki/چڑیا_کے_بچے",
+          "license": "CC BY-SA 4.0 / PD-old note on source page",
+          "pages": [
+            {
+              "text": "دو تین چھوٹے بچے\nچڑیا کے گھونسلے میں\nچپ چاپ لگ رہے ہیں\nسینے سے اپنی ماں کے\n\nچڑیا نے مامتا سے\nپھیلا کے دونوں بازو\nاپنے پروں کے اندر\nبچوں کو ڈھک لیا ہے"
+            },
+            {
+              "text": "اس طرح روزمرہ\nکرتی ہے ماں حفاظت\nسردی سے اور ہوا سے\nرکھتی ہے گرم ان کو\n\nلیکن چڑا گیا ہے\nچگا تلاش کرنے\nدانہ کہیں کہیں سے\nپوٹے میں اپنے بھر کر"
+            },
+            {
+              "text": "جب لائے گا تو بچے\nمنہ کھول دیں گے جھٹ پٹ\nان کو بھرائے گا وہ\n\nماں اور باپ دونوں\nبچوں کی پرورش میں\nمصروف ہیں برابر\nاور چھوٹے بچے خوش ہیں"
+            },
+            {
+              "text": "اے چھوٹے چھوٹے بچو\nتم اونچے گھونسلے سے\nہرگز نہیں گروگے\n\nپر اور پرزے اب تک\nنکلے نہیں تمہارے\nاس واسطے ابھی تم\nاونچے نہ اڑ سکو گے"
+            },
+            {
+              "text": "ہاں جب تمہارے بازو\nاور پر درست ہوں گے\nتو دن کی روشنی میں\nسیکھو گے تم بھی اڑنا\n\nکرتے پھرو گے چیں چیں\nاڑتے پھرو گے پھر پھر\nاے چھوٹے بچو لیکن\nکوا بری بلا ہے\nاس سے خدا بچائے"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

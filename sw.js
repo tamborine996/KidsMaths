@@ -1,5 +1,5 @@
-const CACHE_NAME = 'kidsmaths-v23';
-const BUILD_TIME = '2026-04-07 22:38';
+const CACHE_NAME = 'kidsmaths-v24';
+const BUILD_TIME = '2026-04-12 14:12';
 const ASSETS = [
     './',
     './index.html',
@@ -17,6 +17,7 @@ const ASSETS = [
     './data/rewards.json',
     './data/stories.json',
     './data/library.json',
+    './data/urdu.json',
     './manifest.json',
     './assets/stories/alice-page-1-white-rabbit.jpg'
 ];
