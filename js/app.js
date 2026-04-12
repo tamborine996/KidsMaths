@@ -1754,6 +1754,23 @@ class KidsMathsApp {
         return `Updated ${date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
     }
 
+    async _translateUrduHeadline(text = '') {
+        const cleanText = this._cleanBbcFeedTitle(text);
+        if (!cleanText) return '';
+
+        try {
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ur&tl=en&dt=t&q=${encodeURIComponent(cleanText)}`;
+            const response = await fetch(url, { cache: 'no-store' });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            const translated = (data?.[0] || []).map(part => part?.[0] || '').join('').trim();
+            return translated;
+        } catch (error) {
+            console.warn('Failed to translate BBC Urdu headline:', error);
+            return '';
+        }
+    }
+
     _buildBbcFeedSelectionSection() {
         const feedHint = this._formatFeedFetchedAt();
         const buttonLabel = this._bbcFeedExpanded ? 'Hide BBC list' : 'Add from BBC Urdu';
@@ -1776,6 +1793,7 @@ class KidsMathsApp {
                         <div class="urdu-bbc-feed-row">
                             <div class="urdu-bbc-feed-main">
                                 <div class="urdu-bbc-feed-title" dir="rtl">${this._escapeHtml(item.title)}</div>
+                                ${item.titleEnglish ? `<div class="urdu-bbc-feed-title-english">${this._escapeHtml(item.titleEnglish)}</div>` : ''}
                                 <div class="urdu-bbc-feed-meta">BBC News Urdu • ${this._escapeHtml(this._formatUrduPublishedDate({ publishedAt: item.publishedAt, sourceType: 'news' }) || 'Latest')}</div>
                                 ${item.summary ? `<div class="urdu-bbc-feed-summary" dir="rtl">${this._escapeHtml(item.summary)}</div>` : ''}
                             </div>
@@ -1836,7 +1854,10 @@ class KidsMathsApp {
                 .filter(item => item.title && /\/articles\//.test(item.url))
                 .slice(0, 10);
 
-            this._bbcFeedItems = items;
+            this._bbcFeedItems = await Promise.all(items.map(async item => ({
+                ...item,
+                titleEnglish: await this._translateUrduHeadline(item.title)
+            })));
             this._bbcFeedFetchedAt = new Date().toISOString();
         } catch (error) {
             console.error('Failed to load BBC Urdu feed:', error);
@@ -1912,7 +1933,7 @@ class KidsMathsApp {
         return {
             id: this._buildBbcStoryId(item.url),
             title,
-            titleEnglish: '',
+            titleEnglish: item.titleEnglish || '',
             source: 'BBC News Urdu',
             sourceType: 'news',
             direction: 'rtl',

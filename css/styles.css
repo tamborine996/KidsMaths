@@ -2237,6 +2237,13 @@ td.mastery-mastered {
     font-size: 0.84rem;
 }
 
+.urdu-bbc-feed-title-english {
+    margin-top: 4px;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
 .urdu-bbc-feed-summary {
     margin-top: 6px;
     color: var(--text-secondary);
