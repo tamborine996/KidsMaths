@@ -2283,8 +2283,9 @@ class KidsMathsApp {
             storyTitleSubtitle.textContent = '';
             storyTitleSubtitle.classList.add('hidden');
         }
+        const pageVocabulary = this._getEffectiveUrduVocabularyForPage(page.text, story);
         if (isInteractiveUrdu) {
-            storyText.innerHTML = this._renderInteractiveUrduText(page.text, story.vocabulary || {});
+            storyText.innerHTML = this._renderInteractiveUrduText(page.text, pageVocabulary);
         } else {
             storyText.textContent = page.text;
         }
@@ -2338,7 +2339,65 @@ class KidsMathsApp {
     }
 
     _storySupportsUrduTools(story = this.currentStory) {
-        return !!(story && story.direction === 'rtl' && story.vocabulary && Object.keys(story.vocabulary).length > 0);
+        if (!story || story.direction !== 'rtl' || !story.vocabulary) return false;
+        const currentPageText = story.pages?.[this.currentStoryPage]?.text || '';
+        return Object.keys(this._getEffectiveUrduVocabularyForPage(currentPageText, story)).length > 0;
+    }
+
+    _getUrduVocabExclusionSets() {
+        return {
+            urdu: new Set([
+                'پاکستان', 'اسلام آباد', 'امریکہ', 'ایران', 'بھارت', 'انڈیا', 'بی بی سی', 'بی بی سی اردو',
+                'جے ڈی وینس', 'اسحاق ڈار', 'عاصم منیر', 'مشاہد حسین سید', 'زاہد حسین', 'طلعت حسین'
+            ]),
+            english: new Set([
+                'Pakistan', 'Islamabad', 'United States', 'America', 'Iran', 'India', 'BBC', 'BBC Urdu',
+                'J D Vance', 'JD Vance', 'Ishaq Dar', 'Asim Munir', 'Mushahid Hussain Syed', 'Zahid Hussain', 'Talat Hussain'
+            ])
+        };
+    }
+
+    _isTrivialUrduVocabCandidate(word = '', meaning = '', story = this.currentStory) {
+        const cleanWord = String(word || '').trim();
+        const cleanMeaning = String(meaning || '').trim();
+        if (!cleanWord || !cleanMeaning) return true;
+
+        const { urdu, english } = this._getUrduVocabExclusionSets();
+        if (urdu.has(cleanWord) || english.has(cleanMeaning)) return true;
+
+        if (story?.sourceType === 'news') {
+            if (/^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*$/.test(cleanMeaning) && cleanWord.length <= 12) {
+                return true;
+            }
+            if (cleanMeaning.replace(/\s+/g, '').toLowerCase() === cleanWord.replace(/\s+/g, '').toLowerCase()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    _pageContainsUrduWord(text = '', word = '') {
+        return String(text || '').includes(String(word || '').trim());
+    }
+
+    _scoreUrduVocabCandidate(word = '', meaning = '') {
+        let score = word.length;
+        if (/\s/.test(word)) score += 20;
+        if (/\//.test(meaning)) score += 2;
+        if (word.length >= 8) score += 4;
+        return score;
+    }
+
+    _getEffectiveUrduVocabularyForPage(text = '', story = this.currentStory) {
+        const vocabulary = story?.vocabulary || {};
+        const maxItems = story?.sourceType === 'news' ? 6 : 8;
+        const selected = Object.entries(vocabulary)
+            .filter(([word, meaning]) => this._pageContainsUrduWord(text, word) && !this._isTrivialUrduVocabCandidate(word, meaning, story))
+            .sort((a, b) => this._scoreUrduVocabCandidate(b[0], b[1]) - this._scoreUrduVocabCandidate(a[0], a[1]))
+            .slice(0, maxItems);
+
+        return Object.fromEntries(selected);
     }
 
     _escapeHtml(text = '') {
