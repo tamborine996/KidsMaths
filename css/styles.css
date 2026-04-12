@@ -108,28 +108,30 @@
     left: 8px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     z-index: 9999;
     touch-action: none;
     cursor: pointer;
-    padding: 4px 8px 4px 4px;
-    border-radius: 12px;
+    min-height: 40px;
+    padding: 8px 10px 8px 8px;
+    border-radius: 14px;
+    background: rgba(247, 243, 233, 0.88);
     user-select: none;
     -webkit-user-select: none;
 }
 
 .update-dot {
-    width: 14px;
-    height: 14px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     background: var(--border-color);
-    opacity: 0.4;
+    opacity: 0.55;
     flex-shrink: 0;
     transition: opacity 0.2s;
 }
 
 .build-stamp {
-    font-size: 0.6rem;
+    font-size: 0.72rem;
     color: var(--text-secondary);
     opacity: 0.4;
     font-family: var(--font-body);
@@ -735,11 +737,19 @@ body {
     margin-bottom: var(--spacing-lg);
 }
 
+.screen-header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-shrink: 0;
+}
+
 .screen-header h2 {
     font-family: var(--font-display);
     font-size: 1.6rem;
     font-weight: 700;
     flex: 1;
+    margin: 0;
     color: var(--text-heading);
 }
 
@@ -763,7 +773,8 @@ body {
     transform: scale(1.2);
 }
 
-.back-btn {
+.back-btn,
+.home-btn {
     width: 48px;
     height: 48px;
     display: flex;
@@ -777,9 +788,11 @@ body {
     color: var(--text-secondary);
     box-shadow: 3px 3px 0 var(--border-color);
     transition: all 0.15s ease;
+    flex-shrink: 0;
 }
 
-.back-btn:hover {
+.back-btn:hover,
+.home-btn:hover {
     transform: translate(-1px, -1px);
     box-shadow: 4px 4px 0 var(--border-color);
     color: var(--text-primary);

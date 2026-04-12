@@ -168,8 +168,8 @@ class KidsMathsApp {
         document.getElementById('home-next-up').addEventListener('click', (e) => this._handleHomeShortcutClick(e));
         document.getElementById('home-resume').addEventListener('click', (e) => this._handleHomeShortcutClick(e));
 
-        // Back buttons
-        document.querySelectorAll('.back-btn').forEach(btn => {
+        // Back + Home buttons
+        document.querySelectorAll('.back-btn, .home-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const target = e.currentTarget.dataset.to;
                 if (target === 'home') {
@@ -1969,7 +1969,7 @@ class KidsMathsApp {
     _setupUpdateButton() {
         const bar = document.getElementById('update-btn');
         const dot = bar.querySelector('.update-dot');
-        const HOLD_DURATION = 3000;
+        const HOLD_DURATION = 1000;
         let pressTimer = null;
         let animFrame = null;
         let startTime = 0;

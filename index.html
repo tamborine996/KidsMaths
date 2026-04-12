@@ -19,7 +19,7 @@
 </head>
 <body>
     <div id="app">
-        <!-- Update bar: long-press 3s anywhere to check for updates -->
+        <!-- Update bar: long-press 1s anywhere on it to check for updates -->
         <div id="update-btn" class="update-bar" aria-label="Check for updates">
             <div class="update-dot"></div>
             <span id="build-stamp" class="build-stamp"></span>
@@ -104,7 +104,10 @@
         <!-- Module Screen (Learn/Practice/Test selection) -->
         <div id="module-screen" class="screen">
             <header class="screen-header">
-                <button class="back-btn" data-to="home">&larr;</button>
+                <div class="screen-header-actions">
+                    <button class="back-btn" data-to="home" aria-label="Go back">&larr;</button>
+                    <button class="home-btn" data-to="home" aria-label="Go home">⌂</button>
+                </div>
                 <h2 id="module-title">Addition</h2>
             </header>
             <div class="level-selector">
@@ -140,7 +143,10 @@
         <!-- Learn Screen -->
         <div id="learn-screen" class="screen">
             <header class="screen-header">
-                <button class="back-btn" data-to="module">&larr;</button>
+                <div class="screen-header-actions">
+                    <button class="back-btn" data-to="module" aria-label="Go back">&larr;</button>
+                    <button class="home-btn" data-to="home" aria-label="Go home">⌂</button>
+                </div>
                 <h2>Learn</h2>
             </header>
             <div class="learn-content" id="learn-content">
@@ -152,7 +158,10 @@
         <!-- Practice Screen -->
         <div id="practice-screen" class="screen">
             <header class="screen-header">
-                <button class="back-btn" data-to="module">&larr;</button>
+                <div class="screen-header-actions">
+                    <button class="back-btn" data-to="module" aria-label="Go back">&larr;</button>
+                    <button class="home-btn" data-to="home" aria-label="Go home">⌂</button>
+                </div>
                 <h2 id="practice-title">Practice</h2>
             </header>
             <div class="practice-area">
@@ -180,7 +189,10 @@
         <!-- Test Screen -->
         <div id="test-screen" class="screen">
             <header class="screen-header">
-                <button class="back-btn" data-to="module">&larr;</button>
+                <div class="screen-header-actions">
+                    <button class="back-btn" data-to="module" aria-label="Go back">&larr;</button>
+                    <button class="home-btn" data-to="home" aria-label="Go home">⌂</button>
+                </div>
                 <h2>Test</h2>
             </header>
             <div class="test-progress">
@@ -212,7 +224,10 @@
         <!-- Reading Level Select Screen -->
         <div id="reading-screen" class="screen">
             <header class="screen-header">
-                <button class="back-btn" data-to="home">&larr;</button>
+                <div class="screen-header-actions">
+                    <button class="back-btn" data-to="home" aria-label="Go back">&larr;</button>
+                    <button class="home-btn" data-to="home" aria-label="Go home">⌂</button>
+                </div>
                 <h2>Reading</h2>
             </header>
             <div class="reading-tabs">
@@ -235,7 +250,10 @@
         <!-- Reading Story Screen -->
         <div id="story-screen" class="screen">
             <header class="screen-header">
-                <button class="back-btn" data-to="reading">&larr;</button>
+                <div class="screen-header-actions">
+                    <button class="back-btn" data-to="reading" aria-label="Go back">&larr;</button>
+                    <button class="home-btn" data-to="home" aria-label="Go home">⌂</button>
+                </div>
                 <h2 id="story-title">Story</h2>
                 <button class="bookmark-btn" id="bookmark-btn" title="Bookmark this page">&#128278;</button>
             </header>
@@ -258,7 +276,10 @@
         <!-- Store Screen -->
         <div id="store-screen" class="screen">
             <header class="screen-header">
-                <button class="back-btn" data-to="home">&larr;</button>
+                <div class="screen-header-actions">
+                    <button class="back-btn" data-to="home" aria-label="Go back">&larr;</button>
+                    <button class="home-btn" data-to="home" aria-label="Go home">⌂</button>
+                </div>
                 <h2>Store</h2>
                 <div class="coin-display header-coins">
                     <span class="coin-icon"></span>
@@ -283,7 +304,10 @@
             </div>
             <div id="parent-dashboard" class="hidden">
                 <header class="screen-header">
-                    <button class="back-btn" data-to="home">&larr;</button>
+                    <div class="screen-header-actions">
+                        <button class="back-btn" data-to="home" aria-label="Go back">&larr;</button>
+                        <button class="home-btn" data-to="home" aria-label="Go home">⌂</button>
+                    </div>
                     <h2>Parent Dashboard</h2>
                 </header>
                 <div class="parent-tabs">
