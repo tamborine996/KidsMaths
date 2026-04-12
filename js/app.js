@@ -39,6 +39,7 @@ class KidsMathsApp {
         this._selectedUrduWord = null;
         this._showUrduTranslation = false;
         this._showUrduSavedWords = false;
+        this._pendingUrduSelectionText = '';
         this._baseUrduLevels = [];
         this._bbcFeedItems = [];
         this._bbcFeedExpanded = false;
@@ -1576,6 +1577,10 @@ class KidsMathsApp {
             this._renderUrduSupportPanel();
         });
 
+        document.getElementById('urdu-selection-translate-btn').addEventListener('click', async () => {
+            await this._translateCurrentUrduSelection();
+        });
+
         document.getElementById('urdu-saved-toggle-btn').addEventListener('click', () => {
             this._showUrduSavedWords = !this._showUrduSavedWords;
             this._renderUrduSupportPanel();
@@ -2329,6 +2334,7 @@ class KidsMathsApp {
 
         if (!isInteractiveUrdu) {
             this._selectedUrduWord = null;
+            this._pendingUrduSelectionText = '';
             this._showUrduTranslation = false;
             this._showUrduSavedWords = false;
         }
@@ -2439,9 +2445,55 @@ class KidsMathsApp {
 
     _selectUrduWord(word, meaning) {
         this._selectedUrduWord = { word, meaning };
+        this._pendingUrduSelectionText = word;
         this._renderUrduSupportPanel();
         document.querySelectorAll('.urdu-word-button.active').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll(`.urdu-word-button[data-word="${CSS.escape(word)}"]`).forEach(btn => btn.classList.add('active'));
+    }
+
+    _getCurrentUrduSelectionText() {
+        const selected = (window.getSelection?.().toString?.() || '').replace(/\s+/g, ' ').trim();
+        if (selected) return selected;
+        return (this._pendingUrduSelectionText || '').trim();
+    }
+
+    async _translateWithGoogle(text = '') {
+        const cleanText = String(text || '').trim();
+        if (!cleanText) return '';
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ur&tl=en&dt=t&q=${encodeURIComponent(cleanText)}`;
+        const response = await fetch(url, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`Translation failed: ${response.status}`);
+        const data = await response.json();
+        return (data?.[0] || []).map(part => part?.[0] || '').join('').trim();
+    }
+
+    async _translateCurrentUrduSelection() {
+        const text = this._getCurrentUrduSelectionText();
+        if (!text) {
+            this._pendingUrduSelectionText = '';
+            this._selectedUrduWord = null;
+            this._renderUrduSupportPanel();
+            return;
+        }
+
+        const translateBtn = document.getElementById('urdu-selection-translate-btn');
+        const previous = translateBtn.textContent;
+        translateBtn.disabled = true;
+        translateBtn.textContent = 'Translating…';
+
+        try {
+            const translation = await this._translateWithGoogle(text);
+            this._pendingUrduSelectionText = text;
+            this._selectedUrduWord = { word: text, meaning: translation || 'No translation found' };
+        } catch (error) {
+            console.error('Selection translation failed:', error);
+            this._pendingUrduSelectionText = text;
+            this._selectedUrduWord = { word: text, meaning: 'Translation failed. Try again.' };
+        } finally {
+            translateBtn.disabled = false;
+            translateBtn.textContent = previous;
+            this._renderUrduSupportPanel();
+        }
     }
 
     _getUrduSavedWords() {
@@ -2488,6 +2540,7 @@ class KidsMathsApp {
         const translation = document.getElementById('urdu-page-translation');
         const savedPanel = document.getElementById('urdu-saved-words-panel');
         const translationBtn = document.getElementById('urdu-translation-toggle-btn');
+        const selectionTranslateBtn = document.getElementById('urdu-selection-translate-btn');
         const savedBtn = document.getElementById('urdu-saved-toggle-btn');
         const supportTitle = document.getElementById('urdu-support-title');
         const supportStatus = document.getElementById('urdu-support-status');
@@ -2510,7 +2563,9 @@ class KidsMathsApp {
         const savedWords = this._getUrduSavedWords();
         const wordAlreadySaved = this._isSelectedUrduWordSaved(savedWords);
         tools.classList.remove('hidden');
+        const currentSelectionText = this._getCurrentUrduSelectionText();
         translationBtn.textContent = this._showUrduTranslation ? 'Hide English help' : 'Show English help';
+        selectionTranslateBtn.textContent = currentSelectionText ? `Translate “${currentSelectionText.slice(0, 24)}${currentSelectionText.length > 24 ? '…' : ''}”` : 'Translate selection';
         savedBtn.textContent = `Saved words (${savedWords.length})`;
         translationBtn.classList.toggle('is-active', this._showUrduTranslation);
         savedBtn.classList.toggle('is-active', this._showUrduSavedWords);
@@ -2527,9 +2582,9 @@ class KidsMathsApp {
             saveWordBtn.textContent = wordAlreadySaved ? 'Saved ✓' : 'Save this word';
         } else {
             helper.classList.add('hidden');
-            supportTitle.textContent = 'Tap a purple word for quick help.';
-            supportStatus.textContent = 'No word selected yet';
-            saveWordBtn.disabled = false;
+            supportTitle.textContent = 'Tap a purple word or select any Urdu text for quick help.';
+            supportStatus.textContent = currentSelectionText ? 'Selection ready to translate' : 'No word selected yet';
+            saveWordBtn.disabled = true;
             saveWordBtn.textContent = 'Save this word';
         }
 

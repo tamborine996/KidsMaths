@@ -2495,6 +2495,8 @@ td.mastery-mastered {
     white-space: pre-line;
     max-width: 100%;
     width: 100%;
+    user-select: text;
+    -webkit-user-select: text;
 }
 
 .story-content.urdu-story-layout #story-text {
