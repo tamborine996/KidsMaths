@@ -162,6 +162,10 @@ class KidsMathsApp {
         document.getElementById('store-btn').addEventListener('click', () => this._showScreen('store'));
         document.getElementById('parent-btn').addEventListener('click', () => this._showScreen('parent'));
         document.getElementById('home-reading-hub').addEventListener('click', () => this._showScreen('reading'));
+        document.getElementById('home-urdu-hub').addEventListener('click', () => {
+            state.set('readingTab', 'urdu');
+            this._showScreen('reading');
+        });
         document.getElementById('home-maths-hub').addEventListener('click', () => {
             document.getElementById('module-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
@@ -454,12 +458,15 @@ class KidsMathsApp {
     _renderHomeLearningAreas() {
         const mathsHub = document.getElementById('home-maths-hub');
         const readingHub = document.getElementById('home-reading-hub');
+        const urduHub = document.getElementById('home-urdu-hub');
         const bookmarks = Object.values(state.get('bookmarks') || {});
         const readStories = state.get('readStories') || [];
         const totalTime = this.progressManager.getTotalPracticeTime();
         const streak = this.progressManager.getStreak();
         const recentMaths = this._getRecentMathsItem();
         const recentStory = this._getRecentStoryItem();
+        const recentUrdu = this._getRecentUrduItem();
+        const urduBookmarks = Object.keys(state.get('bookmarks') || {}).filter(storyId => this._isUrduStory(storyId)).length;
 
         mathsHub.innerHTML = `
             <div class="learning-area-top">
@@ -475,12 +482,23 @@ class KidsMathsApp {
         readingHub.innerHTML = `
             <div class="learning-area-top">
                 <span class="learning-area-icon">📚</span>
-                <span class="learning-area-badge">Stories + Urdu</span>
+                <span class="learning-area-badge">Stories</span>
             </div>
-            <div class="learning-area-title">Reading & Urdu</div>
-            <div class="learning-area-copy">Story library, Urdu reading, bookmarks, and longer books.</div>
+            <div class="learning-area-title">Reading</div>
+            <div class="learning-area-copy">Story library, bookmarks, and longer books.</div>
             <div class="learning-area-stats">${bookmarks.length} bookmarked · ${readStories.length} finished</div>
-            <div class="learning-area-foot">${recentStory ? 'Continue ' + recentStory.title : 'Open stories and Urdu'} </div>
+            <div class="learning-area-foot">${recentStory ? 'Continue ' + recentStory.title : 'Open the reading library'} </div>
+        `;
+
+        urduHub.innerHTML = `
+            <div class="learning-area-top">
+                <span class="learning-area-icon">اُ</span>
+                <span class="learning-area-badge">Language</span>
+            </div>
+            <div class="learning-area-title">Urdu</div>
+            <div class="learning-area-copy">Urdu stories and reading practice in a dedicated space.</div>
+            <div class="learning-area-stats">${urduBookmarks} bookmarked · ${this.urduLevels.length} level${this.urduLevels.length !== 1 ? 's' : ''}</div>
+            <div class="learning-area-foot">${recentUrdu ? 'Continue ' + recentUrdu.title : 'Open Urdu reading'} </div>
         `;
     }
 
@@ -569,11 +587,19 @@ class KidsMathsApp {
     }
 
     _getRecentStoryItem() {
-        return this._getResumeItems().find(item => item.type === 'story') || null;
+        return this._getResumeItems().find(item => item.type === 'story' && !this._isUrduStory(item.storyId)) || null;
     }
 
     _getRecentMathsItem() {
         return this._getResumeItems().find(item => item.type === 'module') || null;
+    }
+
+    _getRecentUrduItem() {
+        return this._getResumeItems().find(item => item.type === 'story' && this._isUrduStory(item.storyId)) || null;
+    }
+
+    _isUrduStory(storyId) {
+        return this.urduLevels.some(level => level.stories.some(story => story.id === storyId));
     }
 
     _buildStoryResumeItem(storyId, page = 0, date = null) {

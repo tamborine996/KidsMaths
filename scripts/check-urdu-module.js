@@ -28,7 +28,8 @@ assert(indexHtml.includes('>Urdu<'), 'Expected reading screen or home screen to 
 assert(appJs.includes("fetch('data/urdu.json')"), 'Expected app.js to load data/urdu.json');
 assert(appJs.includes('this.urduLevels'), 'Expected app.js to track urduLevels');
 assert(appJs.includes("tab === 'urdu'"), 'Expected app.js to support Urdu reading tab logic');
-assert(appJs.includes('Reading & Urdu'), 'Expected home screen to expose Urdu through the main reading hub');
+assert(indexHtml.includes('id="home-urdu-hub"'), 'Expected home screen to expose Urdu as its own top-level hub');
+assert(appJs.includes('Open Urdu reading'), 'Expected Urdu hub copy in app.js');
 assert(appJs.includes('story.direction'), 'Expected story rendering to respect direction metadata');
 
 assert(stateJs.includes("urduLevel: 'U1'"), 'Expected default state to include urduLevel');

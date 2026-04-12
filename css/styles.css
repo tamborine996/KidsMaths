@@ -484,6 +484,12 @@ body {
     background: linear-gradient(135deg, #FFFEF7, #F1FAFD);
 }
 
+.learning-area-urdu {
+    border: var(--border-width) solid #8C6A9E;
+    box-shadow: var(--shadow-offset) #8C6A9E;
+    background: linear-gradient(135deg, #FBF5FF, #F2EBFF);
+}
+
 /* Search Bar */
 .search-bar {
     display: flex;
@@ -2282,9 +2288,12 @@ td.mastery-mastered {
         grid-template-columns: repeat(3, 1fr);
     }
 
-    .home-resume-list,
-    .learning-area-grid {
+    .home-resume-list {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .learning-area-grid {
+        grid-template-columns: repeat(3, 1fr);
     }
 
     .home-header h1 {
