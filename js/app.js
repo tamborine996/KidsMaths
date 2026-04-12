@@ -2078,6 +2078,15 @@ class KidsMathsApp {
         return story._levelName || 'Library item';
     }
 
+    _getUrduStoryPreparationState(story) {
+        const isBbc = /BBC/i.test(story?.source || '') || story?.importSource === 'bbc-rss';
+        if (!isBbc) return null;
+        if (story.analysisState === 'smartened') {
+            return { label: 'Smartened', className: 'is-smartened' };
+        }
+        return { label: 'Needs smartening', className: 'is-basic' };
+    }
+
     _buildUrduStoryRow(story, { archived = false, current = false } = {}) {
         const progress = this._getUrduStoryProgress(story);
         const resumePage = progress.bookmark?.page;
@@ -2085,6 +2094,7 @@ class KidsMathsApp {
         const progressLine = `${progress.percent}% complete • ${progress.currentPage || 0}/${progress.totalPages} pages`;
         const status = current ? 'Current' : archived ? 'Archived' : progress.status;
         const actionLabel = archived ? 'Restore' : 'Archive';
+        const preparationState = this._getUrduStoryPreparationState(story);
 
         return `
             <div class="urdu-item-row ${current ? 'is-current' : ''}" data-story-id="${story.id}" ${resumePage !== undefined ? `data-resume-page="${resumePage}"` : ''}>
@@ -2099,6 +2109,7 @@ class KidsMathsApp {
                         ${story.titleEnglish ? `<div class="urdu-item-subtitle">${this._escapeHtml(story.titleEnglish)}</div>` : ''}
                     </div>
                     <div class="urdu-item-meta">${this._escapeHtml(sourceLine)}</div>
+                    ${preparationState ? `<div class="urdu-item-analysis-chip ${preparationState.className}">${this._escapeHtml(preparationState.label)}</div>` : ''}
                     <div class="urdu-item-meta urdu-item-progress-line">${this._escapeHtml(progressLine)} • ${this._escapeHtml(status)}</div>
                 </div>
                 <div class="urdu-item-actions">

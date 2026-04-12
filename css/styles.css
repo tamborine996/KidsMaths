@@ -2394,6 +2394,30 @@ td.mastery-mastered {
     margin-top: 4px;
 }
 
+.urdu-item-analysis-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    width: fit-content;
+}
+
+.urdu-item-analysis-chip.is-basic {
+    background: rgba(232, 160, 96, 0.16);
+    color: #9a5a18;
+    border: 1px solid rgba(232, 160, 96, 0.35);
+}
+
+.urdu-item-analysis-chip.is-smartened {
+    background: rgba(127, 176, 105, 0.16);
+    color: #4f7b3e;
+    border: 1px solid rgba(127, 176, 105, 0.35);
+}
+
 .urdu-item-actions {
     display: flex;
     flex-direction: column;
