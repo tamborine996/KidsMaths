@@ -40,6 +40,8 @@ class KidsMathsApp {
         this._showUrduTranslation = false;
         this._showUrduSavedWords = false;
         this._pendingUrduSelectionText = '';
+        this._urduParagraphTranslations = {};
+        this._urduParagraphLoadingKey = '';
         this._baseUrduLevels = [];
         this._bbcFeedItems = [];
         this._bbcFeedExpanded = false;
@@ -1569,9 +1571,20 @@ class KidsMathsApp {
         document.getElementById('story-text').addEventListener('click', async (e) => {
             if (!this.currentStory || !this._storySupportsUrduTools()) return;
 
+            const paragraphBtn = e.target.closest('[data-paragraph-translate]');
+            if (paragraphBtn) {
+                await this._toggleUrduParagraphTranslation(Number(paragraphBtn.dataset.paragraphTranslate));
+                return;
+            }
+
             const wordBtn = e.target.closest('.urdu-word-button');
             if (wordBtn) {
-                this._selectUrduWord(wordBtn.dataset.word, wordBtn.dataset.meaning);
+                this._selectUrduWord(
+                    wordBtn.dataset.word,
+                    wordBtn.dataset.meaning,
+                    Number(wordBtn.dataset.paragraphIndex),
+                    Number(wordBtn.dataset.occurrenceIndex)
+                );
                 return;
             }
 
@@ -2304,13 +2317,7 @@ class KidsMathsApp {
             storyTitleSubtitle.textContent = '';
             storyTitleSubtitle.classList.add('hidden');
         }
-        const pageVocabulary = this._getEffectiveUrduVocabularyForPage(page.text, story);
-        if (isInteractiveUrdu) {
-            storyText.innerHTML = this._renderInteractiveUrduText(page.text, pageVocabulary);
-        } else {
-            storyText.textContent = page.text;
-        }
-        storyText.dir = direction;
+        this._renderCurrentStoryText();
         document.getElementById('story-page-text').textContent =
             `Page ${this.currentStoryPage + 1} of ${story.pages.length}`;
         document.getElementById('story-progress-fill').style.width =
@@ -2364,6 +2371,35 @@ class KidsMathsApp {
         if (!story || story.direction !== 'rtl') return false;
         const currentPageText = story.pages?.[this.currentStoryPage]?.text || '';
         return Boolean(String(currentPageText || '').trim());
+    }
+
+    _renderCurrentStoryText() {
+        if (!this.currentStory) return;
+
+        const story = this.currentStory;
+        const page = story.pages?.[this.currentStoryPage] || {};
+        const storyText = document.getElementById('story-text');
+        const isInteractiveUrdu = this._storySupportsUrduTools(story);
+        const pageVocabulary = this._getEffectiveUrduVocabularyForPage(page.text || '', story);
+
+        if (isInteractiveUrdu) {
+            storyText.innerHTML = this._renderInteractiveUrduText(page.text || '', pageVocabulary);
+        } else {
+            storyText.textContent = page.text || '';
+        }
+
+        storyText.dir = story.direction || 'ltr';
+    }
+
+    _splitUrduParagraphs(text = '') {
+        return String(text || '')
+            .split(/\n\s*\n/g)
+            .map(paragraph => paragraph.trim())
+            .filter(Boolean);
+    }
+
+    _getUrduParagraphCacheKey(index) {
+        return `${this.currentStory?.id || 'story'}::${this.currentStoryPage}::${index}`;
     }
 
     _getUrduVocabExclusionSets() {
@@ -2426,34 +2462,83 @@ class KidsMathsApp {
     }
 
     _renderInteractiveUrduText(text, vocabulary) {
+        const paragraphs = this._splitUrduParagraphs(text);
+
+        return paragraphs.map((paragraph, index) => {
+            const key = this._getUrduParagraphCacheKey(index);
+            const translation = this._urduParagraphTranslations[key] || '';
+            const isLoading = this._urduParagraphLoadingKey === key;
+            const translationHtml = isLoading
+                ? '<div class="urdu-page-translation-label">English for this paragraph</div><p>Translating paragraph…</p>'
+                : `<div class="urdu-page-translation-label">English for this paragraph</div><p>${this._escapeHtml(translation).replace(/\n/g, '<br>')}</p>`;
+
+            return `
+                <div class="urdu-paragraph-block" data-paragraph-index="${index}">
+                    <div class="urdu-paragraph-row">
+                        <button class="urdu-paragraph-translate-btn${translation ? ' is-active' : ''}" type="button" data-paragraph-translate="${index}" aria-label="Translate paragraph ${index + 1}">EN</button>
+                        <div class="urdu-paragraph-text">${this._renderInteractiveUrduParagraph(paragraph, vocabulary, index)}</div>
+                    </div>
+                    <div class="urdu-paragraph-translation${translation || isLoading ? '' : ' hidden'}">${translationHtml}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    _renderInteractiveUrduParagraph(text, vocabulary, paragraphIndex) {
         const escapedText = this._escapeHtml(text || '');
         const sortedWords = Object.keys(vocabulary || {}).sort((a, b) => b.length - a.length);
         const placeholders = [];
         let rendered = escapedText;
+        const selectedWord = String(this._selectedUrduWord?.word || '').trim();
+        const selectedParagraphIndex = Number(this._selectedUrduWord?.paragraphIndex ?? -1);
+        const selectedOccurrenceIndex = Number(this._selectedUrduWord?.occurrenceIndex ?? -1);
+        const selectedWordIsVocabulary = selectedWord && Object.prototype.hasOwnProperty.call(vocabulary || {}, selectedWord);
+
+        if (selectedWord && !selectedWordIsVocabulary && selectedParagraphIndex === paragraphIndex) {
+            const escapedSelectedWord = selectedWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            let selectedMatchIndex = 0;
+            rendered = rendered.replace(new RegExp(escapedSelectedWord, 'g'), match => {
+                if (selectedMatchIndex === selectedOccurrenceIndex) {
+                    const placeholder = `__URDU_ACTIVE_WORD_${paragraphIndex}_${selectedMatchIndex}__`;
+                    const selectedHtml = `<span class="urdu-inline-selection active">${this._escapeHtml(selectedWord)}</span>`;
+                    placeholders.push({ placeholder, html: selectedHtml });
+                    selectedMatchIndex += 1;
+                    return placeholder;
+                }
+
+                selectedMatchIndex += 1;
+                return match;
+            });
+        }
 
         sortedWords.forEach((word, index) => {
             const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const placeholder = `__URDU_WORD_${index}__`;
             const safeWord = this._escapeHtml(word);
             const safeMeaning = this._escapeHtml(vocabulary[word]);
-            const buttonHtml = `<button class="urdu-word-button" data-word="${safeWord}" data-meaning="${safeMeaning}" type="button">${safeWord}</button>`;
-            placeholders.push({ placeholder, buttonHtml });
-            rendered = rendered.replace(new RegExp(escapedWord, 'g'), placeholder);
+            let wordOccurrenceIndex = 0;
+
+            rendered = rendered.replace(new RegExp(escapedWord, 'g'), () => {
+                const placeholder = `__URDU_WORD_${paragraphIndex}_${index}_${wordOccurrenceIndex}__`;
+                const isActive = selectedWord === word && selectedParagraphIndex === paragraphIndex && selectedOccurrenceIndex === wordOccurrenceIndex;
+                const buttonHtml = `<button class="urdu-word-button${isActive ? ' active' : ''}" data-word="${safeWord}" data-meaning="${safeMeaning}" data-paragraph-index="${paragraphIndex}" data-occurrence-index="${wordOccurrenceIndex}" type="button">${safeWord}</button>`;
+                placeholders.push({ placeholder, html: buttonHtml });
+                wordOccurrenceIndex += 1;
+                return placeholder;
+            });
         });
 
-        placeholders.forEach(({ placeholder, buttonHtml }) => {
-            rendered = rendered.replaceAll(placeholder, buttonHtml);
+        placeholders.forEach(({ placeholder, html }) => {
+            rendered = rendered.replaceAll(placeholder, html);
         });
 
         return rendered.replace(/\n/g, '<br>');
     }
 
-    _selectUrduWord(word, meaning) {
-        this._selectedUrduWord = { word, meaning };
+    _selectUrduWord(word, meaning, paragraphIndex = -1, occurrenceIndex = -1) {
+        this._selectedUrduWord = { word, meaning, paragraphIndex, occurrenceIndex };
         this._pendingUrduSelectionText = word;
+        this._renderCurrentStoryText();
         this._renderUrduSupportPanel();
-        document.querySelectorAll('.urdu-word-button.active').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll(`.urdu-word-button[data-word="${CSS.escape(word)}"]`).forEach(btn => btn.classList.add('active'));
     }
 
     _getCurrentUrduSelectionText() {
@@ -2463,7 +2548,7 @@ class KidsMathsApp {
     _getTappedUrduWord(event) {
         const pointX = event.clientX ?? event?.touches?.[0]?.clientX ?? event?.changedTouches?.[0]?.clientX;
         const pointY = event.clientY ?? event?.touches?.[0]?.clientY ?? event?.changedTouches?.[0]?.clientY;
-        if (typeof pointX !== 'number' || typeof pointY !== 'number') return '';
+        if (typeof pointX !== 'number' || typeof pointY !== 'number') return null;
 
         let range = null;
         if (document.caretRangeFromPoint) {
@@ -2479,24 +2564,46 @@ class KidsMathsApp {
 
         const textNode = range?.startContainer;
         const offset = range?.startOffset ?? 0;
-        if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return '';
+        if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return null;
 
         const text = textNode.textContent || '';
-        if (!text.trim()) return '';
+        if (!text.trim()) return null;
 
         const urduChar = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
         let index = Math.min(offset, Math.max(text.length - 1, 0));
         if (!urduChar.test(text[index] || '') && index > 0 && urduChar.test(text[index - 1] || '')) {
             index -= 1;
         }
-        if (!urduChar.test(text[index] || '')) return '';
+        if (!urduChar.test(text[index] || '')) return null;
 
         let start = index;
         let end = index;
         while (start > 0 && urduChar.test(text[start - 1] || '')) start -= 1;
         while (end < text.length && urduChar.test(text[end] || '')) end += 1;
 
-        return text.slice(start, end).trim();
+        const word = text.slice(start, end).trim();
+        if (!word) return null;
+
+        const paragraphBlock = textNode.parentElement?.closest('.urdu-paragraph-block');
+        const paragraphText = textNode.parentElement?.closest('.urdu-paragraph-text');
+        const paragraphIndex = Number(paragraphBlock?.dataset.paragraphIndex ?? -1);
+        if (!paragraphText || paragraphIndex < 0) {
+            return { word, paragraphIndex: -1, occurrenceIndex: -1 };
+        }
+
+        const walker = document.createTreeWalker(paragraphText, NodeFilter.SHOW_TEXT);
+        let combinedText = '';
+        let currentNode;
+        while ((currentNode = walker.nextNode())) {
+            if (currentNode === textNode) {
+                combinedText += (currentNode.textContent || '').slice(0, start);
+                break;
+            }
+            combinedText += currentNode.textContent || '';
+        }
+
+        const occurrenceIndex = (combinedText.match(new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
+        return { word, paragraphIndex, occurrenceIndex };
     }
 
     async _translateWithGoogle(text = '') {
@@ -2509,28 +2616,82 @@ class KidsMathsApp {
         return (data?.[0] || []).map(part => part?.[0] || '').join('').trim();
     }
 
-    async _translateTappedUrduText(text = '') {
-        const cleanText = String(text || '').trim();
+    async _translateTappedUrduText(selection = null) {
+        const tappedWord = typeof selection === 'string'
+            ? { word: selection.trim(), paragraphIndex: -1, occurrenceIndex: -1 }
+            : (selection || {});
+        const cleanText = String(tappedWord.word || '').trim();
         if (!cleanText) {
             this._pendingUrduSelectionText = '';
             this._selectedUrduWord = null;
+            this._renderCurrentStoryText();
             this._renderUrduSupportPanel();
             return;
         }
 
         this._pendingUrduSelectionText = cleanText;
-        this._selectedUrduWord = { word: cleanText, meaning: 'Translating…' };
+        this._selectedUrduWord = {
+            word: cleanText,
+            meaning: 'Translating…',
+            paragraphIndex: Number(tappedWord.paragraphIndex ?? -1),
+            occurrenceIndex: Number(tappedWord.occurrenceIndex ?? -1)
+        };
+        this._renderCurrentStoryText();
         this._renderUrduSupportPanel();
         window.getSelection?.()?.removeAllRanges?.();
 
         try {
             const translation = await this._translateWithGoogle(cleanText);
-            this._selectedUrduWord = { word: cleanText, meaning: translation || 'No translation found' };
+            this._selectedUrduWord = {
+                word: cleanText,
+                meaning: translation || 'No translation found',
+                paragraphIndex: Number(tappedWord.paragraphIndex ?? -1),
+                occurrenceIndex: Number(tappedWord.occurrenceIndex ?? -1)
+            };
         } catch (error) {
             console.error('Tapped word translation failed:', error);
-            this._selectedUrduWord = { word: cleanText, meaning: 'Translation failed. Try again.' };
+            this._selectedUrduWord = {
+                word: cleanText,
+                meaning: 'Translation failed. Try again.',
+                paragraphIndex: Number(tappedWord.paragraphIndex ?? -1),
+                occurrenceIndex: Number(tappedWord.occurrenceIndex ?? -1)
+            };
         } finally {
+            this._renderCurrentStoryText();
             this._renderUrduSupportPanel();
+        }
+    }
+
+    async _toggleUrduParagraphTranslation(index) {
+        if (!this.currentStory) return;
+
+        const page = this.currentStory.pages?.[this.currentStoryPage] || {};
+        const paragraphs = this._splitUrduParagraphs(page.text || '');
+        const paragraphText = paragraphs[index] || '';
+        const key = this._getUrduParagraphCacheKey(index);
+
+        if (!paragraphText) return;
+
+        if (this._urduParagraphTranslations[key]) {
+            delete this._urduParagraphTranslations[key];
+            this._renderCurrentStoryText();
+            return;
+        }
+
+        this._urduParagraphLoadingKey = key;
+        this._renderCurrentStoryText();
+
+        try {
+            const translation = await this._translateWithGoogle(paragraphText);
+            this._urduParagraphTranslations[key] = translation || 'No translation found';
+        } catch (error) {
+            console.error('Paragraph translation failed:', error);
+            this._urduParagraphTranslations[key] = 'Translation failed. Try again.';
+        } finally {
+            if (this._urduParagraphLoadingKey === key) {
+                this._urduParagraphLoadingKey = '';
+            }
+            this._renderCurrentStoryText();
         }
     }
 
@@ -2618,7 +2779,7 @@ class KidsMathsApp {
             saveWordBtn.textContent = wordAlreadySaved ? 'Saved ✓' : 'Save this word';
         } else {
             helper.classList.add('hidden');
-            supportTitle.textContent = 'Tap any Urdu word for quick help.';
+            supportTitle.textContent = 'Tap any Urdu word for quick help, or use EN beside a paragraph.';
             supportStatus.textContent = currentSelectionText ? `Last word: ${currentSelectionText}` : 'No word selected yet';
             saveWordBtn.disabled = true;
             saveWordBtn.textContent = 'Save this word';
