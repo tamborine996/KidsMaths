@@ -407,7 +407,10 @@ class KidsMathsApp {
 
     _renderHomeResume() {
         const container = document.getElementById('home-resume');
-        const items = this._getResumeItems();
+        const primaryKey = this._getPrimaryNextUp()?.key;
+        const items = this._getResumeItems()
+            .filter(item => item.key !== primaryKey)
+            .slice(0, 3);
 
         if (items.length === 0) {
             container.innerHTML = `
@@ -464,20 +467,20 @@ class KidsMathsApp {
                 <span class="learning-area-badge">Main area</span>
             </div>
             <div class="learning-area-title">Maths</div>
-            <div class="learning-area-copy">Six skill areas with practice and tests.</div>
+            <div class="learning-area-copy">Six maths skills with gentle practice and tests.</div>
             <div class="learning-area-stats">${totalTime} minutes practised · ${streak} day${streak !== 1 ? 's' : ''} streak</div>
-            <div class="learning-area-foot">${recentMaths ? 'Last used: ' + recentMaths.title : 'Scroll down to pick a module'} &rarr;</div>
+            <div class="learning-area-foot">${recentMaths ? 'Continue ' + recentMaths.title : 'Choose a maths skill'} </div>
         `;
 
         readingHub.innerHTML = `
             <div class="learning-area-top">
                 <span class="learning-area-icon">📚</span>
-                <span class="learning-area-badge">Main area</span>
+                <span class="learning-area-badge">Stories + Urdu</span>
             </div>
-            <div class="learning-area-title">Reading</div>
-            <div class="learning-area-copy">Story library, originals, bookmarks, and longer books.</div>
+            <div class="learning-area-title">Reading & Urdu</div>
+            <div class="learning-area-copy">Story library, Urdu reading, bookmarks, and longer books.</div>
             <div class="learning-area-stats">${bookmarks.length} bookmarked · ${readStories.length} finished</div>
-            <div class="learning-area-foot">${recentStory ? 'Continue: ' + recentStory.title : 'Open the reading library'} &rarr;</div>
+            <div class="learning-area-foot">${recentStory ? 'Continue ' + recentStory.title : 'Open stories and Urdu'} </div>
         `;
     }
 
@@ -519,28 +522,6 @@ class KidsMathsApp {
             grid.appendChild(btn);
         });
 
-        const readingBtn = document.createElement('button');
-        readingBtn.className = 'module-btn';
-        readingBtn.dataset.module = 'reading';
-        readingBtn.innerHTML = `
-            <span class="module-icon">\u{1F4D6}</span>
-            <span class="module-name">Reading</span>
-        `;
-        readingBtn.addEventListener('click', () => this._showScreen('reading'));
-        grid.appendChild(readingBtn);
-
-        const urduBtn = document.createElement('button');
-        urduBtn.className = 'module-btn';
-        urduBtn.dataset.module = 'urdu';
-        urduBtn.innerHTML = `
-            <span class="module-icon">\u0627\u064F</span>
-            <span class="module-name">Urdu</span>
-        `;
-        urduBtn.addEventListener('click', () => {
-            state.set('readingTab', 'urdu');
-            this._showScreen('reading');
-        });
-        grid.appendChild(urduBtn);
     }
 
     _getPrimaryNextUp() {
@@ -608,7 +589,7 @@ class KidsMathsApp {
             title: storyMatch.story.title,
             levelName: storyMatch.level.name,
             updatedAt: date || new Date().toISOString(),
-            cta: 'Resume story →'
+            cta: 'Resume'
         };
     }
 
@@ -631,7 +612,7 @@ class KidsMathsApp {
             icon: module.icon,
             levelName: level?.name || 'Choose level',
             updatedAt: updatedAt || new Date().toISOString(),
-            cta: mode ? `Resume ${mode} →` : 'Open module →'
+            cta: mode ? `Continue ${mode}` : 'Open module'
         };
     }
 
@@ -2076,4 +2057,3 @@ class KidsMathsApp {
 
 // Initialize app
 new KidsMathsApp();
-

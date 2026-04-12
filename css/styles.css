@@ -295,6 +295,11 @@ body {
     margin-bottom: var(--spacing-md);
 }
 
+.home-search-section {
+    padding-top: var(--spacing-sm);
+    border-top: 2px dashed rgba(93, 78, 55, 0.18);
+}
+
 .next-up-card {
     width: 100%;
     display: flex;
@@ -339,6 +344,18 @@ body {
 .next-up-cta {
     color: var(--text-secondary);
     font-weight: 700;
+}
+
+.next-up-cta,
+.home-resume-foot,
+.learning-area-foot {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 2px solid rgba(93, 78, 55, 0.16);
+    background: rgba(255, 255, 255, 0.72);
 }
 
 .home-dashboard {
@@ -476,7 +493,6 @@ body {
     background: var(--bg-card);
     border: var(--border-width) solid var(--border-color);
     border-radius: var(--border-radius-lg);
-    margin-bottom: var(--spacing-md);
     box-shadow: var(--shadow-offset) var(--shadow-color);
 }
 
@@ -696,11 +712,23 @@ body {
 
 .home-footer {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
     gap: var(--spacing-lg);
     margin-top: var(--spacing-lg);
     padding-top: var(--spacing-lg);
     border-top: 2px dashed var(--border-color);
+}
+
+.home-footer-label {
+    width: 100%;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
 }
 
 .footer-btn {
@@ -719,6 +747,7 @@ body {
     color: var(--text-secondary);
     box-shadow: 3px 3px 0 var(--border-color);
     transition: all 0.15s ease;
+    min-width: 120px;
 }
 
 .footer-btn:hover {
@@ -2220,6 +2249,22 @@ td.mastery-mastered {
 
     .home-header h1 {
         font-size: 2.2rem;
+    }
+
+    .home-resume-meta,
+    .learning-area-stats,
+    .module-card-bottom .module-secondary:last-child {
+        display: none;
+    }
+
+    .home-resume-title,
+    .learning-area-title,
+    .module-name {
+        font-size: 1.05rem;
+    }
+
+    .home-footer {
+        gap: var(--spacing-md);
     }
 
     .celebration-text {
