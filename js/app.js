@@ -1566,19 +1566,24 @@ class KidsMathsApp {
             }
         });
 
-        document.getElementById('story-text').addEventListener('click', (e) => {
+        document.getElementById('story-text').addEventListener('click', async (e) => {
+            if (!this.currentStory || !this._storySupportsUrduTools()) return;
+
             const wordBtn = e.target.closest('.urdu-word-button');
-            if (!wordBtn || !this.currentStory) return;
-            this._selectUrduWord(wordBtn.dataset.word, wordBtn.dataset.meaning);
+            if (wordBtn) {
+                this._selectUrduWord(wordBtn.dataset.word, wordBtn.dataset.meaning);
+                return;
+            }
+
+            const tappedWord = this._getTappedUrduWord(e);
+            if (tappedWord) {
+                await this._translateTappedUrduText(tappedWord);
+            }
         });
 
         document.getElementById('urdu-translation-toggle-btn').addEventListener('click', () => {
             this._showUrduTranslation = !this._showUrduTranslation;
             this._renderUrduSupportPanel();
-        });
-
-        document.getElementById('urdu-selection-translate-btn').addEventListener('click', async () => {
-            await this._translateCurrentUrduSelection();
         });
 
         document.getElementById('urdu-saved-toggle-btn').addEventListener('click', () => {
@@ -2356,9 +2361,9 @@ class KidsMathsApp {
     }
 
     _storySupportsUrduTools(story = this.currentStory) {
-        if (!story || story.direction !== 'rtl' || !story.vocabulary) return false;
+        if (!story || story.direction !== 'rtl') return false;
         const currentPageText = story.pages?.[this.currentStoryPage]?.text || '';
-        return Object.keys(this._getEffectiveUrduVocabularyForPage(currentPageText, story)).length > 0;
+        return Boolean(String(currentPageText || '').trim());
     }
 
     _getUrduVocabExclusionSets() {
@@ -2452,9 +2457,46 @@ class KidsMathsApp {
     }
 
     _getCurrentUrduSelectionText() {
-        const selected = (window.getSelection?.().toString?.() || '').replace(/\s+/g, ' ').trim();
-        if (selected) return selected;
         return (this._pendingUrduSelectionText || '').trim();
+    }
+
+    _getTappedUrduWord(event) {
+        const pointX = event.clientX ?? event?.touches?.[0]?.clientX ?? event?.changedTouches?.[0]?.clientX;
+        const pointY = event.clientY ?? event?.touches?.[0]?.clientY ?? event?.changedTouches?.[0]?.clientY;
+        if (typeof pointX !== 'number' || typeof pointY !== 'number') return '';
+
+        let range = null;
+        if (document.caretRangeFromPoint) {
+            range = document.caretRangeFromPoint(pointX, pointY);
+        } else if (document.caretPositionFromPoint) {
+            const position = document.caretPositionFromPoint(pointX, pointY);
+            if (position) {
+                range = document.createRange();
+                range.setStart(position.offsetNode, position.offset);
+                range.setEnd(position.offsetNode, position.offset);
+            }
+        }
+
+        const textNode = range?.startContainer;
+        const offset = range?.startOffset ?? 0;
+        if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return '';
+
+        const text = textNode.textContent || '';
+        if (!text.trim()) return '';
+
+        const urduChar = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
+        let index = Math.min(offset, Math.max(text.length - 1, 0));
+        if (!urduChar.test(text[index] || '') && index > 0 && urduChar.test(text[index - 1] || '')) {
+            index -= 1;
+        }
+        if (!urduChar.test(text[index] || '')) return '';
+
+        let start = index;
+        let end = index;
+        while (start > 0 && urduChar.test(text[start - 1] || '')) start -= 1;
+        while (end < text.length && urduChar.test(text[end] || '')) end += 1;
+
+        return text.slice(start, end).trim();
     }
 
     async _translateWithGoogle(text = '') {
@@ -2467,31 +2509,27 @@ class KidsMathsApp {
         return (data?.[0] || []).map(part => part?.[0] || '').join('').trim();
     }
 
-    async _translateCurrentUrduSelection() {
-        const text = this._getCurrentUrduSelectionText();
-        if (!text) {
+    async _translateTappedUrduText(text = '') {
+        const cleanText = String(text || '').trim();
+        if (!cleanText) {
             this._pendingUrduSelectionText = '';
             this._selectedUrduWord = null;
             this._renderUrduSupportPanel();
             return;
         }
 
-        const translateBtn = document.getElementById('urdu-selection-translate-btn');
-        const previous = translateBtn.textContent;
-        translateBtn.disabled = true;
-        translateBtn.textContent = 'Translating…';
+        this._pendingUrduSelectionText = cleanText;
+        this._selectedUrduWord = { word: cleanText, meaning: 'Translating…' };
+        this._renderUrduSupportPanel();
+        window.getSelection?.()?.removeAllRanges?.();
 
         try {
-            const translation = await this._translateWithGoogle(text);
-            this._pendingUrduSelectionText = text;
-            this._selectedUrduWord = { word: text, meaning: translation || 'No translation found' };
+            const translation = await this._translateWithGoogle(cleanText);
+            this._selectedUrduWord = { word: cleanText, meaning: translation || 'No translation found' };
         } catch (error) {
-            console.error('Selection translation failed:', error);
-            this._pendingUrduSelectionText = text;
-            this._selectedUrduWord = { word: text, meaning: 'Translation failed. Try again.' };
+            console.error('Tapped word translation failed:', error);
+            this._selectedUrduWord = { word: cleanText, meaning: 'Translation failed. Try again.' };
         } finally {
-            translateBtn.disabled = false;
-            translateBtn.textContent = previous;
             this._renderUrduSupportPanel();
         }
     }
@@ -2540,7 +2578,6 @@ class KidsMathsApp {
         const translation = document.getElementById('urdu-page-translation');
         const savedPanel = document.getElementById('urdu-saved-words-panel');
         const translationBtn = document.getElementById('urdu-translation-toggle-btn');
-        const selectionTranslateBtn = document.getElementById('urdu-selection-translate-btn');
         const savedBtn = document.getElementById('urdu-saved-toggle-btn');
         const supportTitle = document.getElementById('urdu-support-title');
         const supportStatus = document.getElementById('urdu-support-status');
@@ -2565,7 +2602,6 @@ class KidsMathsApp {
         tools.classList.remove('hidden');
         const currentSelectionText = this._getCurrentUrduSelectionText();
         translationBtn.textContent = this._showUrduTranslation ? 'Hide English help' : 'Show English help';
-        selectionTranslateBtn.textContent = currentSelectionText ? `Translate “${currentSelectionText.slice(0, 24)}${currentSelectionText.length > 24 ? '…' : ''}”` : 'Translate selection';
         savedBtn.textContent = `Saved words (${savedWords.length})`;
         translationBtn.classList.toggle('is-active', this._showUrduTranslation);
         savedBtn.classList.toggle('is-active', this._showUrduSavedWords);
@@ -2582,8 +2618,8 @@ class KidsMathsApp {
             saveWordBtn.textContent = wordAlreadySaved ? 'Saved ✓' : 'Save this word';
         } else {
             helper.classList.add('hidden');
-            supportTitle.textContent = 'Tap a purple word or select any Urdu text for quick help.';
-            supportStatus.textContent = currentSelectionText ? 'Selection ready to translate' : 'No word selected yet';
+            supportTitle.textContent = 'Tap any Urdu word for quick help.';
+            supportStatus.textContent = currentSelectionText ? `Last word: ${currentSelectionText}` : 'No word selected yet';
             saveWordBtn.disabled = true;
             saveWordBtn.textContent = 'Save this word';
         }
