@@ -1586,12 +1586,55 @@ class KidsMathsApp {
 
         // Delegated click for story cards
         document.getElementById('story-list').addEventListener('click', (e) => {
+            const actionBtn = e.target.closest('[data-urdu-story-action]');
+            if (actionBtn) {
+                const storyId = actionBtn.dataset.storyId;
+                const action = actionBtn.dataset.urduStoryAction;
+
+                if (action === 'open' && storyId) {
+                    const row = actionBtn.closest('[data-story-id]');
+                    const resumePage = row?.dataset.resumePage;
+                    this._startStory(storyId, resumePage ? parseInt(resumePage) : undefined);
+                } else if (action === 'archive' && storyId) {
+                    this._archiveUrduStory(storyId);
+                } else if (action === 'restore' && storyId) {
+                    this._restoreUrduStory(storyId);
+                } else if (action === 'toggle-archive') {
+                    state.set('showArchivedUrdu', !state.get('showArchivedUrdu'));
+                    this._renderStoryList();
+                }
+                return;
+            }
+
             const card = e.target.closest('.story-card');
             if (card) {
                 const resumePage = card.dataset.resumePage;
                 this._startStory(card.dataset.storyId, resumePage ? parseInt(resumePage) : undefined);
             }
+
+            const urduRow = e.target.closest('.urdu-item-row');
+            if (urduRow) {
+                const resumePage = urduRow.dataset.resumePage;
+                this._startStory(urduRow.dataset.storyId, resumePage ? parseInt(resumePage) : undefined);
+            }
         });
+    }
+
+    _archiveUrduStory(storyId) {
+        const archived = new Set(state.get('archivedUrduStoryIds') || []);
+        archived.add(storyId);
+        state.set('archivedUrduStoryIds', Array.from(archived));
+        if (state.get('currentUrduStoryId') === storyId) {
+            state.set('currentUrduStoryId', null);
+        }
+        this._renderStoryList();
+    }
+
+    _restoreUrduStory(storyId) {
+        const archived = (state.get('archivedUrduStoryIds') || []).filter(id => id !== storyId);
+        state.set('archivedUrduStoryIds', archived);
+        state.set('showArchivedUrdu', true);
+        this._renderStoryList();
     }
 
     _renderReadingScreen() {
@@ -1610,6 +1653,14 @@ class KidsMathsApp {
         const { levels, stateKey, attribution } = this._getReadingSourceConfig(tab);
 
         const select = document.getElementById('reading-level-select');
+        const levelSelector = document.querySelector('#reading-screen .level-selector');
+
+        if (tab === 'urdu') {
+            levelSelector.classList.add('hidden');
+        } else {
+            levelSelector.classList.remove('hidden');
+        }
+
         select.innerHTML = '';
 
         levels.forEach(level => {
@@ -1637,6 +1688,153 @@ class KidsMathsApp {
         }
     }
 
+    _getAllUrduStories() {
+        return this.urduLevels.flatMap(level =>
+            level.stories.map(story => ({
+                ...story,
+                _levelName: level.name
+            }))
+        );
+    }
+
+    _getUrduStoryProgress(story) {
+        const bookmarks = state.get('bookmarks') || {};
+        const readStories = state.get('readStories') || [];
+        const bookmark = bookmarks[story.id];
+        const totalPages = Math.max(story.pages?.length || 1, 1);
+        const isFinished = readStories.includes(story.id);
+        const currentPage = isFinished ? totalPages : ((bookmark?.page ?? -1) + 1);
+        const percent = isFinished
+            ? 100
+            : bookmark
+                ? Math.max(1, Math.min(99, Math.round(((bookmark.page + 1) / totalPages) * 100)))
+                : 0;
+        const status = isFinished ? 'Finished' : bookmark ? 'In progress' : 'New';
+
+        return {
+            bookmark,
+            currentPage: Math.max(0, Math.min(currentPage, totalPages)),
+            totalPages,
+            percent,
+            status,
+            isFinished
+        };
+    }
+
+    _formatUrduPublishedDate(story) {
+        if (story.publishedAt) {
+            const date = new Date(story.publishedAt);
+            if (!Number.isNaN(date.getTime())) {
+                return date.toLocaleDateString(undefined, {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+            }
+        }
+
+        if (story.sourceType === 'news') return 'Undated article';
+        if (story.sourceType === 'poem') return 'Classic poem';
+        if (story.sourceType === 'fairy-tale') return 'Classic tale';
+        if (story.sourceType === 'folk-tale') return 'Classic folk tale';
+        return story._levelName || 'Library item';
+    }
+
+    _buildUrduStoryRow(story, { archived = false, current = false } = {}) {
+        const progress = this._getUrduStoryProgress(story);
+        const resumePage = progress.bookmark?.page;
+        const sourceLine = [story.source, this._formatUrduPublishedDate(story)].filter(Boolean).join(' • ');
+        const progressLine = `${progress.percent}% complete • ${progress.currentPage || 0}/${progress.totalPages} pages`;
+        const status = current ? 'Current' : archived ? 'Archived' : progress.status;
+        const actionLabel = archived ? 'Restore' : 'Archive';
+
+        return `
+            <div class="urdu-item-row ${current ? 'is-current' : ''}" data-story-id="${story.id}" ${resumePage !== undefined ? `data-resume-page="${resumePage}"` : ''}>
+                <div class="urdu-item-progress" aria-hidden="true">
+                    <div class="urdu-item-progress-ring" style="--urdu-progress:${progress.percent}%">
+                        <span>${progress.percent}%</span>
+                    </div>
+                </div>
+                <div class="urdu-item-main">
+                    <div class="urdu-item-title-wrap">
+                        <div class="urdu-item-title" dir="rtl">${this._escapeHtml(story.title)}</div>
+                        ${story.titleEnglish ? `<div class="urdu-item-subtitle">${this._escapeHtml(story.titleEnglish)}</div>` : ''}
+                    </div>
+                    <div class="urdu-item-meta">${this._escapeHtml(sourceLine)}</div>
+                    <div class="urdu-item-meta urdu-item-progress-line">${this._escapeHtml(progressLine)} • ${this._escapeHtml(status)}</div>
+                </div>
+                <div class="urdu-item-actions">
+                    <button class="primary-btn urdu-item-action" type="button" data-urdu-story-action="open" data-story-id="${story.id}">${progress.status === 'New' ? 'Open' : 'Continue'}</button>
+                    <button class="secondary-btn urdu-item-action" type="button" data-urdu-story-action="${archived ? 'restore' : 'archive'}" data-story-id="${story.id}">${actionLabel}</button>
+                </div>
+            </div>
+        `;
+    }
+
+    _renderUrduStoryList(list) {
+        const archivedIds = new Set(state.get('archivedUrduStoryIds') || []);
+        const currentId = state.get('currentUrduStoryId');
+        const showArchived = !!state.get('showArchivedUrdu');
+        const stories = this._getAllUrduStories();
+
+        const ranked = stories.map(story => {
+            const progress = this._getUrduStoryProgress(story);
+            const updatedAt = progress.bookmark?.date || story.publishedAt || '';
+            return { story, progress, updatedAt };
+        }).sort((a, b) => {
+            const aCurrent = a.story.id === currentId ? 1 : 0;
+            const bCurrent = b.story.id === currentId ? 1 : 0;
+            if (bCurrent !== aCurrent) return bCurrent - aCurrent;
+            if (b.progress.percent !== a.progress.percent) return b.progress.percent - a.progress.percent;
+            return (b.updatedAt || '').localeCompare(a.updatedAt || '');
+        });
+
+        const activeStories = ranked.filter(item => !archivedIds.has(item.story.id)).map(item => item.story);
+        const archivedStories = ranked.filter(item => archivedIds.has(item.story.id)).map(item => item.story);
+        const currentStory = activeStories.find(story => story.id === currentId) || activeStories.find(story => this._getUrduStoryProgress(story).status === 'In progress') || null;
+        const activeList = activeStories.filter(story => story.id !== currentStory?.id);
+
+        list.innerHTML = `
+            <section class="urdu-library-section urdu-current-section ${currentStory ? '' : 'hidden'}">
+                <div class="urdu-library-heading-row">
+                    <div>
+                        <div class="urdu-library-kicker">Current item</div>
+                        <h3 class="urdu-library-heading">Currently reading</h3>
+                    </div>
+                </div>
+                ${currentStory ? this._buildUrduStoryRow(currentStory, { current: true }) : ''}
+            </section>
+
+            <section class="urdu-library-section">
+                <div class="urdu-library-heading-row">
+                    <div>
+                        <div class="urdu-library-kicker">Active Urdu items</div>
+                        <h3 class="urdu-library-heading">Urdu library</h3>
+                    </div>
+                    <div class="urdu-library-count">${activeStories.length} items</div>
+                </div>
+                <div class="urdu-library-list">
+                    ${activeList.length
+                        ? activeList.map(story => this._buildUrduStoryRow(story)).join('')
+                        : '<div class="urdu-library-empty">No other active Urdu items yet.</div>'}
+                </div>
+            </section>
+
+            <section class="urdu-library-section ${archivedStories.length ? '' : 'hidden'}">
+                <div class="urdu-library-heading-row">
+                    <div>
+                        <div class="urdu-library-kicker">Archive</div>
+                        <h3 class="urdu-library-heading">Older items kept out of the way</h3>
+                    </div>
+                    <button class="secondary-btn urdu-archive-toggle" type="button" data-urdu-story-action="toggle-archive">${showArchived ? 'Hide archive' : `Show archive (${archivedStories.length})`}</button>
+                </div>
+                <div class="urdu-library-list ${showArchived ? '' : 'hidden'}" id="urdu-archive-list">
+                    ${archivedStories.map(story => this._buildUrduStoryRow(story, { archived: true })).join('')}
+                </div>
+            </section>
+        `;
+    }
+
     _renderStoryList() {
         const tab = state.get('readingTab') || 'library';
         const { stateKey, levels } = this._getReadingSourceConfig(tab);
@@ -1644,6 +1842,11 @@ class KidsMathsApp {
         const level = levels.find(l => l.id === levelId);
         const list = document.getElementById('story-list');
         list.innerHTML = '';
+
+        if (tab === 'urdu') {
+            this._renderUrduStoryList(list);
+            return;
+        }
 
         if (!level) return;
 
@@ -1694,6 +1897,11 @@ class KidsMathsApp {
                 }
 
                 this._recordRecentItem(this._buildStoryResumeItem(storyId, this.currentStoryPage));
+
+                if (this._isUrduStory(storyId)) {
+                    state.set('currentUrduStoryId', storyId);
+                    state.set('archivedUrduStoryIds', (state.get('archivedUrduStoryIds') || []).filter(id => id !== storyId));
+                }
 
                 // Start timer for reading session (only if not already running)
                 if (!this.timerManager.isRunning) {
