@@ -66,6 +66,11 @@ export class StateManager {
             urduLevel: 'U1',
             readingTab: 'library',
             readingSearchOpen: false,
+            currentMathWorld: 'number-adventure',
+            currentMathMissionId: null,
+            lastMathMissionId: null,
+            mathMissionProgress: { completed: [], sessions: {} },
+            mathGardenCount: 0,
             // Home shortcuts / recent activity
             recentItems: [],
             // Parent PIN (default: 1234)

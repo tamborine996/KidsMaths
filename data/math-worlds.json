@@ -1,0 +1,139 @@
+{
+  "worlds": [
+    {
+      "id": "number-adventure",
+      "name": "Number Adventure",
+      "coachName": "Pip",
+      "subtitle": "Tiny number missions that help you get stronger every day.",
+      "gardenLabel": "Number Garden",
+      "missionGroups": [
+        {
+          "id": "make-5",
+          "title": "Make 5",
+          "subtitle": "Spot little pairs that make 5.",
+          "power": "Make 5",
+          "operation": "addition",
+          "levelId": "L1",
+          "questionCount": 6,
+          "strategy": "make-5",
+          "visual": true,
+          "parentPrompt": "If she hesitates, ask: what goes with this number to make 5?",
+          "coachLine": "We are spotting number pairs that make 5.",
+          "celebration": "You can see little number pairs already."
+        },
+        {
+          "id": "make-10",
+          "title": "Make 10",
+          "subtitle": "Find friendly pairs that make 10.",
+          "power": "Make 10",
+          "operation": "addition",
+          "levelId": "L2",
+          "questionCount": 6,
+          "strategy": "make-10",
+          "visual": true,
+          "parentPrompt": "Prompt: what does this number need to make 10?",
+          "coachLine": "Making 10 helps bigger sums feel easy.",
+          "celebration": "Making 10 is becoming your superpower."
+        },
+        {
+          "id": "count-on",
+          "title": "Count On",
+          "subtitle": "Start from the bigger number.",
+          "power": "Count On",
+          "operation": "addition",
+          "levelId": "L1",
+          "questionCount": 6,
+          "strategy": "count-on",
+          "visual": true,
+          "parentPrompt": "Encourage her to say the bigger number first, then hop forward.",
+          "coachLine": "Start with the bigger number, then hop on.",
+          "celebration": "You are counting on instead of counting everything."
+        },
+        {
+          "id": "doubles",
+          "title": "Doubles",
+          "subtitle": "Use easy twin facts.",
+          "power": "Doubles",
+          "operation": "addition",
+          "levelId": "L2",
+          "questionCount": 6,
+          "strategy": "doubles",
+          "visual": false,
+          "parentPrompt": "Prompt: do you know this double straight away?",
+          "coachLine": "Doubles are fast facts we can remember.",
+          "celebration": "Those doubles are getting quicker."
+        },
+        {
+          "id": "near-doubles",
+          "title": "Near Doubles",
+          "subtitle": "Use a double, then one more or less.",
+          "power": "Near Doubles",
+          "operation": "addition",
+          "levelId": "L2",
+          "questionCount": 6,
+          "strategy": "near-doubles",
+          "visual": false,
+          "parentPrompt": "Prompt: what double is close to this one?",
+          "coachLine": "A near double is just a double with a tiny change.",
+          "celebration": "You used a clever near-double strategy."
+        },
+        {
+          "id": "bridge-10",
+          "title": "Hop Through 10",
+          "subtitle": "Make 10 first, then finish the sum.",
+          "power": "Hop Through 10",
+          "operation": "addition",
+          "levelId": "L3",
+          "questionCount": 6,
+          "strategy": "bridge-10",
+          "visual": true,
+          "parentPrompt": "Prompt: what does the first number need to reach 10?",
+          "coachLine": "Let\u2019s hop through 10 because 10 is a friendly place.",
+          "celebration": "You can now hop through 10."
+        },
+        {
+          "id": "subtraction-within-10",
+          "title": "Take Away",
+          "subtitle": "Use little subtraction facts within 10.",
+          "power": "Take Away",
+          "operation": "subtraction",
+          "levelId": "L1",
+          "questionCount": 6,
+          "strategy": "subtraction-within-10",
+          "visual": true,
+          "parentPrompt": "Prompt: start with the whole amount, then take some away.",
+          "coachLine": "We start with the whole and take some away.",
+          "celebration": "You are getting steadier with take-away facts."
+        },
+        {
+          "id": "missing-part",
+          "title": "Missing Part",
+          "subtitle": "Find what number is hiding.",
+          "power": "Missing Part",
+          "operation": "subtraction",
+          "levelId": "L2",
+          "questionCount": 6,
+          "strategy": "missing-part",
+          "visual": false,
+          "parentPrompt": "Prompt: what goes with the first number to make the total?",
+          "coachLine": "Sometimes subtraction is really a missing-part puzzle.",
+          "celebration": "You found the missing parts like a number detective."
+        },
+        {
+          "id": "bridge-back-10",
+          "title": "Back Through 10",
+          "subtitle": "Step back to 10, then keep going.",
+          "power": "Back Through 10",
+          "operation": "subtraction",
+          "levelId": "L2",
+          "questionCount": 6,
+          "strategy": "bridge-back-10",
+          "visual": true,
+          "parentPrompt": "Prompt: can we step back to 10 first?",
+          "coachLine": "Ten is a friendly stop when we jump backwards too.",
+          "celebration": "You can jump back through 10 now."
+        }
+      ]
+    }
+  ]
+}

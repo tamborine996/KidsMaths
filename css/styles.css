@@ -3392,3 +3392,250 @@ td.mastery-mastered {
         min-width: 76px;
     }
 }
+
+
+/* ============================================
+   Maths - Number Adventure
+   ============================================ */
+.maths-adventure-summary,
+.math-parent-summary {
+    margin-bottom: var(--spacing-md);
+}
+
+.maths-summary-card,
+.math-parent-summary-card,
+.math-mission-intro-card,
+.math-mission-complete-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, #fff7ea 0%, #ffffff 60%, #f3fbff 100%);
+    border: var(--border-width) solid var(--accent-gold-dark);
+    border-radius: var(--border-radius-xl);
+    box-shadow: var(--shadow-offset) var(--accent-gold-dark);
+}
+
+.maths-summary-kicker,
+.math-mission-intro-kicker,
+.math-mission-complete-kicker,
+.maths-launch-kicker,
+.practice-mission-kicker,
+.math-parent-mission-power {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+}
+
+.maths-summary-title,
+.maths-launch-title,
+.math-parent-mission-title,
+.math-mission-intro-card h3,
+.math-mission-complete-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    color: var(--text-heading);
+    line-height: 1.15;
+}
+
+.maths-summary-copy,
+.maths-launch-copy,
+.math-parent-mission-copy,
+.math-mission-intro-copy,
+.math-mission-intro-coach,
+.math-parent-mission-note,
+.math-mission-complete-next,
+.math-mission-complete-garden,
+.practice-mission-coach {
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.maths-summary-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+}
+
+.maths-launch-grid,
+.math-parent-missions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.maths-launch-card,
+.math-parent-mission-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: 16px;
+    background: var(--bg-card);
+    border: var(--border-width) solid var(--addition-border);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-offset) var(--addition-border);
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.maths-launch-card:hover,
+.math-parent-mission-card:hover,
+.maths-launch-card:focus,
+.math-parent-mission-card:focus {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--addition-border);
+}
+
+.maths-launch-card:disabled,
+.math-parent-mission-card:disabled {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.maths-launch-primary {
+    border-color: var(--accent-gold-dark);
+    box-shadow: var(--shadow-offset) var(--accent-gold-dark);
+    background: linear-gradient(135deg, #fff6db 0%, #fffdf6 100%);
+}
+
+.maths-launch-foot,
+.math-parent-mission-state {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--addition-text);
+}
+
+.math-parent-mission-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+}
+
+.math-parent-mission-card.is-complete {
+    border-color: var(--accent-green);
+    box-shadow: var(--shadow-offset) var(--accent-green);
+}
+
+.math-parent-mission-card.is-locked {
+    border-color: var(--border-color);
+    box-shadow: 3px 3px 0 var(--border-color);
+}
+
+.math-parent-legacy-wrap {
+    margin-top: var(--spacing-md);
+}
+
+.math-parent-legacy-heading {
+    margin-bottom: var(--spacing-sm);
+}
+
+.maths-progress-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--spacing-sm);
+}
+
+.maths-power-chip {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 14px;
+    border-radius: var(--border-radius-md);
+    border: 2px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.84);
+}
+
+.maths-power-chip.is-complete {
+    border-color: var(--accent-green);
+    background: #eff9ea;
+}
+
+.maths-power-chip.is-unlocked {
+    border-color: var(--reading-border);
+    background: #f3fbff;
+}
+
+.maths-power-chip.is-current {
+    box-shadow: 0 0 0 3px rgba(244, 164, 96, 0.25);
+}
+
+.maths-power-chip.is-locked {
+    opacity: 0.6;
+}
+
+.maths-power-name {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.maths-power-state {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.practice-mission-status {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: var(--spacing-md);
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(232, 164, 96, 0.5);
+    border-radius: var(--border-radius-lg);
+}
+
+.practice-mission-progress-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.math-mission-intro-note {
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.85);
+    border-radius: var(--border-radius-md);
+    color: var(--text-secondary);
+}
+
+.math-mission-intro-foot {
+    font-weight: 700;
+    color: var(--addition-text);
+}
+
+.math-mission-complete-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
+
+.math-mission-complete-actions > * {
+    flex: 1;
+}
+
+.problem-text {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+@media (max-width: 720px) {
+    .maths-launch-grid,
+    .math-parent-missions,
+    .maths-progress-strip {
+        grid-template-columns: 1fr;
+    }
+
+    .math-mission-complete-actions {
+        flex-direction: column;
+    }
+}

@@ -24,9 +24,14 @@ class KidsMathsApp {
         this.storyLevels = [];
         this.libraryLevels = [];
         this.urduLevels = [];
+        this.mathWorlds = [];
 
         // Current state
         this.currentProblem = null;
+        this.currentMathMission = null;
+        this.currentMathMissionQuestions = [];
+        this.currentMathMissionIndex = 0;
+        this.currentMathMissionCorrect = 0;
         this.testProblems = [];
         this.testIndex = 0;
         this.testCorrect = 0;
@@ -99,24 +104,29 @@ class KidsMathsApp {
 
     async _loadData() {
         try {
-            const [modulesRes, rewardsRes, storiesRes, libraryRes, urduRes] = await Promise.all([
+            const [modulesRes, rewardsRes, storiesRes, libraryRes, urduRes, mathWorldsRes] = await Promise.all([
                 fetch('data/modules.json'),
                 fetch('data/rewards.json'),
                 fetch('data/stories.json'),
                 fetch('data/library.json'),
-                fetch('data/urdu.json')
+                fetch('data/urdu.json'),
+                fetch('data/math-worlds.json')
             ]);
             const modulesData = await modulesRes.json();
             const rewardsData = await rewardsRes.json();
             const storiesData = await storiesRes.json();
             const libraryData = await libraryRes.json();
             const urduData = await urduRes.json();
+            const mathWorldsData = mathWorldsRes.ok
+                ? await mathWorldsRes.json()
+                : this._getFallbackMathWorlds();
 
             this.modules = modulesData.modules;
             this.rewards = rewardsData.rewards;
             this.storyLevels = storiesData.levels;
             this.libraryLevels = libraryData.levels;
             this._baseUrduLevels = urduData.levels || [];
+            this.mathWorlds = mathWorldsData.worlds || this._getFallbackMathWorlds().worlds || [];
             this.libraryAttribution = libraryData.attribution;
             this.urduAttribution = urduData.attribution;
             this._hydrateUrduLevels();
@@ -171,6 +181,31 @@ class KidsMathsApp {
         };
     }
 
+    _getFallbackMathWorlds() {
+        return {
+            worlds: [
+                {
+                    id: 'number-adventure',
+                    name: 'Number Adventure',
+                    coachName: 'Pip',
+                    subtitle: 'Tiny number missions that help you get stronger every day.',
+                    gardenLabel: 'Number Garden',
+                    missionGroups: [
+                        { id: 'make-5', title: 'Make 5', subtitle: 'Spot little pairs that make 5.', power: 'Make 5', operation: 'addition', levelId: 'L1', questionCount: 6, strategy: 'make-5', visual: true, parentPrompt: 'If she hesitates, ask: what goes with this number to make 5?', coachLine: 'We are spotting number pairs that make 5.', celebration: 'You can see little number pairs already.' },
+                        { id: 'make-10', title: 'Make 10', subtitle: 'Find friendly pairs that make 10.', power: 'Make 10', operation: 'addition', levelId: 'L2', questionCount: 6, strategy: 'make-10', visual: true, parentPrompt: 'Prompt: what does this number need to make 10?', coachLine: 'Making 10 helps bigger sums feel easy.', celebration: 'Making 10 is becoming your superpower.' },
+                        { id: 'count-on', title: 'Count On', subtitle: 'Start from the bigger number.', power: 'Count On', operation: 'addition', levelId: 'L1', questionCount: 6, strategy: 'count-on', visual: true, parentPrompt: 'Encourage her to say the bigger number first, then hop forward.', coachLine: 'Start with the bigger number, then hop on.', celebration: 'You are counting on instead of counting everything.' },
+                        { id: 'doubles', title: 'Doubles', subtitle: 'Use easy twin facts.', power: 'Doubles', operation: 'addition', levelId: 'L2', questionCount: 6, strategy: 'doubles', visual: false, parentPrompt: 'Prompt: do you know this double straight away?', coachLine: 'Doubles are fast facts we can remember.', celebration: 'Those doubles are getting quicker.' },
+                        { id: 'near-doubles', title: 'Near Doubles', subtitle: 'Use a double, then one more or less.', power: 'Near Doubles', operation: 'addition', levelId: 'L2', questionCount: 6, strategy: 'near-doubles', visual: false, parentPrompt: 'Prompt: what double is close to this one?', coachLine: 'A near double is just a double with a tiny change.', celebration: 'You used a clever near-double strategy.' },
+                        { id: 'bridge-10', title: 'Hop Through 10', subtitle: 'Make 10 first, then finish the sum.', power: 'Hop Through 10', operation: 'addition', levelId: 'L3', questionCount: 6, strategy: 'bridge-10', visual: true, parentPrompt: 'Prompt: what does the first number need to reach 10?', coachLine: 'Let’s hop through 10 because 10 is a friendly place.', celebration: 'You can now hop through 10.' },
+                        { id: 'subtraction-within-10', title: 'Take Away', subtitle: 'Use little subtraction facts within 10.', power: 'Take Away', operation: 'subtraction', levelId: 'L1', questionCount: 6, strategy: 'subtraction-within-10', visual: true, parentPrompt: 'Prompt: start with the whole amount, then take some away.', coachLine: 'We start with the whole and take some away.', celebration: 'You are getting steadier with take-away facts.' },
+                        { id: 'missing-part', title: 'Missing Part', subtitle: 'Find what number is hiding.', power: 'Missing Part', operation: 'subtraction', levelId: 'L2', questionCount: 6, strategy: 'missing-part', visual: false, parentPrompt: 'Prompt: what goes with the first number to make the total?', coachLine: 'Sometimes subtraction is really a missing-part puzzle.', celebration: 'You found the missing parts like a number detective.' },
+                        { id: 'bridge-back-10', title: 'Back Through 10', subtitle: 'Step back to 10, then keep going.', power: 'Back Through 10', operation: 'subtraction', levelId: 'L2', questionCount: 6, strategy: 'bridge-back-10', visual: true, parentPrompt: 'Prompt: can we step back to 10 first?', coachLine: 'Ten is a friendly stop when we jump backwards too.', celebration: 'You can jump back through 10 now.' }
+                    ]
+                }
+            ]
+        };
+    }
+
     _bindEvents() {
         // Home screen buttons
         document.getElementById('store-btn').addEventListener('click', () => this._showScreen('store'));
@@ -183,6 +218,11 @@ class KidsMathsApp {
         document.getElementById('home-maths-hub').addEventListener('click', () => this._showScreen('maths'));
         document.getElementById('home-next-up').addEventListener('click', (e) => this._handleHomeShortcutClick(e));
         document.getElementById('home-resume').addEventListener('click', (e) => this._handleHomeShortcutClick(e));
+        document.getElementById('maths-screen').addEventListener('click', (e) => this._handleMathsHubClick(e));
+        document.getElementById('math-parent-screen').addEventListener('click', (e) => this._handleMathParentClick(e));
+        document.getElementById('math-mission-start-btn').addEventListener('click', () => this._beginCurrentMathMission());
+        document.getElementById('math-mission-done-btn').addEventListener('click', () => this._showScreen('maths'));
+        document.getElementById('math-mission-next-btn').addEventListener('click', () => this._startNextRecommendedMathMission());
 
         // Back + Home buttons
         document.querySelectorAll('.back-btn, .home-btn').forEach(btn => {
@@ -212,6 +252,7 @@ class KidsMathsApp {
         // Practice screen
         document.getElementById('check-btn').addEventListener('click', () => this._checkAnswer());
         document.getElementById('hint-btn').addEventListener('click', () => this._showHint());
+        document.getElementById('strategy-btn').addEventListener('click', () => this._showStrategyPrompt());
         document.getElementById('answer-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this._checkAnswer();
         });
@@ -338,6 +379,15 @@ class KidsMathsApp {
             case 'maths':
                 this._renderMathsScreen();
                 break;
+            case 'math-parent':
+                this._renderMathParentScreen();
+                break;
+            case 'math-mission-intro':
+                this._renderMathMissionIntroScreen();
+                break;
+            case 'math-mission-complete':
+                this._renderMathMissionCompleteScreen();
+                break;
             case 'module':
                 this._renderModuleScreen();
                 break;
@@ -378,7 +428,385 @@ class KidsMathsApp {
     }
 
     _renderMathsScreen() {
-        this._renderModuleGrid(document.getElementById('module-grid'));
+        const world = this._getActiveMathWorld();
+        const recommended = this._getRecommendedMathMission();
+        const continueMission = this._getContinueMathMission();
+        const intro = document.getElementById('maths-screen-intro');
+        const summary = document.getElementById('maths-adventure-summary');
+        const launchGrid = document.getElementById('maths-launch-grid');
+        const progressStrip = document.getElementById('maths-progress-strip');
+        if (!world || !intro || !summary || !launchGrid || !progressStrip) return;
+
+        const completedCount = this._getCompletedMathMissionIds().length;
+        const gardenCount = state.get('mathGardenCount') || 0;
+        const totalMissions = world.missionGroups.length;
+
+        intro.innerHTML = `
+            <h3>${this._escapeHtml(world.name)}</h3>
+            <p>${this._escapeHtml(world.subtitle || 'Tiny number missions that help you get stronger every day.')}</p>
+        `;
+
+        summary.innerHTML = `
+            <div class="maths-summary-card">
+                <div>
+                    <div class="maths-summary-kicker">Today’s maths journey</div>
+                    <div class="maths-summary-title">${this._escapeHtml(recommended?.title || 'Start your number mission')}</div>
+                    <div class="maths-summary-copy">${this._escapeHtml(recommended?.subtitle || 'One calm mission at a time.')}</div>
+                </div>
+                <div class="maths-summary-stats">
+                    <span>${completedCount}/${totalMissions} powers explored</span>
+                    <span>${gardenCount} garden piece${gardenCount === 1 ? '' : 's'}</span>
+                </div>
+            </div>
+        `;
+
+        launchGrid.innerHTML = `
+            <button class="maths-launch-card maths-launch-primary" type="button" data-maths-action="start-mission" data-mission-id="${recommended?.id || ''}">
+                <div class="maths-launch-kicker">Start today’s mission</div>
+                <div class="maths-launch-title">${this._escapeHtml(recommended?.title || 'Number Adventure')}</div>
+                <div class="maths-launch-copy">${this._escapeHtml(recommended?.subtitle || 'Tiny number steps with a coach by your side.')}</div>
+                <div class="maths-launch-foot">About ${recommended?.questionCount || 6} quick questions →</div>
+            </button>
+            <button class="maths-launch-card" type="button" data-maths-action="continue-mission" ${continueMission ? `data-mission-id="${continueMission.id}"` : ''} ${continueMission ? '' : 'disabled'}>
+                <div class="maths-launch-kicker">Continue your path</div>
+                <div class="maths-launch-title">${this._escapeHtml(continueMission?.title || 'No mission started yet')}</div>
+                <div class="maths-launch-copy">${this._escapeHtml(continueMission ? 'Jump back into the mission you touched most recently.' : 'Finish one mission and your quickest return path will show here.')}</div>
+                <div class="maths-launch-foot">${continueMission ? 'Continue mission →' : 'Start one mission first'}</div>
+            </button>
+            <button class="maths-launch-card" type="button" data-maths-action="open-parent-pick">
+                <div class="maths-launch-kicker">Parent pick</div>
+                <div class="maths-launch-title">Choose the next power together</div>
+                <div class="maths-launch-copy">See every mission, parent prompts, and the legacy module picker.</div>
+                <div class="maths-launch-foot">Open parent tools →</div>
+            </button>
+        `;
+
+        progressStrip.innerHTML = world.missionGroups.map(mission => {
+            const unlocked = this._isMathMissionUnlocked(mission.id);
+            const completed = this._isMathMissionCompleted(mission.id);
+            const current = recommended?.id === mission.id;
+            return `
+                <div class="maths-power-chip ${completed ? 'is-complete' : unlocked ? 'is-unlocked' : 'is-locked'} ${current ? 'is-current' : ''}">
+                    <div class="maths-power-name">${this._escapeHtml(mission.power || mission.title)}</div>
+                    <div class="maths-power-state">${completed ? 'Done' : unlocked ? 'Next' : 'Later'}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    _getActiveMathWorld() {
+        const worldId = state.get('currentMathWorld') || this.mathWorlds[0]?.id;
+        return this.mathWorlds.find(world => world.id === worldId) || this.mathWorlds[0] || null;
+    }
+
+    _getMathMissions() {
+        return this._getActiveMathWorld()?.missionGroups || [];
+    }
+
+    _getMathMissionById(missionId) {
+        return this._getMathMissions().find(mission => mission.id === missionId) || null;
+    }
+
+    _getMathMissionProgress() {
+        const progress = state.get('mathMissionProgress');
+        return progress && typeof progress === 'object'
+            ? { completed: progress.completed || [], sessions: progress.sessions || {} }
+            : { completed: [], sessions: {} };
+    }
+
+    _getCompletedMathMissionIds() {
+        return this._getMathMissionProgress().completed || [];
+    }
+
+    _isMathMissionCompleted(missionId) {
+        return this._getCompletedMathMissionIds().includes(missionId);
+    }
+
+    _isMathMissionUnlocked(missionId) {
+        const missions = this._getMathMissions();
+        const index = missions.findIndex(mission => mission.id === missionId);
+        if (index <= 0) return true;
+        return this._isMathMissionCompleted(missions[index - 1].id);
+    }
+
+    _getRecommendedMathMission() {
+        const missions = this._getMathMissions();
+        return missions.find(mission => this._isMathMissionUnlocked(mission.id) && !this._isMathMissionCompleted(mission.id))
+            || this._getMathMissionById(state.get('lastMathMissionId'))
+            || missions[0]
+            || null;
+    }
+
+    _getContinueMathMission() {
+        return this._getMathMissionById(state.get('lastMathMissionId')) || null;
+    }
+
+    _handleMathsHubClick(e) {
+        const actionEl = e.target.closest('[data-maths-action]');
+        if (!actionEl) return;
+        const action = actionEl.dataset.mathsAction;
+        if (action === 'open-parent-pick') {
+            this._showScreen('math-parent');
+            return;
+        }
+        if (action === 'start-mission' || action === 'continue-mission') {
+            const missionId = actionEl.dataset.missionId || this._getRecommendedMathMission()?.id;
+            if (missionId) {
+                this._startMathMission(missionId);
+            }
+        }
+    }
+
+    _handleMathParentClick(e) {
+        const legacyBtn = e.target.closest('[data-legacy-module]');
+        if (legacyBtn) {
+            this._selectModule(legacyBtn.dataset.legacyModule);
+            return;
+        }
+
+        const missionBtn = e.target.closest('[data-parent-mission]');
+        if (missionBtn) {
+            this._startMathMission(missionBtn.dataset.parentMission);
+        }
+    }
+
+    _renderMathParentScreen() {
+        const summary = document.getElementById('math-parent-summary');
+        const missionsContainer = document.getElementById('math-parent-missions');
+        const legacyGrid = document.getElementById('math-parent-legacy-grid');
+        const world = this._getActiveMathWorld();
+        if (!summary || !missionsContainer || !legacyGrid || !world) return;
+
+        const completed = this._getCompletedMathMissionIds().length;
+        const garden = state.get('mathGardenCount') || 0;
+        summary.innerHTML = `
+            <div class="math-parent-summary-card">
+                <div>
+                    <div class="maths-summary-kicker">Parent-led overview</div>
+                    <div class="maths-summary-title">${this._escapeHtml(world.name)}</div>
+                    <div class="maths-summary-copy">Use missions for the main path. Use the legacy module grid only when you want broader free practice.</div>
+                </div>
+                <div class="maths-summary-stats">
+                    <span>${completed}/${world.missionGroups.length} powers completed</span>
+                    <span>${garden} Number Garden piece${garden === 1 ? '' : 's'}</span>
+                </div>
+            </div>
+        `;
+
+        missionsContainer.innerHTML = world.missionGroups.map(mission => {
+            const completedMission = this._isMathMissionCompleted(mission.id);
+            const unlocked = this._isMathMissionUnlocked(mission.id);
+            return `
+                <button class="math-parent-mission-card ${completedMission ? 'is-complete' : unlocked ? 'is-unlocked' : 'is-locked'}" type="button" data-parent-mission="${mission.id}" ${unlocked ? '' : 'disabled'}>
+                    <div class="math-parent-mission-top">
+                        <span class="math-parent-mission-power">${this._escapeHtml(mission.power)}</span>
+                        <span class="math-parent-mission-state">${completedMission ? 'Done' : unlocked ? 'Ready' : 'Locked'}</span>
+                    </div>
+                    <div class="math-parent-mission-title">${this._escapeHtml(mission.title)}</div>
+                    <div class="math-parent-mission-copy">${this._escapeHtml(mission.subtitle)}</div>
+                    <div class="math-parent-mission-note">${this._escapeHtml(mission.parentPrompt)}</div>
+                </button>
+            `;
+        }).join('');
+
+        this._renderModuleGrid(legacyGrid);
+        legacyGrid.querySelectorAll('.module-btn').forEach(btn => {
+            btn.dataset.legacyModule = btn.dataset.module;
+        });
+    }
+
+    _startMathMission(missionId) {
+        const mission = this._getMathMissionById(missionId);
+        if (!mission) return;
+        this.currentMathMission = mission;
+        state.set('currentMathMissionId', mission.id);
+        state.set('currentModule', mission.operation);
+        state.set('currentLevel', mission.levelId);
+        this._showScreen('math-mission-intro');
+    }
+
+    _resetMathMissionState({ clearLast = false } = {}) {
+        this.currentMathMission = null;
+        this.currentMathMissionQuestions = [];
+        this.currentMathMissionIndex = 0;
+        this.currentMathMissionCorrect = 0;
+        state.set('currentMathMissionId', null);
+        if (clearLast) {
+            state.set('lastMathMissionId', null);
+        }
+    }
+
+    _beginCurrentMathMission() {
+        const mission = this.currentMathMission || this._getMathMissionById(state.get('currentMathMissionId'));
+        if (!mission) return;
+        this.currentMathMission = mission;
+        this.currentMathMissionIndex = 0;
+        this.currentMathMissionCorrect = 0;
+        this.currentMathMissionQuestions = Array.from({ length: mission.questionCount || 6 }, () => this._buildMathMissionQuestion(mission));
+        state.set('currentMode', 'practice');
+        state.set('lastMathMissionId', mission.id);
+        this._recordRecentItem(this._buildModuleResumeItem(mission.operation, mission.levelId, 'practice'));
+        document.querySelector('#practice-screen .back-btn').dataset.to = 'maths';
+        document.getElementById('practice-title').textContent = mission.title;
+        document.getElementById('hint-btn').textContent = 'Hint';
+        document.getElementById('strategy-btn').textContent = 'Break it up';
+        this._showScreen('practice');
+        this._startPractice();
+    }
+
+    _renderMathMissionIntroScreen() {
+        const card = document.getElementById('math-mission-intro-card');
+        const mission = this.currentMathMission || this._getMathMissionById(state.get('currentMathMissionId'));
+        if (!card || !mission) return;
+        this.currentMathMission = mission;
+        card.innerHTML = `
+            <div class="math-mission-intro-kicker">${this._escapeHtml((this._getActiveMathWorld()?.coachName || 'Coach') + ' says')}</div>
+            <h3>${this._escapeHtml(mission.title)}</h3>
+            <p class="math-mission-intro-copy">${this._escapeHtml(mission.subtitle)}</p>
+            <p class="math-mission-intro-coach">${this._escapeHtml(mission.coachLine)}</p>
+            <div class="math-mission-intro-note"><strong>Parent note:</strong> ${this._escapeHtml(mission.parentPrompt)}</div>
+            <div class="math-mission-intro-foot">About ${mission.questionCount || 6} quick questions</div>
+        `;
+    }
+
+    _renderMathMissionCompleteScreen() {
+        const card = document.getElementById('math-mission-complete-card');
+        const mission = this.currentMathMission || this._getMathMissionById(state.get('lastMathMissionId'));
+        if (!card || !mission) return;
+        const gardenCount = state.get('mathGardenCount') || 0;
+        const nextMission = this._getRecommendedMathMission();
+        card.innerHTML = `
+            <div class="math-mission-complete-kicker">${this._escapeHtml(mission.power)} unlocked</div>
+            <h3>${this._escapeHtml(mission.title)}</h3>
+            <p>${this._escapeHtml(mission.celebration || 'You finished today’s number mission.')}</p>
+            <div class="math-mission-complete-garden">${gardenCount} piece${gardenCount === 1 ? '' : 's'} growing in your Number Garden</div>
+            <div class="math-mission-complete-next">${nextMission && nextMission.id !== mission.id ? `Next up: ${this._escapeHtml(nextMission.title)}` : 'You can replay this mission or return to Maths.'}</div>
+        `;
+    }
+
+    _startNextRecommendedMathMission() {
+        const nextMission = this._getRecommendedMathMission();
+        if (!nextMission) {
+            this._showScreen('maths');
+            return;
+        }
+        this._startMathMission(nextMission.id);
+    }
+
+    _buildMathMissionQuestion(mission) {
+        const randomInRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const shuffleAddends = (a, b) => Math.random() > 0.5 ? [a, b] : [b, a];
+        switch (mission.strategy) {
+            case 'make-5': {
+                const a = randomInRange(1, 4);
+                const b = 5 - a;
+                const [operand1, operand2] = shuffleAddends(a, b);
+                return { operand1, operand2, operator: '+', answer: 5, visual: true, visualType: 'apples', pairKey: `${operand1}+${operand2}`, customHint: 'What number goes with the first one to make 5?' };
+            }
+            case 'make-10': {
+                const a = randomInRange(1, 9);
+                const b = 10 - a;
+                const [operand1, operand2] = shuffleAddends(a, b);
+                return { operand1, operand2, operator: '+', answer: 10, visual: true, visualType: 'stars', pairKey: `${operand1}+${operand2}`, customHint: 'Can you see the pair that makes 10?' };
+            }
+            case 'count-on': {
+                const operand1 = randomInRange(4, 10);
+                const operand2 = randomInRange(1, 3);
+                return { operand1, operand2, operator: '+', answer: operand1 + operand2, visual: true, visualType: 'blocks', pairKey: `${operand1}+${operand2}`, customHint: `Start at ${operand1} and hop on ${operand2} more.` };
+            }
+            case 'doubles': {
+                const operand1 = randomInRange(1, 8);
+                return { operand1, operand2: operand1, operator: '+', answer: operand1 * 2, visual: false, pairKey: `${operand1}+${operand1}`, customHint: `This is a double. What is ${operand1} and ${operand1}?` };
+            }
+            case 'near-doubles': {
+                const base = randomInRange(2, 8);
+                const delta = Math.random() > 0.5 ? 1 : -1;
+                const other = base + delta;
+                const [operand1, operand2] = shuffleAddends(base, other);
+                return { operand1, operand2, operator: '+', answer: operand1 + operand2, visual: false, pairKey: `${operand1}+${operand2}`, customHint: `Think of the close double first, then one more or one less.` };
+            }
+            case 'bridge-10': {
+                const operand1 = randomInRange(6, 9);
+                const needed = 10 - operand1;
+                const operand2 = needed + randomInRange(1, 3);
+                return { operand1, operand2, operator: '+', answer: operand1 + operand2, visual: true, visualType: 'apples', pairKey: `${operand1}+${operand2}`, customHint: `What does ${operand1} need to make 10 first?` };
+            }
+            case 'subtraction-within-10': {
+                const operand1 = randomInRange(4, 10);
+                const operand2 = randomInRange(1, Math.min(5, operand1 - 1));
+                return { operand1, operand2, operator: '-', answer: operand1 - operand2, visual: true, visualType: 'apples', customHint: `Start with ${operand1}, then take away ${operand2}.` };
+            }
+            case 'missing-part': {
+                const total = randomInRange(5, 10);
+                const known = randomInRange(1, total - 1);
+                return { operand1: known, operand2: total, operator: '+', answer: total - known, visual: false, displayFormat: `${known} + ? = ${total}`, customHint: `What number goes with ${known} to make ${total}?` };
+            }
+            case 'bridge-back-10': {
+                const operand1 = randomInRange(11, 15);
+                const toTen = operand1 - 10;
+                const operand2 = toTen + randomInRange(1, 3);
+                return { operand1, operand2, operator: '-', answer: operand1 - operand2, visual: true, visualType: 'blocks', customHint: `Can you jump back to 10 first, then keep going?` };
+            }
+            default:
+                return this.problemGenerator.generate(mission.operation, { operand1: { min: 1, max: 5 }, operand2: { min: 1, max: 5 }, visual: true, visualType: 'apples' });
+        }
+    }
+
+    _renderPracticeMissionStatus() {
+        const wrapper = document.getElementById('practice-mission-status');
+        const mission = this.currentMathMission || this._getMathMissionById(state.get('currentMathMissionId'));
+        if (!wrapper || !mission || !state.get('currentMathMissionId')) {
+            wrapper?.classList.add('hidden');
+            return;
+        }
+        document.getElementById('practice-mission-kicker').textContent = mission.power || 'Today’s mission';
+        document.getElementById('practice-mission-name').textContent = mission.title;
+        document.getElementById('practice-mission-progress').textContent = `${Math.min(this.currentMathMissionIndex + 1, mission.questionCount || 6)} of ${mission.questionCount || 6}`;
+        document.getElementById('practice-mission-coach').textContent = mission.coachLine;
+        wrapper.classList.remove('hidden');
+    }
+
+    _showStrategyPrompt() {
+        const mission = this.currentMathMission || this._getMathMissionById(state.get('currentMathMissionId'));
+        const feedback = document.getElementById('feedback-display');
+        const strategies = {
+            'make-5': 'See the two parts that join to make 5.',
+            'make-10': 'Look for the pair that makes 10 first.',
+            'count-on': 'Start from the bigger number and hop on.',
+            'doubles': 'This is a twin fact. Say the double you know.',
+            'near-doubles': 'Use the nearby double, then one more or one less.',
+            'bridge-10': 'Hop to 10 first, then finish the sum.',
+            'subtraction-within-10': 'Start with the whole amount, then take some away.',
+            'missing-part': 'Ask what number is hiding to make the whole.',
+            'bridge-back-10': 'Step back to 10 first, then keep going.'
+        };
+        if (!feedback || !mission) return;
+        feedback.textContent = strategies[mission.strategy] || mission.coachLine || 'Try a calm number strategy.';
+        feedback.className = 'feedback-display';
+        feedback.classList.remove('hidden');
+    }
+
+    _completeCurrentMathMission() {
+        const mission = this.currentMathMission;
+        if (!mission) return;
+        const progress = this._getMathMissionProgress();
+        const sessionInfo = progress.sessions[mission.id] || { plays: 0, completions: 0, lastPlayed: null, lastAccuracy: 0 };
+        sessionInfo.plays += 1;
+        sessionInfo.completions += 1;
+        sessionInfo.lastPlayed = new Date().toISOString();
+        sessionInfo.lastAccuracy = 100;
+        progress.sessions[mission.id] = sessionInfo;
+        if (!progress.completed.includes(mission.id)) {
+            progress.completed.push(mission.id);
+        }
+        state.set('mathMissionProgress', progress);
+        state.set('lastMathMissionId', mission.id);
+        state.set('mathGardenCount', (state.get('mathGardenCount') || 0) + 1);
+        this._resetMathMissionState();
+        document.getElementById('feedback-display').classList.add('hidden');
+        this.currentMathMission = mission;
+        this._renderMathMissionCompleteScreen();
+        this._showScreen('math-mission-complete');
     }
 
     _renderHomeNextUp() {
@@ -485,9 +913,9 @@ class KidsMathsApp {
                 <span class="learning-area-badge">Main area</span>
             </div>
             <div class="learning-area-title">Maths</div>
-            <div class="learning-area-copy">Six maths skills with gentle practice and tests.</div>
+            <div class="learning-area-copy">Number Adventure missions with tiny wins and parent-friendly hints.</div>
             <div class="learning-area-stats">${totalTime} minutes practised · ${streak} day${streak !== 1 ? 's' : ''} streak</div>
-            <div class="learning-area-foot">${recentMaths ? 'Continue ' + recentMaths.title : 'Choose a maths skill'} </div>
+            <div class="learning-area-foot">${recentMaths ? 'Continue ' + recentMaths.title : 'Start today’s mission'} </div>
         `;
 
         readingHub.innerHTML = `
@@ -715,6 +1143,7 @@ class KidsMathsApp {
     }
 
     _launchModule(moduleId, levelId = null, mode = null) {
+        this._resetMathMissionState();
         state.set('currentModule', moduleId);
         if (levelId) {
             state.set('currentLevel', levelId);
@@ -733,6 +1162,7 @@ class KidsMathsApp {
     }
 
     _selectModule(moduleId) {
+        this._resetMathMissionState();
         this._recordRecentItem(this._buildModuleResumeItem(moduleId, null, null));
         state.set('currentModule', moduleId);
         const module = this.modules.find(m => m.id === moduleId);
@@ -866,7 +1296,9 @@ class KidsMathsApp {
     // ===== MODE STARTING =====
 
     _startMode(mode) {
+        this._resetMathMissionState();
         state.set('currentMode', mode);
+        document.querySelector('#practice-screen .back-btn').dataset.to = 'module';
         this._recordRecentItem(this._buildModuleResumeItem(
             state.get('currentModule'),
             state.get('currentLevel'),
@@ -934,7 +1366,9 @@ class KidsMathsApp {
     _startPractice() {
         // Show timer and start it
         this.timerUI.show();
-        this.timerManager.start();
+        if (!this.timerManager.isRunning) {
+            this.timerManager.start();
+        }
 
         // Setup canvas if visual level
         const canvas = document.getElementById('visual-canvas');
@@ -945,6 +1379,29 @@ class KidsMathsApp {
     }
 
     _nextProblem() {
+        const activeMissionId = state.get('currentMathMissionId');
+        if (activeMissionId && this.currentMathMissionQuestions.length) {
+            const mission = this.currentMathMission || this._getMathMissionById(activeMissionId);
+            if (!mission) return;
+            if (this.currentMathMissionIndex >= this.currentMathMissionQuestions.length) {
+                this._completeCurrentMathMission();
+                return;
+            }
+
+            this.currentMathMission = mission;
+            this.currentProblem = this.currentMathMissionQuestions[this.currentMathMissionIndex];
+            this._renderProblem(this.currentProblem);
+            this._renderPracticeMissionStatus();
+
+            const input = document.getElementById('answer-input');
+            input.value = '';
+            input.classList.remove('correct', 'incorrect');
+            input.focus();
+            document.getElementById('hint-area').classList.add('hidden');
+            document.getElementById('feedback-display').classList.add('hidden');
+            return;
+        }
+
         const moduleId = state.get('currentModule');
         const levelId = state.get('currentLevel');
         const module = this.modules.find(m => m.id === moduleId);
@@ -958,6 +1415,7 @@ class KidsMathsApp {
 
         // Update display
         this._renderProblem(this.currentProblem);
+        document.getElementById('practice-mission-status').classList.add('hidden');
 
         // Clear and focus input
         const input = document.getElementById('answer-input');
@@ -971,21 +1429,28 @@ class KidsMathsApp {
 
     _renderProblem(problem) {
         // Update text display
+        const problemDisplay = document.getElementById('problem-display');
         if (problem.displayFormat) {
-            // Special format (percentages)
-            document.getElementById('problem-display').innerHTML = `
-                <span class="problem-text">${problem.displayFormat.replace('?', '')}</span>
+            const [before, after] = String(problem.displayFormat).split('?');
+            problemDisplay.innerHTML = `
+                <span class="problem-text">${before || ''}</span>
+                <input type="number" id="answer-input" class="answer-input" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+                <span class="problem-text">${after || ''}</span>
+            `;
+        } else {
+            problemDisplay.innerHTML = `
+                <span class="operand" id="operand1">${problem.operand1}</span>
+                <span class="operator" id="operator">${problem.operator}</span>
+                <span class="operand" id="operand2">${problem.operand2}</span>
+                <span class="equals">=</span>
                 <input type="number" id="answer-input" class="answer-input" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
             `;
-            // Re-bind enter key
-            document.getElementById('answer-input').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') this._checkAnswer();
-            });
-        } else {
-            document.getElementById('operand1').textContent = problem.operand1;
-            document.getElementById('operator').textContent = problem.operator;
-            document.getElementById('operand2').textContent = problem.operand2;
         }
+
+        // Re-bind enter key after rebuilding the problem display
+        document.getElementById('answer-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this._checkAnswer();
+        });
 
         // Update visual canvas
         const canvas = document.getElementById('visual-canvas');
@@ -1030,45 +1495,59 @@ class KidsMathsApp {
             state.set('additionMastery', mastery);
         }
 
+        const feedback = document.getElementById('feedback-display');
+        const isMathMission = !!state.get('currentMathMissionId');
+
         if (userAnswer === this.currentProblem.answer) {
-            // Correct!
             this.celebration.pulseElement(input);
             this.celebration.trigger();
-
-            // Record for progress
             this.progressManager.recordAttempt(
                 state.get('currentModule'),
                 state.get('currentLevel'),
                 1, 1
             );
 
-            // Next problem after celebration
+            if (isMathMission) {
+                this.currentMathMissionCorrect++;
+                this.currentMathMissionIndex++;
+                feedback.textContent = 'Nice noticing. Let’s keep going.';
+                feedback.className = 'feedback-display';
+                feedback.classList.remove('hidden');
+                setTimeout(() => {
+                    if (this.currentMathMissionIndex >= this.currentMathMissionQuestions.length) {
+                        this._completeCurrentMathMission();
+                    } else {
+                        this._nextProblem();
+                    }
+                }, 900);
+                return;
+            }
+
             setTimeout(() => {
                 this._nextProblem();
             }, 1600);
         } else {
-            // Incorrect - gentle feedback
             this.celebration.gentleShake(input);
-
-            // Show encouraging feedback
-            const feedback = document.getElementById('feedback-display');
-            feedback.textContent = "Let's try again! Take your time.";
+            feedback.textContent = isMathMission
+                ? 'Not a big deal — use the hint and try the number step again.'
+                : "Let's try again! Take your time.";
             feedback.className = 'feedback-display incorrect';
             feedback.classList.remove('hidden');
-
-            // Record attempt
             this.progressManager.recordAttempt(
                 state.get('currentModule'),
                 state.get('currentLevel'),
                 0, 1
             );
 
-            // Hide feedback after a moment
-            setTimeout(() => {
-                feedback.classList.add('hidden');
-            }, 2000);
+            if (isMathMission) {
+                document.getElementById('hint-text').textContent = this.problemGenerator.generateHint(this.currentProblem);
+                document.getElementById('hint-area').classList.remove('hidden');
+            } else {
+                setTimeout(() => {
+                    feedback.classList.add('hidden');
+                }, 2000);
+            }
 
-            // Clear input for retry
             input.value = '';
             input.focus();
         }
@@ -3149,7 +3628,6 @@ class KidsMathsApp {
         history.replaceState({ screen: 'home' }, '', '');
 
         window.addEventListener('popstate', (e) => {
-            const targetScreen = e.state?.screen || 'home';
             const currentScreen = state.get('currentScreen');
 
             if (currentScreen === 'home') {
@@ -3158,20 +3636,26 @@ class KidsMathsApp {
                 return;
             }
 
-            // Navigate to the screen from history, or go to parent screen
-            const parentMap = {
-                'story': 'reading',
-                'reading': 'home',
-                'maths': 'home',
-                'module': 'maths',
-                'learn': 'module',
-                'practice': 'module',
-                'test': 'module',
-                'store': 'home',
-                'parent': 'home'
-            };
-
-            const destination = parentMap[currentScreen] || 'home';
+            let destination;
+            if (currentScreen === 'practice' && (state.get('currentMathMissionId') || this.currentMathMission)) {
+                destination = 'math-mission-intro';
+            } else {
+                const parentMap = {
+                    'story': 'reading',
+                    'reading': 'home',
+                    'maths': 'home',
+                    'math-parent': 'maths',
+                    'math-mission-intro': 'maths',
+                    'math-mission-complete': 'maths',
+                    'module': 'maths',
+                    'learn': 'module',
+                    'practice': 'module',
+                    'test': 'module',
+                    'store': 'home',
+                    'parent': 'home'
+                };
+                destination = parentMap[currentScreen] || 'home';
+            }
 
             // Stop timer if going home
             if (destination === 'home') {
@@ -3190,6 +3674,9 @@ class KidsMathsApp {
             switch (destination) {
                 case 'home': this._renderHomeScreen(); break;
                 case 'maths': this._renderMathsScreen(); break;
+                case 'math-parent': this._renderMathParentScreen(); break;
+                case 'math-mission-intro': this._renderMathMissionIntroScreen(); break;
+                case 'math-mission-complete': this._renderMathMissionCompleteScreen(); break;
                 case 'module': this._renderModuleScreen(); break;
                 case 'reading': this._renderReadingScreen(); break;
                 case 'store': this._renderStoreScreen(); break;

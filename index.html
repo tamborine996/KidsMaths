@@ -99,12 +99,16 @@
                 </div>
                 <h2>Maths</h2>
             </header>
-            <div class="section-heading maths-screen-intro">
-                <h3>Choose a maths skill</h3>
-                <p>Pick one skill to practise.</p>
+            <div class="section-heading maths-screen-intro" id="maths-screen-intro">
+                <h3>Number Adventure</h3>
+                <p>Tiny number missions that help you get stronger every day.</p>
             </div>
-            <div class="module-grid" id="module-grid">
-                <!-- Modules injected by JS -->
+            <div id="maths-adventure-summary" class="maths-adventure-summary"></div>
+            <div id="maths-launch-grid" class="maths-launch-grid">
+                <!-- Maths launch cards injected by JS -->
+            </div>
+            <div id="maths-progress-strip" class="maths-progress-strip">
+                <!-- Number powers injected by JS -->
             </div>
         </div>
 
@@ -147,6 +151,55 @@
             </div>
         </div>
 
+        <!-- Maths Parent Pick Screen -->
+        <div id="math-parent-screen" class="screen">
+            <header class="screen-header">
+                <div class="screen-header-actions">
+                    <button class="back-btn" data-to="maths" aria-label="Go back">&larr;</button>
+                    <button class="home-btn" data-to="home" aria-label="Go home">⌂</button>
+                </div>
+                <h2>Parent pick</h2>
+            </header>
+            <div id="math-parent-summary" class="math-parent-summary"></div>
+            <div id="math-parent-missions" class="math-parent-missions"></div>
+            <div class="math-parent-legacy-wrap">
+                <div class="section-heading maths-screen-intro math-parent-legacy-heading">
+                    <h3>Legacy module picker</h3>
+                    <p>Keep this for broader practice while Number Adventure grows.</p>
+                </div>
+                <div id="math-parent-legacy-grid" class="module-grid"></div>
+            </div>
+        </div>
+
+        <!-- Maths Mission Intro Screen -->
+        <div id="math-mission-intro-screen" class="screen">
+            <header class="screen-header">
+                <div class="screen-header-actions">
+                    <button class="back-btn" data-to="maths" aria-label="Go back">&larr;</button>
+                    <button class="home-btn" data-to="home" aria-label="Go home">⌂</button>
+                </div>
+                <h2>Today’s mission</h2>
+            </header>
+            <div id="math-mission-intro-card" class="math-mission-intro-card"></div>
+            <button class="primary-btn" id="math-mission-start-btn">Let’s go</button>
+        </div>
+
+        <!-- Maths Mission Complete Screen -->
+        <div id="math-mission-complete-screen" class="screen">
+            <header class="screen-header">
+                <div class="screen-header-actions">
+                    <button class="back-btn" data-to="maths" aria-label="Go back">&larr;</button>
+                    <button class="home-btn" data-to="home" aria-label="Go home">⌂</button>
+                </div>
+                <h2>Mission complete</h2>
+            </header>
+            <div id="math-mission-complete-card" class="math-mission-complete-card"></div>
+            <div class="math-mission-complete-actions">
+                <button class="secondary-btn" id="math-mission-done-btn">Back to Maths</button>
+                <button class="primary-btn" id="math-mission-next-btn">Do one more</button>
+            </div>
+        </div>
+
         <!-- Learn Screen -->
         <div id="learn-screen" class="screen">
             <header class="screen-header">
@@ -171,6 +224,14 @@
                 </div>
                 <h2 id="practice-title">Practice</h2>
             </header>
+            <div id="practice-mission-status" class="practice-mission-status hidden">
+                <div class="practice-mission-kicker" id="practice-mission-kicker">Today’s mission</div>
+                <div class="practice-mission-progress-line">
+                    <span id="practice-mission-name">Make 10</span>
+                    <span id="practice-mission-progress">1 of 6</span>
+                </div>
+                <div class="practice-mission-coach" id="practice-mission-coach">Let’s take tiny number steps together.</div>
+            </div>
             <div class="practice-area">
                 <canvas id="visual-canvas" class="visual-canvas"></canvas>
                 <div class="problem-display" id="problem-display">
@@ -185,6 +246,7 @@
                 </div>
                 <div class="action-buttons">
                     <button class="secondary-btn" id="hint-btn">Hint</button>
+                    <button class="secondary-btn" id="strategy-btn">Break it up</button>
                     <button class="primary-btn" id="check-btn">Check</button>
                 </div>
             </div>

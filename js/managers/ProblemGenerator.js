@@ -247,6 +247,10 @@ export class ProblemGenerator {
      * Generate a hint for a problem
      */
     generateHint(problem) {
+        if (problem.customHint) {
+            return problem.customHint;
+        }
+
         switch (problem.operator) {
             case '+':
                 if (problem.visual) {
