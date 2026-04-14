@@ -75,29 +75,7 @@
                     </div>
                 </section>
 
-                <section class="home-section home-search-section">
-                    <div class="section-heading">
-                        <h3>Find a story</h3>
-                        <p>Search the story library when you already know what you want.</p>
-                    </div>
-                    <div class="search-bar" id="search-bar">
-                        <span class="search-icon">&#128269;</span>
-                        <input type="text" id="search-input" class="search-input" placeholder="Search story titles..." autocomplete="off">
-                    </div>
-                    <div class="search-results hidden" id="search-results">
-                        <!-- Search results injected by JS -->
-                    </div>
-                </section>
 
-                <section class="home-section">
-                    <div class="section-heading">
-                        <h3>Maths skills</h3>
-                        <p>Pick one skill to practise.</p>
-                    </div>
-                    <div class="module-grid" id="module-grid">
-                        <!-- Modules injected by JS -->
-                    </div>
-                </section>
             </div>
             <div class="home-footer">
                 <div class="home-footer-label">Grown-ups</div>
@@ -112,11 +90,29 @@
             </div>
         </div>
 
+        <!-- Maths Hub Screen -->
+        <div id="maths-screen" class="screen">
+            <header class="screen-header">
+                <div class="screen-header-actions">
+                    <button class="back-btn" data-to="home" aria-label="Go back">&larr;</button>
+                    <button class="home-btn" data-to="home" aria-label="Go home">⌂</button>
+                </div>
+                <h2>Maths</h2>
+            </header>
+            <div class="section-heading maths-screen-intro">
+                <h3>Choose a maths skill</h3>
+                <p>Pick one skill to practise.</p>
+            </div>
+            <div class="module-grid" id="module-grid">
+                <!-- Modules injected by JS -->
+            </div>
+        </div>
+
         <!-- Module Screen (Learn/Practice/Test selection) -->
         <div id="module-screen" class="screen">
             <header class="screen-header">
                 <div class="screen-header-actions">
-                    <button class="back-btn" data-to="home" aria-label="Go back">&larr;</button>
+                    <button class="back-btn" data-to="maths" aria-label="Go back">&larr;</button>
                     <button class="home-btn" data-to="home" aria-label="Go home">⌂</button>
                 </div>
                 <h2 id="module-title">Addition</h2>
@@ -251,6 +247,15 @@
                 <select id="reading-level-select" class="level-select">
                     <!-- Levels injected by JS -->
                 </select>
+            </div>
+            <div class="reading-search-section" id="reading-search-section">
+                <div class="search-bar" id="search-bar">
+                    <span class="search-icon">&#128269;</span>
+                    <input type="text" id="search-input" class="search-input" placeholder="Search story titles..." autocomplete="off">
+                </div>
+                <div class="search-results hidden" id="search-results">
+                    <!-- Search results injected by JS -->
+                </div>
             </div>
             <div class="story-list" id="story-list">
                 <!-- Stories injected by JS -->

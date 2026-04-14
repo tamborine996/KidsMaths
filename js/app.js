@@ -180,9 +180,7 @@ class KidsMathsApp {
             state.set('readingTab', 'urdu');
             this._showScreen('reading');
         });
-        document.getElementById('home-maths-hub').addEventListener('click', () => {
-            document.getElementById('module-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
+        document.getElementById('home-maths-hub').addEventListener('click', () => this._showScreen('maths'));
         document.getElementById('home-next-up').addEventListener('click', (e) => this._handleHomeShortcutClick(e));
         document.getElementById('home-resume').addEventListener('click', (e) => this._handleHomeShortcutClick(e));
 
@@ -337,6 +335,9 @@ class KidsMathsApp {
             case 'home':
                 this._renderHomeScreen();
                 break;
+            case 'maths':
+                this._renderMathsScreen();
+                break;
             case 'module':
                 this._renderModuleScreen();
                 break;
@@ -365,15 +366,8 @@ class KidsMathsApp {
     // ===== HOME SCREEN =====
 
     _renderHomeScreen() {
-        const searchInput = document.getElementById('search-input');
-        const searchResults = document.getElementById('search-results');
         const homeDashboard = document.getElementById('home-dashboard');
 
-        if (searchInput) searchInput.value = '';
-        if (searchResults) {
-            searchResults.classList.add('hidden');
-            searchResults.innerHTML = '';
-        }
         if (homeDashboard) {
             homeDashboard.classList.remove('hidden');
         }
@@ -381,7 +375,10 @@ class KidsMathsApp {
         this._renderHomeNextUp();
         this._renderHomeResume();
         this._renderHomeLearningAreas();
-        this._renderHomeModules();
+    }
+
+    _renderMathsScreen() {
+        this._renderModuleGrid(document.getElementById('module-grid'));
     }
 
     _renderHomeNextUp() {
@@ -428,13 +425,13 @@ class KidsMathsApp {
         const primaryKey = this._getPrimaryNextUp()?.key;
         const items = this._getResumeItems()
             .filter(item => item.key !== primaryKey)
-            .slice(0, 3);
+            .slice(0, 2);
 
         if (items.length === 0) {
             container.innerHTML = `
                 <div class="home-empty-state">
                     <div class="home-empty-title">No recent activity yet</div>
-                    <div class="home-empty-copy">Start with Reading or choose a maths module below, and shortcuts will appear here automatically.</div>
+                    <div class="home-empty-copy">Start with Reading, Urdu, or Maths and your quick resume cards will appear here.</div>
                 </div>
             `;
             return;
@@ -516,8 +513,9 @@ class KidsMathsApp {
         `;
     }
 
-    _renderHomeModules() {
-        const grid = document.getElementById('module-grid');
+    _renderModuleGrid(grid = document.getElementById('module-grid')) {
+        if (!grid) return;
+
         grid.classList.remove('hidden');
         grid.innerHTML = '';
 
@@ -553,7 +551,6 @@ class KidsMathsApp {
             btn.addEventListener('click', () => this._selectModule(module.id));
             grid.appendChild(btn);
         });
-
     }
 
     _getPrimaryNextUp() {
@@ -1512,11 +1509,8 @@ class KidsMathsApp {
         // Tab switching
         document.querySelectorAll('.reading-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
-                document.querySelectorAll('.reading-tab').forEach(t => t.classList.remove('active'));
-                e.currentTarget.classList.add('active');
                 state.set('readingTab', e.currentTarget.dataset.readingTab);
-                this._populateLevelSelector();
-                this._renderStoryList();
+                this._renderReadingScreen();
             });
         });
 
@@ -1524,7 +1518,7 @@ class KidsMathsApp {
         document.getElementById('reading-level-select').addEventListener('change', (e) => {
             const { stateKey } = this._getReadingSourceConfig();
             state.set(stateKey, e.target.value);
-            this._renderStoryList();
+            this._renderReadingScreen();
         });
 
         // Story navigation
@@ -2007,6 +2001,28 @@ class KidsMathsApp {
 
         this._populateLevelSelector();
         this._renderStoryList();
+
+        const input = document.getElementById('search-input');
+        const results = document.getElementById('search-results');
+        const storyList = document.getElementById('story-list');
+        if (!input || !results || !storyList) return;
+
+        if (tab === 'urdu') {
+            input.value = '';
+            results.innerHTML = '';
+            results.classList.add('hidden');
+            storyList.classList.remove('hidden');
+            return;
+        }
+
+        const query = input.value.trim().toLowerCase();
+        if (query.length >= 2) {
+            this._renderSearchResults(query);
+        } else {
+            results.innerHTML = '';
+            results.classList.add('hidden');
+            storyList.classList.remove('hidden');
+        }
     }
 
     _populateLevelSelector() {
@@ -2015,11 +2031,14 @@ class KidsMathsApp {
 
         const select = document.getElementById('reading-level-select');
         const levelSelector = document.querySelector('#reading-screen .level-selector');
+        const readingSearchSection = document.getElementById('reading-search-section');
 
         if (tab === 'urdu') {
             levelSelector.classList.add('hidden');
+            readingSearchSection?.classList.add('hidden');
         } else {
             levelSelector.classList.remove('hidden');
+            readingSearchSection?.classList.remove('hidden');
         }
 
         select.innerHTML = '';
@@ -2856,38 +2875,42 @@ class KidsMathsApp {
     _bindSearchEvents() {
         const input = document.getElementById('search-input');
         const results = document.getElementById('search-results');
-        const homeDashboard = document.getElementById('home-dashboard');
+        const storyList = document.getElementById('story-list');
+        const libraryAttribution = document.getElementById('library-attribution');
+
+        const resetSearchSurface = () => {
+            results.classList.add('hidden');
+            results.innerHTML = '';
+            storyList.classList.remove('hidden');
+            if (libraryAttribution.textContent) {
+                libraryAttribution.classList.remove('hidden');
+            } else {
+                libraryAttribution.classList.add('hidden');
+            }
+        };
 
         input.addEventListener('input', () => {
             const query = input.value.trim().toLowerCase();
             if (query.length < 2) {
-                results.classList.add('hidden');
-                results.innerHTML = '';
-                document.getElementById('module-grid').classList.remove('hidden');
-                if (homeDashboard) homeDashboard.classList.remove('hidden');
+                resetSearchSurface();
                 return;
             }
             this._renderSearchResults(query);
         });
 
-        // Clear search when leaving home screen
         input.addEventListener('focus', () => {
             if (input.value.trim().length >= 2) {
                 this._renderSearchResults(input.value.trim().toLowerCase());
             }
         });
 
-        // Delegated click on search results
         results.addEventListener('click', (e) => {
             const card = e.target.closest('.search-result-card');
             if (card) {
                 const storyId = card.dataset.storyId;
                 const resumePage = card.dataset.resumePage;
                 input.value = '';
-                results.classList.add('hidden');
-                results.innerHTML = '';
-                document.getElementById('module-grid').classList.remove('hidden');
-                if (homeDashboard) homeDashboard.classList.remove('hidden');
+                resetSearchSurface();
                 this._startStory(storyId, resumePage ? parseInt(resumePage) : undefined);
             }
         });
@@ -2895,18 +2918,20 @@ class KidsMathsApp {
 
     _renderSearchResults(query) {
         const results = document.getElementById('search-results');
-        const homeDashboard = document.getElementById('home-dashboard');
+        const storyList = document.getElementById('story-list');
+        const libraryAttribution = document.getElementById('library-attribution');
         const bookmarks = state.get('bookmarks') || {};
         const matches = this._storyIndex.filter(s =>
             s.title.toLowerCase().includes(query) ||
             s.author.toLowerCase().includes(query)
         );
 
+        storyList.classList.add('hidden');
+        libraryAttribution.classList.add('hidden');
+
         if (matches.length === 0) {
             results.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:var(--spacing-md);">No stories found</div>';
             results.classList.remove('hidden');
-            document.getElementById('module-grid').classList.add('hidden');
-            if (homeDashboard) homeDashboard.classList.add('hidden');
             return;
         }
 
@@ -2925,8 +2950,6 @@ class KidsMathsApp {
         }).join('');
 
         results.classList.remove('hidden');
-        if (homeDashboard) homeDashboard.classList.add('hidden');
-        document.getElementById('module-grid').classList.add('hidden');
     }
 
     // ===== BOOKMARKS =====
@@ -2990,7 +3013,8 @@ class KidsMathsApp {
             const parentMap = {
                 'story': 'reading',
                 'reading': 'home',
-                'module': 'home',
+                'maths': 'home',
+                'module': 'maths',
                 'learn': 'module',
                 'practice': 'module',
                 'test': 'module',
@@ -3016,6 +3040,7 @@ class KidsMathsApp {
             // Re-render destination
             switch (destination) {
                 case 'home': this._renderHomeScreen(); break;
+                case 'maths': this._renderMathsScreen(); break;
                 case 'module': this._renderModuleScreen(); break;
                 case 'reading': this._renderReadingScreen(); break;
                 case 'store': this._renderStoreScreen(); break;

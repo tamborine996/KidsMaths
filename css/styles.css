@@ -268,36 +268,31 @@ body {
    Home Screen
    ============================================ */
 #home-screen {
-    padding-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
 }
 
 .home-header {
     text-align: center;
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-md);
 }
 
 .home-header h1 {
     font-family: var(--font-display);
-    font-size: 2.8rem;
+    font-size: 2.35rem;
     font-weight: 700;
     color: var(--text-heading);
-    margin-bottom: var(--spacing-xs);
+    margin-bottom: 2px;
     text-shadow: 2px 2px 0 #E8D5A3;
 }
 
 .subtitle {
     color: var(--text-secondary);
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 400;
 }
 
 .home-next-up {
-    margin-bottom: var(--spacing-md);
-}
-
-.home-search-section {
-    padding-top: var(--spacing-sm);
-    border-top: 2px dashed rgba(93, 78, 55, 0.18);
+    margin-bottom: var(--spacing-sm);
 }
 
 .next-up-card {
@@ -305,12 +300,12 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-lg);
+    gap: 10px;
+    padding: var(--spacing-md) var(--spacing-lg);
     background: linear-gradient(135deg, #FFF6DB, #FFE8B3);
     border: var(--border-width) solid var(--accent-gold-dark);
     border-radius: var(--border-radius-xl);
-    box-shadow: var(--shadow-offset-lg) var(--accent-gold-dark);
+    box-shadow: var(--shadow-offset) var(--accent-gold-dark);
     cursor: pointer;
     text-align: left;
 }
@@ -325,17 +320,17 @@ body {
 
 .next-up-main {
     display: flex;
-    gap: var(--spacing-md);
-    align-items: center;
+    gap: var(--spacing-sm);
+    align-items: flex-start;
 }
 
 .next-up-icon {
-    font-size: 2rem;
+    font-size: 1.7rem;
 }
 
 .next-up-title {
     font-family: var(--font-display);
-    font-size: 1.3rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: var(--text-heading);
 }
@@ -351,8 +346,8 @@ body {
 .learning-area-foot {
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
-    padding: 10px 16px;
+    min-height: 38px;
+    padding: 8px 14px;
     border-radius: 999px;
     border: 2px solid rgba(93, 78, 55, 0.16);
     background: rgba(255, 255, 255, 0.72);
@@ -361,31 +356,31 @@ body {
 .home-dashboard {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-md);
 }
 
 .home-section {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
 }
 
 .section-heading h3 {
     font-family: var(--font-display);
-    font-size: 1.25rem;
+    font-size: 1.15rem;
     color: var(--text-heading);
-    margin-bottom: 2px;
+    margin-bottom: 0;
 }
 
 .section-heading p {
     color: var(--text-secondary);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 .home-resume-list {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
 }
 
 .home-resume-card,
@@ -393,8 +388,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-lg);
+    gap: 10px;
+    padding: var(--spacing-md);
     background: var(--bg-card);
     border-radius: var(--border-radius-lg);
     cursor: pointer;
@@ -469,7 +464,7 @@ body {
 .learning-area-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
 }
 
 .learning-area-maths {
@@ -521,11 +516,22 @@ body {
     color: var(--text-muted);
 }
 
-.search-results {
+.reading-search-section {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);
     margin-bottom: var(--spacing-md);
+}
+
+.maths-screen-intro {
+    margin-bottom: var(--spacing-md);
+}
+
+.search-results {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
     max-height: 300px;
     overflow-y: auto;
 }
@@ -721,9 +727,9 @@ body {
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: var(--spacing-lg);
-    margin-top: var(--spacing-lg);
-    padding-top: var(--spacing-lg);
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
     border-top: 2px dashed var(--border-color);
 }
 
@@ -2916,11 +2922,11 @@ td.mastery-mastered {
     }
 
     .home-header h1 {
-        font-size: 3.2rem;
+        font-size: 2.7rem;
     }
 
     .subtitle {
-        font-size: 1.4rem;
+        font-size: 1.1rem;
     }
 
     .mode-buttons {
@@ -2979,6 +2985,26 @@ td.mastery-mastered {
 @media (orientation: landscape) and (min-width: 700px) {
     #app {
         max-width: 100%;
+    }
+
+    #home-screen {
+        padding-top: var(--spacing-sm);
+    }
+
+    .home-header {
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .home-dashboard {
+        gap: var(--spacing-sm);
+    }
+
+    .home-section {
+        gap: 8px;
+    }
+
+    .next-up-card {
+        padding: var(--spacing-md);
     }
 
     .module-grid {
