@@ -268,31 +268,32 @@ body {
    Home Screen
    ============================================ */
 #home-screen {
-    padding-top: var(--spacing-md);
+    padding-top: 10px;
 }
 
 .home-header {
     text-align: center;
-    margin-bottom: var(--spacing-md);
+    margin-bottom: 10px;
 }
 
 .home-header h1 {
     font-family: var(--font-display);
-    font-size: 2.35rem;
+    font-size: 2.1rem;
     font-weight: 700;
     color: var(--text-heading);
-    margin-bottom: 2px;
+    margin-bottom: 0;
+    line-height: 1.05;
     text-shadow: 2px 2px 0 #E8D5A3;
 }
 
 .subtitle {
     color: var(--text-secondary);
-    font-size: 1rem;
+    font-size: 0.92rem;
     font-weight: 400;
 }
 
 .home-next-up {
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: 8px;
 }
 
 .next-up-card {
@@ -300,8 +301,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
-    padding: var(--spacing-md) var(--spacing-lg);
+    gap: 8px;
+    padding: 12px 16px;
     background: linear-gradient(135deg, #FFF6DB, #FFE8B3);
     border: var(--border-width) solid var(--accent-gold-dark);
     border-radius: var(--border-radius-xl);
@@ -320,25 +321,27 @@ body {
 
 .next-up-main {
     display: flex;
-    gap: var(--spacing-sm);
+    gap: 10px;
     align-items: flex-start;
 }
 
 .next-up-icon {
-    font-size: 1.7rem;
+    font-size: 1.45rem;
 }
 
 .next-up-title {
     font-family: var(--font-display);
-    font-size: 1.15rem;
+    font-size: 1.02rem;
     font-weight: 700;
     color: var(--text-heading);
+    line-height: 1.15;
 }
 
 .next-up-meta,
 .next-up-cta {
     color: var(--text-secondary);
     font-weight: 700;
+    font-size: 0.92rem;
 }
 
 .next-up-cta,
@@ -346,8 +349,8 @@ body {
 .learning-area-foot {
     display: inline-flex;
     align-items: center;
-    min-height: 38px;
-    padding: 8px 14px;
+    min-height: 34px;
+    padding: 6px 12px;
     border-radius: 999px;
     border: 2px solid rgba(93, 78, 55, 0.16);
     background: rgba(255, 255, 255, 0.72);
@@ -356,31 +359,32 @@ body {
 .home-dashboard {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: 12px;
 }
 
 .home-section {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: 6px;
 }
 
 .section-heading h3 {
     font-family: var(--font-display);
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     color: var(--text-heading);
     margin-bottom: 0;
+    line-height: 1.1;
 }
 
 .section-heading p {
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.84rem;
 }
 
 .home-resume-list {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--spacing-sm);
+    gap: 8px;
 }
 
 .home-resume-card,
@@ -388,8 +392,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
-    padding: var(--spacing-md);
+    gap: 8px;
+    padding: 12px;
     background: var(--bg-card);
     border-radius: var(--border-radius-lg);
     cursor: pointer;
@@ -428,9 +432,10 @@ body {
 .home-resume-title,
 .learning-area-title {
     font-family: var(--font-display);
-    font-size: 1.2rem;
+    font-size: 1.08rem;
     font-weight: 700;
     color: var(--text-heading);
+    line-height: 1.1;
 }
 
 .home-resume-meta,
@@ -440,6 +445,7 @@ body {
 .learning-area-foot,
 .home-empty-copy {
     color: var(--text-secondary);
+    font-size: 0.84rem;
 }
 
 .home-resume-foot,
@@ -448,7 +454,7 @@ body {
 }
 
 .home-empty-state {
-    padding: var(--spacing-lg);
+    padding: 12px;
     border: 2px dashed var(--border-color);
     border-radius: var(--border-radius-lg);
     background: rgba(255,255,255,0.6);
@@ -2922,11 +2928,11 @@ td.mastery-mastered {
     }
 
     .home-header h1 {
-        font-size: 2.7rem;
+        font-size: 2.35rem;
     }
 
     .subtitle {
-        font-size: 1.1rem;
+        font-size: 0.96rem;
     }
 
     .mode-buttons {
@@ -2988,23 +2994,23 @@ td.mastery-mastered {
     }
 
     #home-screen {
-        padding-top: var(--spacing-sm);
+        padding-top: 6px;
     }
 
     .home-header {
-        margin-bottom: var(--spacing-sm);
+        margin-bottom: 6px;
     }
 
     .home-dashboard {
-        gap: var(--spacing-sm);
-    }
-
-    .home-section {
         gap: 8px;
     }
 
+    .home-section {
+        gap: 4px;
+    }
+
     .next-up-card {
-        padding: var(--spacing-md);
+        padding: 10px 14px;
     }
 
     .module-grid {
