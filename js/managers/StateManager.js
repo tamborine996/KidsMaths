@@ -65,6 +65,7 @@ export class StateManager {
             libraryLevel: 'L1',
             urduLevel: 'U1',
             readingTab: 'library',
+            readingSearchOpen: false,
             // Home shortcuts / recent activity
             recentItems: [],
             // Parent PIN (default: 1234)

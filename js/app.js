@@ -1510,6 +1510,9 @@ class KidsMathsApp {
         document.querySelectorAll('.reading-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
                 state.set('readingTab', e.currentTarget.dataset.readingTab);
+                if (e.currentTarget.dataset.readingTab === 'urdu') {
+                    this._setReadingSearchOpen(false, { clear: true });
+                }
                 this._renderReadingScreen();
             });
         });
@@ -1518,6 +1521,12 @@ class KidsMathsApp {
         document.getElementById('reading-level-select').addEventListener('change', (e) => {
             const { stateKey } = this._getReadingSourceConfig();
             state.set(stateKey, e.target.value);
+            this._renderReadingScreen();
+        });
+
+        document.getElementById('reading-search-toggle').addEventListener('click', () => {
+            const nextOpen = !this._isReadingSearchOpen();
+            this._setReadingSearchOpen(nextOpen, { focus: nextOpen, clear: !nextOpen });
             this._renderReadingScreen();
         });
 
@@ -1650,7 +1659,7 @@ class KidsMathsApp {
                 return;
             }
 
-            const card = e.target.closest('.story-card');
+            const card = e.target.closest('.reading-featured-card, .reading-quick-card, .story-card');
             if (card) {
                 const resumePage = card.dataset.resumePage;
                 this._startStory(card.dataset.storyId, resumePage ? parseInt(resumePage) : undefined);
@@ -2001,6 +2010,7 @@ class KidsMathsApp {
 
         this._populateLevelSelector();
         this._renderStoryList();
+        this._syncReadingSearchUi(tab);
 
         const input = document.getElementById('search-input');
         const results = document.getElementById('search-results');
@@ -2008,20 +2018,63 @@ class KidsMathsApp {
         if (!input || !results || !storyList) return;
 
         if (tab === 'urdu') {
-            input.value = '';
-            results.innerHTML = '';
-            results.classList.add('hidden');
-            storyList.classList.remove('hidden');
+            this._resetSearchSurface();
             return;
         }
 
         const query = input.value.trim().toLowerCase();
-        if (query.length >= 2) {
+        if (this._isReadingSearchOpen() && query.length >= 2) {
             this._renderSearchResults(query);
         } else {
-            results.innerHTML = '';
-            results.classList.add('hidden');
-            storyList.classList.remove('hidden');
+            this._resetSearchSurface();
+        }
+    }
+
+    _isReadingSearchOpen() {
+        return !!state.get('readingSearchOpen');
+    }
+
+    _setReadingSearchOpen(open, { clear = false, focus = false } = {}) {
+        state.set('readingSearchOpen', !!open);
+
+        const input = document.getElementById('search-input');
+        if (clear && input) {
+            input.value = '';
+        }
+
+        if (clear) {
+            this._resetSearchSurface();
+        }
+
+        if (focus && input) {
+            requestAnimationFrame(() => input.focus());
+        }
+    }
+
+    _syncReadingSearchUi(tab = state.get('readingTab') || 'library') {
+        const searchSection = document.getElementById('reading-search-section');
+        const searchToggle = document.getElementById('reading-search-toggle');
+        const searchToggleLabel = document.getElementById('reading-search-toggle-label');
+        const levelSelector = document.querySelector('#reading-screen .reading-level-selector');
+        const isUrdu = tab === 'urdu';
+        const isOpen = this._isReadingSearchOpen() && !isUrdu;
+
+        if (levelSelector) {
+            levelSelector.classList.toggle('hidden', isUrdu);
+        }
+
+        if (searchSection) {
+            searchSection.classList.toggle('hidden', !isOpen);
+        }
+
+        if (searchToggle) {
+            searchToggle.classList.toggle('hidden', isUrdu);
+            searchToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            searchToggle.classList.toggle('is-open', isOpen);
+        }
+
+        if (searchToggleLabel) {
+            searchToggleLabel.textContent = isOpen ? 'Hide search' : 'Search';
         }
     }
 
@@ -2030,16 +2083,6 @@ class KidsMathsApp {
         const { levels, stateKey, attribution } = this._getReadingSourceConfig(tab);
 
         const select = document.getElementById('reading-level-select');
-        const levelSelector = document.querySelector('#reading-screen .level-selector');
-        const readingSearchSection = document.getElementById('reading-search-section');
-
-        if (tab === 'urdu') {
-            levelSelector.classList.add('hidden');
-            readingSearchSection?.classList.add('hidden');
-        } else {
-            levelSelector.classList.remove('hidden');
-            readingSearchSection?.classList.remove('hidden');
-        }
 
         select.innerHTML = '';
 
@@ -2245,32 +2288,127 @@ class KidsMathsApp {
 
         const readStories = state.get('readStories') || [];
         const bookmarks = state.get('bookmarks') || {};
+        const rankedStories = level.stories.map((story, index) => ({
+            story,
+            index,
+            isRead: readStories.includes(story.id),
+            bookmark: bookmarks[story.id],
+            totalPages: story.pages.length,
+            hasImage: Boolean(story.pages[0]?.image)
+        }));
 
-        level.stories.forEach(story => {
-            const isRead = readStories.includes(story.id);
-            const hasImages = story.pages[0]?.image;
-            const bm = bookmarks[story.id];
-            const card = document.createElement('div');
-            card.className = 'story-card';
-            card.dataset.storyId = story.id;
-            card.dataset.source = tab;
-            if (bm) card.dataset.resumePage = bm.page;
-            const dir = story.direction || 'ltr';
-            const metaLine = tab === 'urdu'
-                ? `${story.pages.length} pages${story.source ? ' · ' + story.source : ''}${story.ageHint ? ' · ' + story.ageHint : ''}`
-                : `${story.pages.length} pages${story.author ? ' · ' + story.author : ''}`;
-            card.innerHTML = `
-                <span class="story-card-icon">${hasImages ? '\u{1F5BC}\uFE0F' : '\u{1F4D6}'}</span>
-                <div class="story-card-info">
-                    <div class="story-card-title" dir="${dir}">${story.title}</div>
-                    ${story.titleEnglish ? `<div class="story-card-subtitle">${story.titleEnglish}</div>` : ''}
-                    <div class="story-card-pages">${metaLine}</div>
-                    ${bm ? `<div class="story-card-bookmark">\u{1F516} Page ${bm.page + 1} of ${bm.total}</div>` : ''}
-                </div>
-                <span class="story-card-status">${isRead ? '\u2705' : ''}</span>
-            `;
-            list.appendChild(card);
+        const priorityStories = [...rankedStories].sort((a, b) => {
+            const aScore = a.bookmark ? 3 : a.isRead ? 1 : 2;
+            const bScore = b.bookmark ? 3 : b.isRead ? 1 : 2;
+            if (bScore !== aScore) return bScore - aScore;
+            if (!!b.bookmark !== !!a.bookmark) return Number(!!b.bookmark) - Number(!!a.bookmark);
+            return a.index - b.index;
         });
+
+        const featured = priorityStories[0];
+        const quickPicks = priorityStories.slice(1, 3);
+        const shelfIds = new Set([featured?.story.id, ...quickPicks.map(item => item.story.id)].filter(Boolean));
+        const gridStories = rankedStories.filter(entry => !shelfIds.has(entry.story.id));
+
+        list.innerHTML = `
+            ${featured ? this._buildReadingShelfMarkup({ tab, level, featured, quickPicks }) : ''}
+            ${gridStories.length ? `
+            <section class="reading-library-section">
+                <div class="reading-library-header">
+                    <div>
+                        <h3 class="reading-library-title">${tab === 'library' ? 'More books in this level' : 'More stories in this level'}</h3>
+                        <p class="reading-library-copy">Pick a book-sized card and jump straight in.</p>
+                    </div>
+                </div>
+                <div class="story-grid">
+                    ${gridStories.map(entry => this._buildStoryCardMarkup(entry.story, { tab, isRead: entry.isRead, bookmark: entry.bookmark, hasImage: entry.hasImage })).join('')}
+                </div>
+            </section>` : ''}
+        `;
+    }
+
+    _buildReadingShelfMarkup({ level, featured, quickPicks }) {
+        const featureStory = featured.story;
+        const bookmark = featured.bookmark;
+        const statusLabel = bookmark ? 'Continue reading' : featured.isRead ? 'Read again' : 'Start here';
+        const progressLine = bookmark
+            ? `Resume on page ${bookmark.page + 1} of ${featured.totalPages}`
+            : featured.isRead
+                ? `${featured.totalPages} pages · finished already`
+                : `${featured.totalPages} pages ready to read`;
+        const featuredCta = bookmark ? 'Resume this book' : featured.isRead ? 'Open again' : 'Open this book';
+
+        return `
+            <section class="reading-shelf">
+                <button class="reading-featured-card" type="button" data-story-id="${featureStory.id}" ${bookmark ? `data-resume-page="${bookmark.page}"` : ''}>
+                    <div class="reading-featured-copy">
+                        <div class="reading-featured-kicker">${this._escapeHtml(statusLabel)} • ${this._escapeHtml(level.name)}</div>
+                        <div class="reading-featured-title" dir="${featureStory.direction || 'ltr'}">${this._escapeHtml(featureStory.title)}</div>
+                        ${featureStory.titleEnglish ? `<div class="reading-featured-subtitle">${this._escapeHtml(featureStory.titleEnglish)}</div>` : ''}
+                        <div class="reading-featured-meta">${this._escapeHtml(progressLine)}</div>
+                        <div class="reading-featured-cta">${this._escapeHtml(featuredCta)} →</div>
+                    </div>
+                    <div class="reading-featured-cover">${this._buildStoryCoverBadge(featureStory, featured.hasImage)}</div>
+                </button>
+                ${quickPicks.length ? `
+                    <div class="reading-quick-row">
+                        ${quickPicks.map(item => {
+                            const quickStatus = item.bookmark
+                                ? `Page ${item.bookmark.page + 1} of ${item.totalPages}`
+                                : item.isRead
+                                    ? 'Finished'
+                                    : `${item.totalPages} pages`;
+                            return `
+                                <button class="reading-quick-card" type="button" data-story-id="${item.story.id}" ${item.bookmark ? `data-resume-page="${item.bookmark.page}"` : ''}>
+                                    <div class="reading-quick-cover">${this._buildStoryCoverBadge(item.story, item.hasImage)}</div>
+                                    <div>
+                                        <div class="reading-quick-title" dir="${item.story.direction || 'ltr'}">${this._escapeHtml(item.story.title)}</div>
+                                        <div class="reading-quick-meta">${this._escapeHtml(quickStatus)}</div>
+                                    </div>
+                                </button>
+                            `;
+                        }).join('')}
+                    </div>
+                ` : ''}
+            </section>
+        `;
+    }
+
+    _buildStoryCardMarkup(story, { tab = 'library', isRead = false, bookmark = null, hasImage = false } = {}) {
+        const dir = story.direction || 'ltr';
+        const sourceLine = tab === 'library'
+            ? [story.author, story.source].filter(Boolean).join(' · ')
+            : [story.author, story.illustrator].filter(Boolean).join(' · ');
+        const progressLabel = bookmark
+            ? `Continue from page ${bookmark.page + 1}`
+            : isRead
+                ? 'Read again'
+                : 'Open book';
+        const statusChip = bookmark ? 'In progress' : isRead ? 'Finished' : 'Ready';
+        const pagesLabel = `${story.pages.length} page${story.pages.length === 1 ? '' : 's'}`;
+
+        return `
+            <button class="story-card" type="button" data-story-id="${story.id}" data-source="${tab}" ${bookmark ? `data-resume-page="${bookmark.page}"` : ''}>
+                <div class="story-card-cover">${this._buildStoryCoverBadge(story, hasImage)}</div>
+                <div class="story-card-info">
+                    <div class="story-card-topline">
+                        <span class="story-card-chip">${this._escapeHtml(statusChip)}</span>
+                        <span class="story-card-pages">${this._escapeHtml(pagesLabel)}</span>
+                    </div>
+                    <div class="story-card-title" dir="${dir}">${this._escapeHtml(story.title)}</div>
+                    ${story.titleEnglish ? `<div class="story-card-subtitle">${this._escapeHtml(story.titleEnglish)}</div>` : ''}
+                    ${sourceLine ? `<div class="story-card-byline">${this._escapeHtml(sourceLine)}</div>` : ''}
+                    <div class="story-card-foot">${this._escapeHtml(progressLabel)}</div>
+                </div>
+                <span class="story-card-status">${isRead ? '✓' : '→'}</span>
+            </button>
+        `;
+    }
+
+    _buildStoryCoverBadge(story, hasImage = false) {
+        if (hasImage) return '🖼️';
+        const label = String(story.titleEnglish || story.title || 'B').trim().charAt(0).toUpperCase();
+        return this._escapeHtml(label || 'B');
     }
 
     _startStory(storyId, resumePage) {
@@ -2875,24 +3013,11 @@ class KidsMathsApp {
     _bindSearchEvents() {
         const input = document.getElementById('search-input');
         const results = document.getElementById('search-results');
-        const storyList = document.getElementById('story-list');
-        const libraryAttribution = document.getElementById('library-attribution');
-
-        const resetSearchSurface = () => {
-            results.classList.add('hidden');
-            results.innerHTML = '';
-            storyList.classList.remove('hidden');
-            if (libraryAttribution.textContent) {
-                libraryAttribution.classList.remove('hidden');
-            } else {
-                libraryAttribution.classList.add('hidden');
-            }
-        };
 
         input.addEventListener('input', () => {
             const query = input.value.trim().toLowerCase();
             if (query.length < 2) {
-                resetSearchSurface();
+                this._resetSearchSurface();
                 return;
             }
             this._renderSearchResults(query);
@@ -2910,10 +3035,34 @@ class KidsMathsApp {
                 const storyId = card.dataset.storyId;
                 const resumePage = card.dataset.resumePage;
                 input.value = '';
-                resetSearchSurface();
+                this._setReadingSearchOpen(false, { clear: true });
+                this._renderReadingScreen();
                 this._startStory(storyId, resumePage ? parseInt(resumePage) : undefined);
             }
         });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this._setReadingSearchOpen(false, { clear: true });
+                this._renderReadingScreen();
+            }
+        });
+    }
+
+    _resetSearchSurface() {
+        const results = document.getElementById('search-results');
+        const storyList = document.getElementById('story-list');
+        const libraryAttribution = document.getElementById('library-attribution');
+        if (!results || !storyList || !libraryAttribution) return;
+
+        results.classList.add('hidden');
+        results.innerHTML = '';
+        storyList.classList.remove('hidden');
+        if (libraryAttribution.textContent) {
+            libraryAttribution.classList.remove('hidden');
+        } else {
+            libraryAttribution.classList.add('hidden');
+        }
     }
 
     _renderSearchResults(query) {

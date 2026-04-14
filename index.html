@@ -242,11 +242,17 @@
                 <button class="reading-tab" data-reading-tab="ours">Our Stories</button>
                 <button class="reading-tab" data-reading-tab="urdu">Urdu</button>
             </div>
-            <div class="level-selector">
-                <label for="reading-level-select">Level:</label>
-                <select id="reading-level-select" class="level-select">
-                    <!-- Levels injected by JS -->
-                </select>
+            <div class="reading-toolbar">
+                <div class="level-selector reading-level-selector">
+                    <label for="reading-level-select">Level:</label>
+                    <select id="reading-level-select" class="level-select">
+                        <!-- Levels injected by JS -->
+                    </select>
+                </div>
+                <button id="reading-search-toggle" class="secondary-btn reading-search-toggle" type="button" aria-expanded="false" aria-controls="reading-search-section">
+                    <span class="reading-search-toggle-icon">🔎</span>
+                    <span id="reading-search-toggle-label">Search</span>
+                </button>
             </div>
             <div class="reading-search-section" id="reading-search-section">
                 <div class="search-bar" id="search-bar">
