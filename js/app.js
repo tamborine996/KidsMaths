@@ -32,6 +32,7 @@ class KidsMathsApp {
         this.currentMathMissionQuestions = [];
         this.currentMathMissionIndex = 0;
         this.currentMathMissionCorrect = 0;
+        this.currentMathMissionAttempts = 0;
         this.testProblems = [];
         this.testIndex = 0;
         this.testCorrect = 0;
@@ -191,9 +192,9 @@ class KidsMathsApp {
                     subtitle: 'Tiny number missions that help you get stronger every day.',
                     gardenLabel: 'Number Garden',
                     missionGroups: [
-                        { id: 'make-5', title: 'Make 5', subtitle: 'Spot little pairs that make 5.', power: 'Make 5', operation: 'addition', levelId: 'L1', questionCount: 6, strategy: 'make-5', visual: true, parentPrompt: 'If she hesitates, ask: what goes with this number to make 5?', coachLine: 'We are spotting number pairs that make 5.', celebration: 'You can see little number pairs already.' },
-                        { id: 'make-10', title: 'Make 10', subtitle: 'Find friendly pairs that make 10.', power: 'Make 10', operation: 'addition', levelId: 'L2', questionCount: 6, strategy: 'make-10', visual: true, parentPrompt: 'Prompt: what does this number need to make 10?', coachLine: 'Making 10 helps bigger sums feel easy.', celebration: 'Making 10 is becoming your superpower.' },
-                        { id: 'count-on', title: 'Count On', subtitle: 'Start from the bigger number.', power: 'Count On', operation: 'addition', levelId: 'L1', questionCount: 6, strategy: 'count-on', visual: true, parentPrompt: 'Encourage her to say the bigger number first, then hop forward.', coachLine: 'Start with the bigger number, then hop on.', celebration: 'You are counting on instead of counting everything.' },
+                        { id: 'make-5', title: 'Make 5', subtitle: 'See tiny number friends that snap together to make 5.', power: 'Make 5', operation: 'addition', levelId: 'L1', questionCount: 6, strategy: 'make-5', visual: true, parentPrompt: 'If she hesitates, cover one part and ask: what friend does this number need to make 5?', coachLine: 'Let’s spot tiny number friends that belong together.', celebration: 'You spotted number friends that make 5.' },
+                        { id: 'make-10', title: 'Make 10', subtitle: 'Build a full ten with friendly pairs you know.', power: 'Make 10', operation: 'addition', levelId: 'L2', questionCount: 6, strategy: 'make-10', visual: true, parentPrompt: 'Prompt gently: what friend does this number need to make 10?', coachLine: 'Making 10 gives us a strong landing place for bigger sums.', celebration: 'Making 10 is starting to feel natural.' },
+                        { id: 'count-on', title: 'Count On', subtitle: 'Start at the bigger number, then hop forward.', power: 'Count On', operation: 'addition', levelId: 'L1', questionCount: 6, strategy: 'count-on', visual: true, parentPrompt: 'Encourage her to say the bigger number first, then tap or hop forward for the small add-on.', coachLine: 'We don’t need to count everything — we can start big and hop on.', celebration: 'You counted on from the bigger number like a quick mathematician.' },
                         { id: 'doubles', title: 'Doubles', subtitle: 'Use easy twin facts.', power: 'Doubles', operation: 'addition', levelId: 'L2', questionCount: 6, strategy: 'doubles', visual: false, parentPrompt: 'Prompt: do you know this double straight away?', coachLine: 'Doubles are fast facts we can remember.', celebration: 'Those doubles are getting quicker.' },
                         { id: 'near-doubles', title: 'Near Doubles', subtitle: 'Use a double, then one more or less.', power: 'Near Doubles', operation: 'addition', levelId: 'L2', questionCount: 6, strategy: 'near-doubles', visual: false, parentPrompt: 'Prompt: what double is close to this one?', coachLine: 'A near double is just a double with a tiny change.', celebration: 'You used a clever near-double strategy.' },
                         { id: 'bridge-10', title: 'Hop Through 10', subtitle: 'Make 10 first, then finish the sum.', power: 'Hop Through 10', operation: 'addition', levelId: 'L3', questionCount: 6, strategy: 'bridge-10', visual: true, parentPrompt: 'Prompt: what does the first number need to reach 10?', coachLine: 'Let’s hop through 10 because 10 is a friendly place.', celebration: 'You can now hop through 10.' },
@@ -438,7 +439,7 @@ class KidsMathsApp {
         if (!world || !intro || !summary || !launchGrid || !progressStrip) return;
 
         const completedCount = this._getCompletedMathMissionIds().length;
-        const gardenCount = state.get('mathGardenCount') || 0;
+        const gardenCount = this._getMathGardenCount();
         const totalMissions = world.missionGroups.length;
 
         intro.innerHTML = `
@@ -460,6 +461,18 @@ class KidsMathsApp {
             </div>
         `;
 
+        const continueSession = continueMission ? this._getMathMissionSessionMeta(continueMission.id) : null;
+        const continueCopy = continueSession
+            ? `Resume at question ${continueSession.nextQuestionNumber} of ${continueSession.questionTotal}. ${continueSession.correct} correct so far.`
+            : continueMission
+                ? 'Open the most recent power you finished or visited.'
+                : 'Finish one mission and your quickest return path will show here.';
+        const continueFoot = continueSession
+            ? `Resume question ${continueSession.nextQuestionNumber} →`
+            : continueMission
+                ? 'Open recent mission →'
+                : 'Start one mission first';
+
         launchGrid.innerHTML = `
             <button class="maths-launch-card maths-launch-primary" type="button" data-maths-action="start-mission" data-mission-id="${recommended?.id || ''}">
                 <div class="maths-launch-kicker">Start today’s mission</div>
@@ -469,9 +482,9 @@ class KidsMathsApp {
             </button>
             <button class="maths-launch-card" type="button" data-maths-action="continue-mission" ${continueMission ? `data-mission-id="${continueMission.id}"` : ''} ${continueMission ? '' : 'disabled'}>
                 <div class="maths-launch-kicker">Continue your path</div>
-                <div class="maths-launch-title">${this._escapeHtml(continueMission?.title || 'No mission started yet')}</div>
-                <div class="maths-launch-copy">${this._escapeHtml(continueMission ? 'Jump back into the mission you touched most recently.' : 'Finish one mission and your quickest return path will show here.')}</div>
-                <div class="maths-launch-foot">${continueMission ? 'Continue mission →' : 'Start one mission first'}</div>
+                <div class="maths-launch-title">${this._escapeHtml(continueSession ? `Resume ${continueMission?.title}` : continueMission?.title || 'No mission started yet')}</div>
+                <div class="maths-launch-copy">${this._escapeHtml(continueCopy)}</div>
+                <div class="maths-launch-foot">${this._escapeHtml(continueFoot)}</div>
             </button>
             <button class="maths-launch-card" type="button" data-maths-action="open-parent-pick">
                 <div class="maths-launch-kicker">Parent pick</div>
@@ -514,6 +527,163 @@ class KidsMathsApp {
             : { completed: [], sessions: {} };
     }
 
+    _getCurrentMathMissionSession() {
+        const session = state.get('currentMathMissionSession');
+        if (!session || typeof session !== 'object' || !session.missionId || !Array.isArray(session.questions)) {
+            return null;
+        }
+        return {
+            missionId: session.missionId,
+            questions: session.questions,
+            index: Number.isFinite(session.index) ? session.index : 0,
+            correct: Number.isFinite(session.correct) ? session.correct : 0,
+            attempts: Number.isFinite(session.attempts) ? session.attempts : 0,
+            updatedAt: session.updatedAt || null
+        };
+    }
+
+    _saveCurrentMathMissionSession() {
+        if (!this.currentMathMission || !this.currentMathMissionQuestions.length) return;
+        state.set('currentMathMissionSession', {
+            missionId: this.currentMathMission.id,
+            questions: this.currentMathMissionQuestions,
+            index: this.currentMathMissionIndex,
+            correct: this.currentMathMissionCorrect,
+            attempts: this.currentMathMissionAttempts,
+            updatedAt: new Date().toISOString()
+        });
+    }
+
+    _restoreMathMissionSession(session = this._getCurrentMathMissionSession()) {
+        if (!session) return false;
+        const mission = this._getMathMissionById(session.missionId);
+        if (!mission) {
+            state.set('currentMathMissionSession', null);
+            return false;
+        }
+        this.currentMathMission = mission;
+        this.currentMathMissionQuestions = session.questions;
+        this.currentMathMissionIndex = Math.max(0, Math.min(session.index || 0, Math.max(session.questions.length - 1, 0)));
+        this.currentMathMissionCorrect = Math.max(0, session.correct || 0);
+        this.currentMathMissionAttempts = Math.max(this.currentMathMissionCorrect, session.attempts || 0);
+        state.set('currentMathMissionId', mission.id);
+        state.set('currentModule', mission.operation);
+        state.set('currentLevel', mission.levelId);
+        state.set('currentMode', 'practice');
+        return true;
+    }
+
+    _getMathMissionSessionMeta(missionId) {
+        const session = this._getCurrentMathMissionSession();
+        if (!session || session.missionId !== missionId) return null;
+        const questionTotal = session.questions.length || this._getMathMissionById(missionId)?.questionCount || 0;
+        return {
+            ...session,
+            questionTotal,
+            nextQuestionNumber: Math.min((session.index || 0) + 1, questionTotal || 1)
+        };
+    }
+
+    _getMathGardenCount() {
+        const completedCount = this._getCompletedMathMissionIds().length;
+        if (state.get('mathGardenCount') !== completedCount) {
+            state.set('mathGardenCount', completedCount);
+        }
+        return completedCount;
+    }
+
+    _getMathMissionTheme(mission) {
+        const missionId = mission?.id || '';
+        if (missionId === 'make-5') {
+            return {
+                icon: '🍎',
+                label: 'Number friends',
+                className: 'mission-theme-friends'
+            };
+        }
+        if (missionId === 'make-10') {
+            return {
+                icon: '🌟',
+                label: 'Make a full ten',
+                className: 'mission-theme-ten'
+            };
+        }
+        if (missionId === 'count-on') {
+            return {
+                icon: '🐸',
+                label: 'Big start, small hops',
+                className: 'mission-theme-hops'
+            };
+        }
+        return {
+            icon: '🧮',
+            label: 'Number power',
+            className: 'mission-theme-default'
+        };
+    }
+
+    _getMathMissionStats(missionId) {
+        const info = this._getMathMissionProgress().sessions[missionId] || {};
+        const session = this._getMathMissionSessionMeta(missionId);
+        return {
+            completions: info.completions || 0,
+            lastAccuracy: info.lastAccuracy || 0,
+            inProgress: !!session,
+            progressLabel: session ? `Q${session.nextQuestionNumber}/${session.questionTotal}` : null,
+            correctSoFar: session ? session.correct || 0 : 0
+        };
+    }
+
+    _buildMathMissionQuestions(mission) {
+        const count = mission.questionCount || 6;
+        const shuffle = (items) => {
+            const copy = [...items];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        };
+
+        const takeSequence = (items) => {
+            const shuffled = shuffle(items);
+            const results = [];
+            while (results.length < count) {
+                results.push(...shuffled.map(item => ({ ...item })));
+            }
+            return results.slice(0, count);
+        };
+
+        switch (mission.strategy) {
+            case 'make-5':
+                return takeSequence([
+                    { operand1: 1, operand2: 4, operator: '+', answer: 5, visual: true, visualType: 'apples', pairKey: '1+4', customHint: 'What number goes with 1 to make 5?', stepHints: ['Look for the number friend that joins 1 to make 5.', 'Say: 1 and what makes 5?', 'Try 1, 2, 3, 4 — which one lands on 5 with 1?'] },
+                    { operand1: 4, operand2: 1, operator: '+', answer: 5, visual: true, visualType: 'apples', pairKey: '4+1', customHint: 'What number goes with 4 to make 5?', stepHints: ['4 is nearly 5 already.', 'Ask: what is one more than 4?', '4 needs 1 more to make 5.'] },
+                    { operand1: 2, operand2: 3, operator: '+', answer: 5, visual: true, visualType: 'apples', pairKey: '2+3', customHint: 'What number goes with 2 to make 5?', stepHints: ['2 needs a number friend to reach 5.', 'Count on from 2: 3, 4, 5.', '2 and 3 make 5.'] },
+                    { operand1: 3, operand2: 2, operator: '+', answer: 5, visual: true, visualType: 'apples', pairKey: '3+2', customHint: 'What number goes with 3 to make 5?', stepHints: ['3 is part of 5. What friend joins it?', 'Count on from 3: 4, 5.', '3 and 2 make 5.'] }
+                ]);
+            case 'make-10': {
+                const candidates = [];
+                for (let a = 1; a <= 9; a++) {
+                    const b = 10 - a;
+                    candidates.push({ operand1: a, operand2: b, operator: '+', answer: 10, visual: true, visualType: 'stars', pairKey: `${a}+${b}`, customHint: `What number goes with ${a} to make 10?`, stepHints: [`Think of 10 as a full bundle. What friend does ${a} need?`, `Count on from ${a} until you reach 10.`, `${a} needs ${b} to make 10.`] });
+                }
+                return takeSequence(candidates);
+            }
+            case 'count-on': {
+                const candidates = [];
+                for (let start = 4; start <= 10; start++) {
+                    for (let hop = 1; hop <= 3; hop++) {
+                        candidates.push({ operand1: start, operand2: hop, operator: '+', answer: start + hop, visual: true, visualType: 'blocks', pairKey: `${start}+${hop}`, customHint: `Start at ${start} and hop on ${hop} more.`, stepHints: [`Say ${start} first. Don't start from 1.`, `Now hop forward ${hop} small step${hop === 1 ? '' : 's'}.`, `${start} then ${hop} more lands on ${start + hop}.`] });
+                    }
+                }
+                return takeSequence(candidates);
+            }
+            default:
+                return Array.from({ length: count }, () => this._buildMathMissionQuestion(mission));
+        }
+    }
+
     _getCompletedMathMissionIds() {
         return this._getMathMissionProgress().completed || [];
     }
@@ -538,6 +708,10 @@ class KidsMathsApp {
     }
 
     _getContinueMathMission() {
+        const session = this._getCurrentMathMissionSession();
+        if (session) {
+            return this._getMathMissionById(session.missionId) || null;
+        }
         return this._getMathMissionById(state.get('lastMathMissionId')) || null;
     }
 
@@ -549,9 +723,20 @@ class KidsMathsApp {
             this._showScreen('math-parent');
             return;
         }
-        if (action === 'start-mission' || action === 'continue-mission') {
+        if (action === 'start-mission') {
             const missionId = actionEl.dataset.missionId || this._getRecommendedMathMission()?.id;
             if (missionId) {
+                this._startMathMission(missionId);
+            }
+            return;
+        }
+
+        if (action === 'continue-mission') {
+            const missionId = actionEl.dataset.missionId || this._getContinueMathMission()?.id;
+            const session = missionId ? this._getMathMissionSessionMeta(missionId) : null;
+            if (session) {
+                this._resumeCurrentMathMission(missionId);
+            } else if (missionId) {
                 this._startMathMission(missionId);
             }
         }
@@ -578,7 +763,7 @@ class KidsMathsApp {
         if (!summary || !missionsContainer || !legacyGrid || !world) return;
 
         const completed = this._getCompletedMathMissionIds().length;
-        const garden = state.get('mathGardenCount') || 0;
+        const garden = this._getMathGardenCount();
         summary.innerHTML = `
             <div class="math-parent-summary-card">
                 <div>
@@ -596,15 +781,29 @@ class KidsMathsApp {
         missionsContainer.innerHTML = world.missionGroups.map(mission => {
             const completedMission = this._isMathMissionCompleted(mission.id);
             const unlocked = this._isMathMissionUnlocked(mission.id);
+            const theme = this._getMathMissionTheme(mission);
+            const stats = this._getMathMissionStats(mission.id);
+            const stateLabel = stats.inProgress
+                ? `Resume ${stats.progressLabel}`
+                : completedMission
+                    ? 'Done'
+                    : unlocked
+                        ? 'Ready'
+                        : 'Locked';
             return `
-                <button class="math-parent-mission-card ${completedMission ? 'is-complete' : unlocked ? 'is-unlocked' : 'is-locked'}" type="button" data-parent-mission="${mission.id}" ${unlocked ? '' : 'disabled'}>
+                <button class="math-parent-mission-card ${theme.className} ${completedMission ? 'is-complete' : unlocked ? 'is-unlocked' : 'is-locked'}" type="button" data-parent-mission="${mission.id}" ${unlocked ? '' : 'disabled'}>
                     <div class="math-parent-mission-top">
-                        <span class="math-parent-mission-power">${this._escapeHtml(mission.power)}</span>
-                        <span class="math-parent-mission-state">${completedMission ? 'Done' : unlocked ? 'Ready' : 'Locked'}</span>
+                        <span class="math-parent-mission-power">${this._escapeHtml(`${theme.icon} ${mission.power}`)}</span>
+                        <span class="math-parent-mission-state">${this._escapeHtml(stateLabel)}</span>
                     </div>
                     <div class="math-parent-mission-title">${this._escapeHtml(mission.title)}</div>
                     <div class="math-parent-mission-copy">${this._escapeHtml(mission.subtitle)}</div>
                     <div class="math-parent-mission-note">${this._escapeHtml(mission.parentPrompt)}</div>
+                    <div class="math-parent-mission-metrics">
+                        <span>${stats.completions} completion${stats.completions === 1 ? '' : 's'}</span>
+                        <span>${stats.lastAccuracy ? `${stats.lastAccuracy}% accuracy` : 'No accuracy yet'}</span>
+                        <span>${stats.inProgress ? `${stats.correctSoFar} correct so far` : theme.label}</span>
+                    </div>
                 </button>
             `;
         }).join('');
@@ -625,12 +824,30 @@ class KidsMathsApp {
         this._showScreen('math-mission-intro');
     }
 
+    _resumeCurrentMathMission(missionId = state.get('currentMathMissionId')) {
+        const session = this._getMathMissionSessionMeta(missionId);
+        if (!session || !this._restoreMathMissionSession(session)) {
+            if (missionId) this._startMathMission(missionId);
+            return;
+        }
+        state.set('lastMathMissionId', missionId);
+        this._recordRecentItem(this._buildMathMissionResumeItem(missionId, session.updatedAt));
+        document.querySelector('#practice-screen .back-btn').dataset.to = 'maths';
+        document.getElementById('practice-title').textContent = this.currentMathMission.title;
+        document.getElementById('hint-btn').textContent = 'Hint';
+        document.getElementById('strategy-btn').textContent = 'Break it up';
+        this._showScreen('practice');
+        this._startPractice();
+    }
+
     _resetMathMissionState({ clearLast = false } = {}) {
         this.currentMathMission = null;
         this.currentMathMissionQuestions = [];
         this.currentMathMissionIndex = 0;
         this.currentMathMissionCorrect = 0;
+        this.currentMathMissionAttempts = 0;
         state.set('currentMathMissionId', null);
+        state.set('currentMathMissionSession', null);
         if (clearLast) {
             state.set('lastMathMissionId', null);
         }
@@ -642,10 +859,12 @@ class KidsMathsApp {
         this.currentMathMission = mission;
         this.currentMathMissionIndex = 0;
         this.currentMathMissionCorrect = 0;
-        this.currentMathMissionQuestions = Array.from({ length: mission.questionCount || 6 }, () => this._buildMathMissionQuestion(mission));
+        this.currentMathMissionAttempts = 0;
+        this.currentMathMissionQuestions = this._buildMathMissionQuestions(mission);
         state.set('currentMode', 'practice');
         state.set('lastMathMissionId', mission.id);
-        this._recordRecentItem(this._buildModuleResumeItem(mission.operation, mission.levelId, 'practice'));
+        this._saveCurrentMathMissionSession();
+        this._recordRecentItem(this._buildMathMissionResumeItem(mission.id));
         document.querySelector('#practice-screen .back-btn').dataset.to = 'maths';
         document.getElementById('practice-title').textContent = mission.title;
         document.getElementById('hint-btn').textContent = 'Hint';
@@ -659,13 +878,21 @@ class KidsMathsApp {
         const mission = this.currentMathMission || this._getMathMissionById(state.get('currentMathMissionId'));
         if (!card || !mission) return;
         this.currentMathMission = mission;
+        const gardenCount = this._getMathGardenCount();
+        const nextMission = this._getRecommendedMathMission();
+        const theme = this._getMathMissionTheme(mission);
         card.innerHTML = `
-            <div class="math-mission-intro-kicker">${this._escapeHtml((this._getActiveMathWorld()?.coachName || 'Coach') + ' says')}</div>
+            <div class="math-mission-intro-kicker">${this._escapeHtml(`${theme.icon} ${theme.label}`)}</div>
             <h3>${this._escapeHtml(mission.title)}</h3>
             <p class="math-mission-intro-copy">${this._escapeHtml(mission.subtitle)}</p>
+            <div class="math-mission-intro-stats">
+                <span class="math-mission-pill">${mission.questionCount || 6} quick questions</span>
+                <span class="math-mission-pill">${gardenCount} garden piece${gardenCount === 1 ? '' : 's'}</span>
+                <span class="math-mission-pill">${this._escapeHtml(mission.power)}</span>
+            </div>
             <p class="math-mission-intro-coach">${this._escapeHtml(mission.coachLine)}</p>
             <div class="math-mission-intro-note"><strong>Parent note:</strong> ${this._escapeHtml(mission.parentPrompt)}</div>
-            <div class="math-mission-intro-foot">About ${mission.questionCount || 6} quick questions</div>
+            <div class="math-mission-intro-foot">${nextMission && nextMission.id !== mission.id ? `After this: ${this._escapeHtml(nextMission.title)}` : 'One calm mission at a time.'}</div>
         `;
     }
 
@@ -673,13 +900,23 @@ class KidsMathsApp {
         const card = document.getElementById('math-mission-complete-card');
         const mission = this.currentMathMission || this._getMathMissionById(state.get('lastMathMissionId'));
         if (!card || !mission) return;
-        const gardenCount = state.get('mathGardenCount') || 0;
+        const gardenCount = this._getMathGardenCount();
         const nextMission = this._getRecommendedMathMission();
+        const progress = this._getMathMissionProgress();
+        const sessionInfo = progress.sessions[mission.id] || { lastAccuracy: 0, completions: 0 };
+        const accuracyLabel = sessionInfo.lastAccuracy ? `${sessionInfo.lastAccuracy}% accuracy` : 'Finished today';
+        const isFirstCompletion = sessionInfo.completions === 1;
+        const theme = this._getMathMissionTheme(mission);
         card.innerHTML = `
-            <div class="math-mission-complete-kicker">${this._escapeHtml(mission.power)} unlocked</div>
+            <div class="math-mission-complete-kicker">${this._escapeHtml(`${theme.icon} ${mission.power} unlocked`)}</div>
             <h3>${this._escapeHtml(mission.title)}</h3>
             <p>${this._escapeHtml(mission.celebration || 'You finished today’s number mission.')}</p>
-            <div class="math-mission-complete-garden">${gardenCount} piece${gardenCount === 1 ? '' : 's'} growing in your Number Garden</div>
+            <div class="math-mission-intro-stats">
+                <span class="math-mission-pill">${this._escapeHtml(accuracyLabel)}</span>
+                <span class="math-mission-pill">${gardenCount} piece${gardenCount === 1 ? '' : 's'} in your Number Garden</span>
+                <span class="math-mission-pill">${isFirstCompletion ? 'New power grown' : 'Replay counted as practice'}</span>
+            </div>
+            <div class="math-mission-complete-garden">${isFirstCompletion ? 'A new Number Garden piece appeared for this power.' : 'Garden growth only happens the first time each power is completed.'}</div>
             <div class="math-mission-complete-next">${nextMission && nextMission.id !== mission.id ? `Next up: ${this._escapeHtml(nextMission.title)}` : 'You can replay this mission or return to Maths.'}</div>
         `;
     }
@@ -759,10 +996,14 @@ class KidsMathsApp {
             wrapper?.classList.add('hidden');
             return;
         }
-        document.getElementById('practice-mission-kicker').textContent = mission.power || 'Today’s mission';
+        const theme = this._getMathMissionTheme(mission);
+        wrapper.className = `practice-mission-status ${theme.className}`;
+        document.getElementById('practice-mission-kicker').textContent = `${theme.icon} ${mission.power || 'Today’s mission'}`;
         document.getElementById('practice-mission-name').textContent = mission.title;
         document.getElementById('practice-mission-progress').textContent = `${Math.min(this.currentMathMissionIndex + 1, mission.questionCount || 6)} of ${mission.questionCount || 6}`;
-        document.getElementById('practice-mission-coach').textContent = mission.coachLine;
+        document.getElementById('practice-mission-coach').textContent = theme.label === 'Number power'
+            ? mission.coachLine
+            : `${theme.label} • ${mission.coachLine}`;
         wrapper.classList.remove('hidden');
     }
 
@@ -786,25 +1027,60 @@ class KidsMathsApp {
         feedback.classList.remove('hidden');
     }
 
+    _getNextHintText(problem = this.currentProblem) {
+        if (!problem) return 'Take a calm look and try one small step.';
+        const hints = Array.isArray(problem.stepHints) && problem.stepHints.length
+            ? problem.stepHints
+            : [this.problemGenerator.generateHint(problem)];
+        const nextIndex = Math.min(problem.hintLevel || 0, hints.length - 1);
+        problem.hintLevel = nextIndex + 1;
+        return hints[nextIndex];
+    }
+
+    _updateHintButtonLabel(problem = this.currentProblem) {
+        const hintBtn = document.getElementById('hint-btn');
+        if (!hintBtn) return;
+        const hints = Array.isArray(problem?.stepHints) && problem.stepHints.length
+            ? problem.stepHints
+            : ['Hint'];
+        const nextStep = Math.min((problem?.hintLevel || 0) + 1, hints.length);
+        hintBtn.textContent = hints.length > 1 ? `Hint ${nextStep}` : 'Hint';
+    }
+
+    _showHint() {
+        const hint = this._getNextHintText(this.currentProblem);
+        document.getElementById('hint-text').textContent = hint;
+        document.getElementById('hint-area').classList.remove('hidden');
+        this._updateHintButtonLabel(this.currentProblem);
+        if (state.get('currentMathMissionId')) {
+            this._saveCurrentMathMissionSession();
+        }
+    }
+
     _completeCurrentMathMission() {
         const mission = this.currentMathMission;
         if (!mission) return;
         const progress = this._getMathMissionProgress();
         const sessionInfo = progress.sessions[mission.id] || { plays: 0, completions: 0, lastPlayed: null, lastAccuracy: 0 };
+        const wasAlreadyCompleted = progress.completed.includes(mission.id);
+        const accuracy = this.currentMathMissionAttempts
+            ? Math.round((this.currentMathMissionCorrect / this.currentMathMissionAttempts) * 100)
+            : 100;
         sessionInfo.plays += 1;
         sessionInfo.completions += 1;
         sessionInfo.lastPlayed = new Date().toISOString();
-        sessionInfo.lastAccuracy = 100;
+        sessionInfo.lastAccuracy = accuracy;
         progress.sessions[mission.id] = sessionInfo;
-        if (!progress.completed.includes(mission.id)) {
+        if (!wasAlreadyCompleted) {
             progress.completed.push(mission.id);
         }
         state.set('mathMissionProgress', progress);
         state.set('lastMathMissionId', mission.id);
-        state.set('mathGardenCount', (state.get('mathGardenCount') || 0) + 1);
+        state.set('mathGardenCount', progress.completed.length);
         this._resetMathMissionState();
         document.getElementById('feedback-display').classList.add('hidden');
         this.currentMathMission = mission;
+        this._recordRecentItem(this._buildMathMissionResumeItem(mission.id, sessionInfo.lastPlayed));
         this._renderMathMissionCompleteScreen();
         this._showScreen('math-mission-complete');
     }
@@ -828,10 +1104,14 @@ class KidsMathsApp {
         const icon = nextItem.type === 'story' ? '📖' : (nextItem.icon || '➕');
         const dataAttrs = nextItem.type === 'story'
             ? `data-kind="story" data-story-id="${nextItem.storyId}" data-page="${nextItem.page}"`
-            : `data-kind="module" data-module-id="${nextItem.moduleId}" data-level-id="${nextItem.levelId || ''}" data-mode="${nextItem.mode || ''}"`;
+            : nextItem.type === 'math-mission'
+                ? `data-kind="math-mission" data-mission-id="${nextItem.missionId}"`
+                : `data-kind="module" data-module-id="${nextItem.moduleId}" data-level-id="${nextItem.levelId || ''}" data-mode="${nextItem.mode || ''}"`;
         const meta = nextItem.type === 'story'
             ? `Page ${nextItem.page + 1} of ${nextItem.totalPages} · ${nextItem.levelName}`
-            : `${nextItem.levelName || 'Pick up where you left off'}${nextItem.modeLabel ? ' · ' + nextItem.modeLabel : ''}`;
+            : nextItem.type === 'math-mission'
+                ? `${nextItem.levelName || 'Mission ready'}${nextItem.progressLabel ? ' · ' + nextItem.progressLabel : ''}`
+                : `${nextItem.levelName || 'Pick up where you left off'}${nextItem.modeLabel ? ' · ' + nextItem.modeLabel : ''}`;
 
         container.innerHTML = `
             <button class="next-up-card" ${dataAttrs}>
@@ -875,6 +1155,20 @@ class KidsMathsApp {
                         </div>
                         <div class="home-resume-title">${item.title}</div>
                         <div class="home-resume-meta">Page ${item.page + 1} of ${item.totalPages} · ${item.levelName}</div>
+                        <div class="home-resume-foot">${item.cta}</div>
+                    </button>
+                `;
+            }
+
+            if (item.type === 'math-mission') {
+                return `
+                    <button class="home-resume-card" data-kind="math-mission" data-mission-id="${item.missionId}">
+                        <div class="home-resume-top">
+                            <span class="home-resume-icon">🧮</span>
+                            <span class="home-resume-chip">Maths</span>
+                        </div>
+                        <div class="home-resume-title">${item.title}</div>
+                        <div class="home-resume-meta">${item.levelName}${item.progressLabel ? ' · ' + item.progressLabel : ''}</div>
                         <div class="home-resume-foot">${item.cta}</div>
                     </button>
                 `;
@@ -982,6 +1276,10 @@ class KidsMathsApp {
     }
 
     _getPrimaryNextUp() {
+        const activeMission = this._getCurrentMathMissionSession();
+        if (activeMission) {
+            return this._buildMathMissionResumeItem(activeMission.missionId, activeMission.updatedAt);
+        }
         const currentSession = state.get('currentSession');
         if (currentSession?.module === 'reading') {
             return this._getRecentStoryItem() || this._getResumeItems()[0] || null;
@@ -1012,6 +1310,8 @@ class KidsMathsApp {
             if (raw.type === 'story') {
                 const page = bookmarks[raw.storyId]?.page ?? raw.page ?? 0;
                 item = this._buildStoryResumeItem(raw.storyId, page, raw.updatedAt);
+            } else if (raw.type === 'math-mission') {
+                item = this._buildMathMissionResumeItem(raw.missionId, raw.updatedAt);
             } else if (raw.type === 'module') {
                 item = this._buildModuleResumeItem(raw.moduleId, raw.levelId, raw.mode, raw.updatedAt);
             }
@@ -1030,7 +1330,7 @@ class KidsMathsApp {
     }
 
     _getRecentMathsItem() {
-        return this._getResumeItems().find(item => item.type === 'module') || null;
+        return this._getResumeItems().find(item => item.type === 'math-mission' || item.type === 'module') || null;
     }
 
     _getRecentUrduItem() {
@@ -1055,6 +1355,32 @@ class KidsMathsApp {
             levelName: storyMatch.level.name,
             updatedAt: date || new Date().toISOString(),
             cta: 'Resume'
+        };
+    }
+
+    _buildMathMissionResumeItem(missionId, updatedAt = null) {
+        const mission = this._getMathMissionById(missionId);
+        if (!mission) return null;
+        const session = this._getMathMissionSessionMeta(missionId);
+        const questionTotal = session?.questionTotal || mission.questionCount || 6;
+        const nextQuestionNumber = session?.nextQuestionNumber || 1;
+        return {
+            key: `math-mission:${missionId}`,
+            type: 'math-mission',
+            missionId,
+            moduleId: mission.operation,
+            levelId: mission.levelId,
+            title: mission.title,
+            icon: '🧮',
+            levelName: session
+                ? `Question ${nextQuestionNumber} of ${questionTotal}`
+                : mission.subtitle,
+            updatedAt: updatedAt || session?.updatedAt || new Date().toISOString(),
+            cta: session ? 'Resume mission' : 'Open mission',
+            power: mission.power,
+            progressLabel: session
+                ? `${session.correct} correct so far`
+                : 'Mission ready'
         };
     }
 
@@ -1129,6 +1455,11 @@ class KidsMathsApp {
         const kind = target.dataset.kind;
         if (kind === 'story') {
             this._startStory(target.dataset.storyId, parseInt(target.dataset.page || '0', 10));
+            return;
+        }
+
+        if (kind === 'math-mission') {
+            this._resumeCurrentMathMission(target.dataset.missionId);
             return;
         }
 
@@ -1397,6 +1728,7 @@ class KidsMathsApp {
             input.value = '';
             input.classList.remove('correct', 'incorrect');
             input.focus();
+            this._updateHintButtonLabel(this.currentProblem);
             document.getElementById('hint-area').classList.add('hidden');
             document.getElementById('feedback-display').classList.add('hidden');
             return;
@@ -1422,6 +1754,7 @@ class KidsMathsApp {
         input.value = '';
         input.classList.remove('correct', 'incorrect');
         input.focus();
+        this._updateHintButtonLabel(this.currentProblem);
 
         // Hide hint
         document.getElementById('hint-area').classList.add('hidden');
@@ -1497,6 +1830,9 @@ class KidsMathsApp {
 
         const feedback = document.getElementById('feedback-display');
         const isMathMission = !!state.get('currentMathMissionId');
+        if (isMathMission) {
+            this.currentMathMissionAttempts++;
+        }
 
         if (userAnswer === this.currentProblem.answer) {
             this.celebration.pulseElement(input);
@@ -1510,6 +1846,9 @@ class KidsMathsApp {
             if (isMathMission) {
                 this.currentMathMissionCorrect++;
                 this.currentMathMissionIndex++;
+                if (this.currentMathMissionIndex < this.currentMathMissionQuestions.length) {
+                    this._saveCurrentMathMissionSession();
+                }
                 feedback.textContent = 'Nice noticing. Let’s keep going.';
                 feedback.className = 'feedback-display';
                 feedback.classList.remove('hidden');
@@ -1540,8 +1879,10 @@ class KidsMathsApp {
             );
 
             if (isMathMission) {
-                document.getElementById('hint-text').textContent = this.problemGenerator.generateHint(this.currentProblem);
+                document.getElementById('hint-text').textContent = this._getNextHintText(this.currentProblem);
                 document.getElementById('hint-area').classList.remove('hidden');
+                this._updateHintButtonLabel(this.currentProblem);
+                this._saveCurrentMathMissionSession();
             } else {
                 setTimeout(() => {
                     feedback.classList.add('hidden');
@@ -1551,12 +1892,6 @@ class KidsMathsApp {
             input.value = '';
             input.focus();
         }
-    }
-
-    _showHint() {
-        const hint = this.problemGenerator.generateHint(this.currentProblem);
-        document.getElementById('hint-text').textContent = hint;
-        document.getElementById('hint-area').classList.remove('hidden');
     }
 
     // ===== TEST SCREEN =====

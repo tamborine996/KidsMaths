@@ -10,44 +10,44 @@
         {
           "id": "make-5",
           "title": "Make 5",
-          "subtitle": "Spot little pairs that make 5.",
+          "subtitle": "See tiny number friends that snap together to make 5.",
           "power": "Make 5",
           "operation": "addition",
           "levelId": "L1",
           "questionCount": 6,
           "strategy": "make-5",
           "visual": true,
-          "parentPrompt": "If she hesitates, ask: what goes with this number to make 5?",
-          "coachLine": "We are spotting number pairs that make 5.",
-          "celebration": "You can see little number pairs already."
+          "parentPrompt": "If she hesitates, cover one part and ask: what friend does this number need to make 5?",
+          "coachLine": "Let’s spot tiny number friends that belong together.",
+          "celebration": "You spotted number friends that make 5."
         },
         {
           "id": "make-10",
           "title": "Make 10",
-          "subtitle": "Find friendly pairs that make 10.",
+          "subtitle": "Build a full ten with friendly pairs you know.",
           "power": "Make 10",
           "operation": "addition",
           "levelId": "L2",
           "questionCount": 6,
           "strategy": "make-10",
           "visual": true,
-          "parentPrompt": "Prompt: what does this number need to make 10?",
-          "coachLine": "Making 10 helps bigger sums feel easy.",
-          "celebration": "Making 10 is becoming your superpower."
+          "parentPrompt": "Prompt gently: what friend does this number need to make 10?",
+          "coachLine": "Making 10 gives us a strong landing place for bigger sums.",
+          "celebration": "Making 10 is starting to feel natural."
         },
         {
           "id": "count-on",
           "title": "Count On",
-          "subtitle": "Start from the bigger number.",
+          "subtitle": "Start at the bigger number, then hop forward.",
           "power": "Count On",
           "operation": "addition",
           "levelId": "L1",
           "questionCount": 6,
           "strategy": "count-on",
           "visual": true,
-          "parentPrompt": "Encourage her to say the bigger number first, then hop forward.",
-          "coachLine": "Start with the bigger number, then hop on.",
-          "celebration": "You are counting on instead of counting everything."
+          "parentPrompt": "Encourage her to say the bigger number first, then tap or hop forward for the small add-on.",
+          "coachLine": "We don’t need to count everything — we can start big and hop on.",
+          "celebration": "You counted on from the bigger number like a quick mathematician."
         },
         {
           "id": "doubles",
@@ -88,7 +88,7 @@
           "strategy": "bridge-10",
           "visual": true,
           "parentPrompt": "Prompt: what does the first number need to reach 10?",
-          "coachLine": "Let\u2019s hop through 10 because 10 is a friendly place.",
+          "coachLine": "Let’s hop through 10 because 10 is a friendly place.",
           "celebration": "You can now hop through 10."
         },
         {

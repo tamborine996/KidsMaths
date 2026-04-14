@@ -3607,6 +3607,24 @@ td.mastery-mastered {
     color: var(--text-secondary);
 }
 
+.math-mission-intro-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.math-mission-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.92);
+    border: 2px solid rgba(232, 164, 96, 0.35);
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
 .math-mission-intro-foot {
     font-weight: 700;
     color: var(--addition-text);
@@ -3626,6 +3644,39 @@ td.mastery-mastered {
     font-size: 2rem;
     font-weight: 700;
     color: var(--text-primary);
+}
+
+.math-parent-mission-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.math-parent-mission-metrics span {
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.75);
+    border: 1px solid rgba(0,0,0,0.08);
+}
+
+.practice-mission-status.mission-theme-friends,
+.math-parent-mission-card.mission-theme-friends {
+    border-color: #d97706;
+    background: linear-gradient(135deg, #fff8e8 0%, #fffdf8 100%);
+}
+
+.practice-mission-status.mission-theme-ten,
+.math-parent-mission-card.mission-theme-ten {
+    border-color: #7c3aed;
+    background: linear-gradient(135deg, #f5efff 0%, #fffdfd 100%);
+}
+
+.practice-mission-status.mission-theme-hops,
+.math-parent-mission-card.mission-theme-hops {
+    border-color: #0f766e;
+    background: linear-gradient(135deg, #eafcf7 0%, #fbfffe 100%);
 }
 
 @media (max-width: 720px) {

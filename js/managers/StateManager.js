@@ -68,6 +68,7 @@ export class StateManager {
             readingSearchOpen: false,
             currentMathWorld: 'number-adventure',
             currentMathMissionId: null,
+            currentMathMissionSession: null,
             lastMathMissionId: null,
             mathMissionProgress: { completed: [], sessions: {} },
             mathGardenCount: 0,
