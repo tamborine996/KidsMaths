@@ -1095,10 +1095,10 @@ class KidsMathsApp {
         if (!nextItem) {
             container.innerHTML = `
                 <button class="next-up-card" data-kind="screen" data-screen="maths">
-                    <div class="next-up-label">Play next</div>
+                    <div class="next-up-label">Today’s adventure</div>
                     <div class="next-up-title">Start today’s maths mission</div>
-                    <div class="next-up-meta">One big clear button. One calm place to begin.</div>
-                    <div class="next-up-cta next-up-cta-primary">Start maths</div>
+                    <div class="next-up-meta">A warm, easy first step into Number Adventure.</div>
+                    <div class="next-up-cta next-up-cta-primary">Start today’s adventure</div>
                 </button>
             `;
             return;
@@ -1155,8 +1155,8 @@ class KidsMathsApp {
         }
 
         section.classList.remove('hidden');
-        if (heading) heading.textContent = 'Recent favourites';
-        if (helper) helper.textContent = 'Quick ways back into stories and missions.';
+        if (heading) heading.textContent = 'Pick up again';
+        if (helper) helper.textContent = 'Favourite stories and missions stay close by.';
 
         container.innerHTML = items.map(item => {
             if (item.type === 'story') {
@@ -1218,9 +1218,9 @@ class KidsMathsApp {
                 <span class="learning-area-badge">Maths</span>
             </div>
             <div class="learning-area-title">Number Adventure</div>
-            <div class="learning-area-copy">Tiny missions, bigger confidence.</div>
+            <div class="learning-area-copy">Little number missions with a confident, playful feel.</div>
             <div class="learning-area-stats">${totalTime} min practised · ${streak} day${streak !== 1 ? 's' : ''} streak</div>
-            <div class="learning-area-foot">${recentMaths ? 'Open maths' : 'Start maths'} </div>
+            <div class="learning-area-foot">${recentMaths ? 'Open adventure' : 'Explore maths'}</div>
         `;
 
         readingHub.innerHTML = `
@@ -1229,9 +1229,9 @@ class KidsMathsApp {
                 <span class="learning-area-badge">Reading</span>
             </div>
             <div class="learning-area-title">Stories</div>
-            <div class="learning-area-copy">Books, bookmarks, and longer reads.</div>
+            <div class="learning-area-copy">Cozy reads, bookmarks, and longer adventures.</div>
             <div class="learning-area-stats">${bookmarks.length} bookmarked · ${readStories.length} finished</div>
-            <div class="learning-area-foot">Open reading</div>
+            <div class="learning-area-foot">Open stories</div>
         `;
 
         urduHub.innerHTML = `
@@ -1240,7 +1240,7 @@ class KidsMathsApp {
                 <span class="learning-area-badge">Urdu</span>
             </div>
             <div class="learning-area-title">Urdu reading</div>
-            <div class="learning-area-copy">A calm space for Urdu stories and practice.</div>
+            <div class="learning-area-copy">A gentle place for Urdu stories, bookmarks, and practice.</div>
             <div class="learning-area-stats">${urduBookmarks} bookmarked · ${this.urduLevels.length} level${this.urduLevels.length !== 1 ? 's' : ''}</div>
             <div class="learning-area-foot">Open Urdu</div>
         `;
