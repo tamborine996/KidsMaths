@@ -211,7 +211,10 @@ class KidsMathsApp {
         // Home screen buttons
         document.getElementById('store-btn').addEventListener('click', () => this._showScreen('store'));
         document.getElementById('parent-btn').addEventListener('click', () => this._showScreen('parent'));
-        document.getElementById('home-reading-hub').addEventListener('click', () => this._showScreen('reading'));
+        document.getElementById('home-reading-hub').addEventListener('click', () => {
+            state.set('readingTab', 'library');
+            this._showScreen('reading');
+        });
         document.getElementById('home-urdu-hub').addEventListener('click', () => {
             state.set('readingTab', 'urdu');
             this._showScreen('reading');
@@ -1091,11 +1094,11 @@ class KidsMathsApp {
 
         if (!nextItem) {
             container.innerHTML = `
-                <button class="next-up-card" data-kind="screen" data-screen="reading">
-                    <div class="next-up-label">Next up</div>
-                    <div class="next-up-title">Start a story or pick a maths module</div>
-                    <div class="next-up-meta">Reading and maths now each have their own space on the home screen.</div>
-                    <div class="next-up-cta">Open Reading &rarr;</div>
+                <button class="next-up-card" data-kind="screen" data-screen="maths">
+                    <div class="next-up-label">Play next</div>
+                    <div class="next-up-title">Start today’s maths mission</div>
+                    <div class="next-up-meta">One big clear button. One calm place to begin.</div>
+                    <div class="next-up-cta next-up-cta-primary">Start maths</div>
                 </button>
             `;
             return;
@@ -1108,42 +1111,52 @@ class KidsMathsApp {
                 ? `data-kind="math-mission" data-mission-id="${nextItem.missionId}"`
                 : `data-kind="module" data-module-id="${nextItem.moduleId}" data-level-id="${nextItem.levelId || ''}" data-mode="${nextItem.mode || ''}"`;
         const meta = nextItem.type === 'story'
-            ? `Page ${nextItem.page + 1} of ${nextItem.totalPages} · ${nextItem.levelName}`
+            ? `Page ${nextItem.page + 1} of ${nextItem.totalPages}`
             : nextItem.type === 'math-mission'
                 ? `${nextItem.levelName || 'Mission ready'}${nextItem.progressLabel ? ' · ' + nextItem.progressLabel : ''}`
-                : `${nextItem.levelName || 'Pick up where you left off'}${nextItem.modeLabel ? ' · ' + nextItem.modeLabel : ''}`;
+                : `${nextItem.levelName || 'Ready to continue'}${nextItem.modeLabel ? ' · ' + nextItem.modeLabel : ''}`;
+        const kicker = nextItem.type === 'story'
+            ? 'Story time'
+            : nextItem.type === 'math-mission'
+                ? 'Maths mission'
+                : 'Maths practice';
 
         container.innerHTML = `
             <button class="next-up-card" ${dataAttrs}>
-                <div class="next-up-label">Next up</div>
+                <div class="next-up-label">${this._escapeHtml(kicker)}</div>
                 <div class="next-up-main">
                     <span class="next-up-icon">${icon}</span>
-                    <div>
-                        <div class="next-up-title">${nextItem.title}</div>
-                        <div class="next-up-meta">${meta}</div>
+                    <div class="next-up-copy">
+                        <div class="next-up-title">${this._escapeHtml(nextItem.title)}</div>
+                        <div class="next-up-meta">${this._escapeHtml(meta)}</div>
                     </div>
                 </div>
-                <div class="next-up-cta">${nextItem.cta}</div>
+                <div class="next-up-cta next-up-cta-primary">${this._escapeHtml(nextItem.cta)}</div>
             </button>
         `;
     }
 
     _renderHomeResume() {
         const container = document.getElementById('home-resume');
+        const section = container?.closest('.home-section');
+        const heading = section?.querySelector('.section-heading h3');
+        const helper = section?.querySelector('.section-heading p');
         const primaryKey = this._getPrimaryNextUp()?.key;
         const items = this._getResumeItems()
             .filter(item => item.key !== primaryKey)
             .slice(0, 2);
 
+        if (!container || !section) return;
+
         if (items.length === 0) {
-            container.innerHTML = `
-                <div class="home-empty-state">
-                    <div class="home-empty-title">No recent activity yet</div>
-                    <div class="home-empty-copy">Start with Reading, Urdu, or Maths and your quick resume cards will appear here.</div>
-                </div>
-            `;
+            section.classList.add('hidden');
+            container.innerHTML = '';
             return;
         }
+
+        section.classList.remove('hidden');
+        if (heading) heading.textContent = 'Recent favourites';
+        if (helper) helper.textContent = 'Quick ways back into stories and missions.';
 
         container.innerHTML = items.map(item => {
             if (item.type === 'story') {
@@ -1197,41 +1210,39 @@ class KidsMathsApp {
         const totalTime = this.progressManager.getTotalPracticeTime();
         const streak = this.progressManager.getStreak();
         const recentMaths = this._getRecentMathsItem();
-        const recentStory = this._getRecentStoryItem();
-        const recentUrdu = this._getRecentUrduItem();
         const urduBookmarks = Object.keys(state.get('bookmarks') || {}).filter(storyId => this._isUrduStory(storyId)).length;
 
         mathsHub.innerHTML = `
             <div class="learning-area-top">
                 <span class="learning-area-icon">🧮</span>
-                <span class="learning-area-badge">Main area</span>
+                <span class="learning-area-badge">Maths</span>
             </div>
-            <div class="learning-area-title">Maths</div>
-            <div class="learning-area-copy">Number Adventure missions with tiny wins and parent-friendly hints.</div>
-            <div class="learning-area-stats">${totalTime} minutes practised · ${streak} day${streak !== 1 ? 's' : ''} streak</div>
-            <div class="learning-area-foot">${recentMaths ? 'Continue ' + recentMaths.title : 'Start today’s mission'} </div>
+            <div class="learning-area-title">Number Adventure</div>
+            <div class="learning-area-copy">Tiny missions, bigger confidence.</div>
+            <div class="learning-area-stats">${totalTime} min practised · ${streak} day${streak !== 1 ? 's' : ''} streak</div>
+            <div class="learning-area-foot">${recentMaths ? 'Open maths' : 'Start maths'} </div>
         `;
 
         readingHub.innerHTML = `
             <div class="learning-area-top">
                 <span class="learning-area-icon">📚</span>
-                <span class="learning-area-badge">Stories</span>
+                <span class="learning-area-badge">Reading</span>
             </div>
-            <div class="learning-area-title">Reading</div>
-            <div class="learning-area-copy">Story library, bookmarks, and longer books.</div>
+            <div class="learning-area-title">Stories</div>
+            <div class="learning-area-copy">Books, bookmarks, and longer reads.</div>
             <div class="learning-area-stats">${bookmarks.length} bookmarked · ${readStories.length} finished</div>
-            <div class="learning-area-foot">${recentStory ? 'Continue ' + recentStory.title : 'Open the reading library'} </div>
+            <div class="learning-area-foot">Open reading</div>
         `;
 
         urduHub.innerHTML = `
             <div class="learning-area-top">
                 <span class="learning-area-icon">اُ</span>
-                <span class="learning-area-badge">Language</span>
+                <span class="learning-area-badge">Urdu</span>
             </div>
-            <div class="learning-area-title">Urdu</div>
-            <div class="learning-area-copy">Urdu stories and reading practice in a dedicated space.</div>
+            <div class="learning-area-title">Urdu reading</div>
+            <div class="learning-area-copy">A calm space for Urdu stories and practice.</div>
             <div class="learning-area-stats">${urduBookmarks} bookmarked · ${this.urduLevels.length} level${this.urduLevels.length !== 1 ? 's' : ''}</div>
-            <div class="learning-area-foot">${recentUrdu ? 'Continue ' + recentUrdu.title : 'Open Urdu reading'} </div>
+            <div class="learning-area-foot">Open Urdu</div>
         `;
     }
 
