@@ -3099,20 +3099,16 @@ class KidsMathsApp {
 
         list.innerHTML = `
             <div class="urdu-reading-dashboard">
-                <div class="urdu-dashboard-top">
-                    <section class="urdu-library-section urdu-current-section ${currentStory ? '' : 'hidden'}">
-                        <div class="urdu-library-heading-row urdu-hero-heading-row">
-                            <div>
-                                <div class="urdu-library-kicker">Pick up again</div>
-                                <h3 class="urdu-library-heading urdu-hero-heading">Continue your Urdu reading</h3>
-                                <div class="urdu-library-copy">Your current article stays at the top so you can jump straight back in.</div>
-                            </div>
+                <section class="urdu-library-section urdu-current-section ${currentStory ? '' : 'hidden'}">
+                    <div class="urdu-library-heading-row urdu-hero-heading-row">
+                        <div>
+                            <div class="urdu-library-kicker">Pick up again</div>
+                            <h3 class="urdu-library-heading urdu-hero-heading">Continue your Urdu reading</h3>
+                            <div class="urdu-library-copy">Your current article stays at the top so you can jump straight back in.</div>
                         </div>
-                        ${currentStory ? this._buildUrduStoryRow(currentStory, { current: true, featured: true }) : ''}
-                    </section>
-
-                    ${this._buildBbcFeedSelectionSection()}
-                </div>
+                    </div>
+                    ${currentStory ? this._buildUrduStoryRow(currentStory, { current: true, featured: true }) : ''}
+                </section>
 
                 <section class="urdu-library-section urdu-library-main-section">
                     <div class="urdu-library-heading-row">
@@ -3129,6 +3125,8 @@ class KidsMathsApp {
                             : '<div class="urdu-library-empty">No other active Urdu items yet.</div>'}
                     </div>
                 </section>
+
+                ${this._buildBbcFeedSelectionSection()}
 
                 <section class="urdu-library-section urdu-archive-section ${archivedStories.length ? '' : 'hidden'}">
                     <div class="urdu-library-heading-row">
