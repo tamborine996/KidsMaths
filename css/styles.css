@@ -3679,19 +3679,25 @@ td.mastery-mastered {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(220px, 260px);
         column-gap: 18px;
+        row-gap: 12px;
         align-items: start;
     }
 
-    .urdu-paragraph-block.has-selection .urdu-paragraph-row,
-    .urdu-paragraph-block.has-selection .urdu-paragraph-translation {
+    .urdu-paragraph-block.has-selection .urdu-paragraph-row {
         grid-column: 1;
+        grid-row: 1;
     }
 
     .urdu-paragraph-block.has-selection .urdu-inline-word-helper {
         grid-column: 2;
-        grid-row: 1 / span 2;
+        grid-row: 1;
         align-self: start;
         margin-top: 2px;
+    }
+
+    .urdu-paragraph-block.has-selection .urdu-paragraph-translation {
+        grid-column: 1 / -1;
+        grid-row: 2;
     }
 }
 
