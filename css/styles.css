@@ -3147,6 +3147,8 @@ td.mastery-mastered {
     border-radius: 22px;
     padding: 14px 16px;
     box-shadow: 0 10px 24px rgba(214, 162, 32, 0.12);
+    font-size: 1rem;
+    line-height: 1.35;
 }
 
 .urdu-inline-word-helper-label {
@@ -3163,6 +3165,7 @@ td.mastery-mastered {
     flex-direction: column;
     gap: 6px;
     margin-bottom: 12px;
+    line-height: 1.35;
 }
 
 .urdu-inline-word-helper-urdu {
@@ -3187,6 +3190,9 @@ td.mastery-mastered {
 
 .urdu-inline-word-helper .urdu-save-word-btn {
     width: 100%;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    padding: 12px 14px;
 }
 
 .urdu-save-word-btn[disabled] {
