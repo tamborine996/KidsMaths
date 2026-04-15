@@ -313,30 +313,43 @@ body {
 .home-header {
     text-align: center;
     margin-bottom: 0;
-    padding: 8px 6px 0;
+    padding: 2px 4px 0;
+}
+
+.home-kicker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    margin-bottom: 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.68);
+    border: 1px solid rgba(122, 115, 105, 0.12);
+    color: #7A5A1A;
+    font-size: 0.82rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .home-header h1 {
     font-family: var(--font-display);
-    font-size: clamp(2.5rem, 8vw, 3.6rem);
+    font-size: clamp(2.35rem, 7.2vw, 3.4rem);
     font-weight: 700;
     color: var(--text-heading);
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     line-height: 0.94;
     text-shadow: 0 10px 24px rgba(255, 243, 202, 0.95);
 }
 
 .subtitle {
-    color: var(--text-secondary);
-    font-size: clamp(1.02rem, 3.9vw, 1.16rem);
-    font-weight: 600;
-    max-width: 29rem;
+    color: #5E533C;
+    font-size: clamp(1rem, 3.6vw, 1.08rem);
+    font-weight: 700;
+    max-width: 25rem;
     margin: 0 auto;
-    padding: 8px 14px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.55);
-    border: 1px solid rgba(122, 115, 105, 0.12);
-    backdrop-filter: blur(6px);
+    padding: 0;
+    line-height: 1.4;
 }
 
 .home-next-up {
@@ -348,11 +361,11 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 14px;
-    padding: 22px 20px 20px;
+    gap: 12px;
+    padding: 18px 18px 18px;
     background: linear-gradient(140deg, #FFF5CB 0%, #FFE39A 45%, #FFF8E8 100%);
     border: 2px solid rgba(154, 108, 14, 0.28);
-    border-radius: 30px;
+    border-radius: 28px;
     box-shadow: 0 18px 34px rgba(154, 108, 14, 0.18), inset 0 1px 0 rgba(255,255,255,0.9);
     cursor: pointer;
     text-align: left;
@@ -417,7 +430,7 @@ body {
 
 .next-up-title {
     font-family: var(--font-display);
-    font-size: clamp(1.65rem, 5.8vw, 2.28rem);
+    font-size: clamp(1.48rem, 5vw, 2rem);
     font-weight: 700;
     color: var(--text-heading);
     line-height: 0.98;
@@ -425,10 +438,10 @@ body {
 
 .next-up-meta {
     color: #5E533C;
-    font-weight: 600;
-    font-size: clamp(1.03rem, 3.7vw, 1.12rem);
-    line-height: 1.35;
-    max-width: 32rem;
+    font-weight: 700;
+    font-size: clamp(0.98rem, 3.3vw, 1.06rem);
+    line-height: 1.32;
+    max-width: 30rem;
 }
 
 .next-up-cta,
@@ -457,26 +470,26 @@ body {
 .home-dashboard {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
     flex: 1 1 auto;
 }
 
 .home-section {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
 .section-heading {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 0 4px;
+    gap: 6px;
+    padding: 0 2px;
 }
 
 .section-heading h3 {
     font-family: var(--font-display);
-    font-size: clamp(1.24rem, 4vw, 1.42rem);
+    font-size: clamp(1.22rem, 4vw, 1.42rem);
     color: var(--text-heading);
     margin: 0;
     line-height: 1.04;
@@ -484,8 +497,8 @@ body {
 
 .section-heading p {
     color: var(--text-secondary);
-    font-size: 0.98rem;
-    line-height: 1.34;
+    font-size: 0.96rem;
+    line-height: 1.36;
     margin: 0;
 }
 
@@ -500,15 +513,15 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
-    padding: 18px;
+    gap: 10px;
+    padding: 16px;
     background: rgba(255,255,255,0.82);
-    border-radius: 26px;
+    border-radius: 24px;
     cursor: pointer;
     text-align: left;
     transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
     backdrop-filter: blur(10px);
-    min-height: 172px;
+    min-height: 154px;
 }
 
 .home-resume-card:hover,
@@ -562,10 +575,10 @@ body {
 .home-resume-title,
 .learning-area-title {
     font-family: var(--font-display);
-    font-size: clamp(1.28rem, 4.5vw, 1.58rem);
+    font-size: clamp(1.2rem, 4.3vw, 1.5rem);
     font-weight: 700;
     color: var(--text-heading);
-    line-height: 1;
+    line-height: 1.02;
 }
 
 .home-resume-meta,
@@ -573,8 +586,8 @@ body {
 .learning-area-stats,
 .home-empty-copy {
     color: #5E5A52;
-    font-size: 1rem;
-    line-height: 1.34;
+    font-size: 0.98rem;
+    line-height: 1.36;
 }
 
 .learning-area-stats {
@@ -3218,6 +3231,92 @@ td.mastery-mastered {
     }
 }
 
+@media (max-width: 560px) {
+    .update-bar {
+        top: 6px;
+        left: 6px;
+        padding: 8px;
+        background: rgba(247, 243, 233, 0.58);
+    }
+
+    .build-stamp {
+        display: none;
+    }
+
+    .update-dot {
+        width: 14px;
+        height: 14px;
+        opacity: 0.42;
+    }
+
+    #home-screen {
+        gap: 14px;
+    }
+
+    .home-header {
+        padding-top: 0;
+    }
+
+    .home-kicker {
+        margin-bottom: 8px;
+        font-size: 0.76rem;
+    }
+
+    .home-header h1 {
+        font-size: 2.2rem;
+        margin-bottom: 8px;
+    }
+
+    .subtitle {
+        max-width: 20rem;
+        font-size: 0.98rem;
+    }
+
+    .next-up-card {
+        gap: 10px;
+        padding: 16px;
+        border-radius: 24px;
+    }
+
+    .next-up-main {
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .next-up-icon {
+        width: 52px;
+        height: 52px;
+        font-size: 2rem;
+    }
+
+    .next-up-title {
+        font-size: 1.38rem;
+    }
+
+    .next-up-meta,
+    .learning-area-copy,
+    .home-resume-meta,
+    .learning-area-stats {
+        font-size: 0.94rem;
+        line-height: 1.34;
+    }
+
+    .home-resume-card,
+    .learning-area-card {
+        min-height: 0;
+        padding: 15px;
+    }
+
+    .section-heading p {
+        font-size: 0.92rem;
+    }
+
+    .footer-btn {
+        flex: 1 1 140px;
+        min-width: 0;
+    }
+}
+
 @media (max-width: 400px) {
     .problem-display {
         font-size: 2.4rem;
@@ -3299,6 +3398,27 @@ td.mastery-mastered {
         max-width: 1100px;
     }
 
+    .home-header,
+    .home-next-up,
+    .home-dashboard,
+    .home-footer {
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .home-header {
+        max-width: 680px;
+    }
+
+    .home-dashboard {
+        max-width: 1020px;
+    }
+
+    .home-footer {
+        max-width: 760px;
+    }
+
     .module-grid {
         grid-template-columns: repeat(3, 1fr);
     }
@@ -3309,6 +3429,11 @@ td.mastery-mastered {
 
     .learning-area-grid {
         grid-template-columns: repeat(3, 1fr);
+    }
+
+    .learning-area-card,
+    .home-resume-card {
+        min-height: 172px;
     }
 
     .home-header h1 {

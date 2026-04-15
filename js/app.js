@@ -1095,10 +1095,10 @@ class KidsMathsApp {
         if (!nextItem) {
             container.innerHTML = `
                 <button class="next-up-card" data-kind="screen" data-screen="maths">
-                    <div class="next-up-label">Today’s adventure</div>
+                    <div class="next-up-label">Today’s next step</div>
                     <div class="next-up-title">Start today’s maths mission</div>
-                    <div class="next-up-meta">A warm, easy first step into Number Adventure.</div>
-                    <div class="next-up-cta next-up-cta-primary">Start today’s adventure</div>
+                    <div class="next-up-meta">A quick, confident first step into Number Adventure.</div>
+                    <div class="next-up-cta next-up-cta-primary">Start maths mission</div>
                 </button>
             `;
             return;
@@ -1211,6 +1211,24 @@ class KidsMathsApp {
         const streak = this.progressManager.getStreak();
         const recentMaths = this._getRecentMathsItem();
         const urduBookmarks = Object.keys(state.get('bookmarks') || {}).filter(storyId => this._isUrduStory(storyId)).length;
+        const mathsCopy = recentMaths
+            ? 'Little number missions with a confident, playful feel.'
+            : 'Quick number missions with a calm coach and a clear first step.';
+        const mathsStats = totalTime > 0
+            ? `${totalTime} min practised · ${streak} day${streak !== 1 ? 's' : ''} streak`
+            : 'Ready for your first quick mission';
+        const readingCopy = bookmarks.length > 0 || readStories.length > 0
+            ? 'Cozy reads, bookmarks, and longer adventures.'
+            : 'Cosy stories with big type, gentle pacing, and easy returns.';
+        const readingStats = bookmarks.length > 0 || readStories.length > 0
+            ? `${bookmarks.length} bookmarked · ${readStories.length} finished`
+            : 'Pick your first cosy story';
+        const urduCopy = urduBookmarks > 0
+            ? 'A gentle place for Urdu stories, bookmarks, and practice.'
+            : 'A calm Urdu corner for short stories and parent-guided practice.';
+        const urduStats = urduBookmarks > 0
+            ? `${urduBookmarks} bookmarked · ${this.urduLevels.length} level${this.urduLevels.length !== 1 ? 's' : ''}`
+            : 'Start with one gentle Urdu page';
 
         mathsHub.innerHTML = `
             <div class="learning-area-top">
@@ -1218,9 +1236,9 @@ class KidsMathsApp {
                 <span class="learning-area-badge">Maths</span>
             </div>
             <div class="learning-area-title">Number Adventure</div>
-            <div class="learning-area-copy">Little number missions with a confident, playful feel.</div>
-            <div class="learning-area-stats">${totalTime} min practised · ${streak} day${streak !== 1 ? 's' : ''} streak</div>
-            <div class="learning-area-foot">${recentMaths ? 'Open adventure' : 'Explore maths'}</div>
+            <div class="learning-area-copy">${this._escapeHtml(mathsCopy)}</div>
+            <div class="learning-area-stats">${this._escapeHtml(mathsStats)}</div>
+            <div class="learning-area-foot">${recentMaths ? 'Continue maths' : 'Start maths'}</div>
         `;
 
         readingHub.innerHTML = `
@@ -1229,8 +1247,8 @@ class KidsMathsApp {
                 <span class="learning-area-badge">Reading</span>
             </div>
             <div class="learning-area-title">Stories</div>
-            <div class="learning-area-copy">Cozy reads, bookmarks, and longer adventures.</div>
-            <div class="learning-area-stats">${bookmarks.length} bookmarked · ${readStories.length} finished</div>
+            <div class="learning-area-copy">${this._escapeHtml(readingCopy)}</div>
+            <div class="learning-area-stats">${this._escapeHtml(readingStats)}</div>
             <div class="learning-area-foot">Open stories</div>
         `;
 
@@ -1240,8 +1258,8 @@ class KidsMathsApp {
                 <span class="learning-area-badge">Urdu</span>
             </div>
             <div class="learning-area-title">Urdu reading</div>
-            <div class="learning-area-copy">A gentle place for Urdu stories, bookmarks, and practice.</div>
-            <div class="learning-area-stats">${urduBookmarks} bookmarked · ${this.urduLevels.length} level${this.urduLevels.length !== 1 ? 's' : ''}</div>
+            <div class="learning-area-copy">${this._escapeHtml(urduCopy)}</div>
+            <div class="learning-area-stats">${this._escapeHtml(urduStats)}</div>
             <div class="learning-area-foot">Open Urdu</div>
         `;
     }
