@@ -3122,12 +3122,12 @@ td.mastery-mastered {
 
 .story-content.urdu-story-layout #story-text {
     margin-inline: auto;
-    max-width: min(100%, 26rem);
-    font-size: clamp(1.88rem, 5.2vw, 2.14rem);
-    line-height: 2.12;
+    max-width: min(100%, 30rem);
+    font-size: clamp(2.2rem, 6vw, 2.7rem);
+    line-height: 2.18;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 22px;
 }
 
 #story-title[dir="rtl"],
@@ -3145,8 +3145,8 @@ td.mastery-mastered {
     color: inherit;
     font: inherit;
     line-height: inherit;
-    padding: 0.1em 0.28em;
-    margin: 0 1px;
+    padding: 0.1em 0.22em;
+    margin: 0 2px;
     border-radius: 10px;
     cursor: pointer;
     transition: background 0.15s ease, transform 0.15s ease, border-bottom-color 0.15s ease;
@@ -3175,7 +3175,7 @@ td.mastery-mastered {
 .urdu-paragraph-block {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 14px;
 }
 
 .urdu-paragraph-row {
@@ -3315,13 +3315,13 @@ td.mastery-mastered {
 .urdu-inline-meaning-badge {
     display: inline-flex;
     align-items: center;
-    margin-right: 10px;
-    padding: 4px 10px;
+    margin-right: 12px;
+    padding: 5px 12px;
     border-radius: 999px;
     background: linear-gradient(180deg, rgba(255, 251, 239, 0.98), rgba(255, 246, 228, 0.98));
     border: 1px solid rgba(214, 162, 32, 0.32);
     color: #6A5430;
-    font-size: 0.9rem;
+    font-size: 0.98rem;
     font-weight: 700;
     line-height: 1.25;
     vertical-align: middle;
@@ -3616,8 +3616,8 @@ td.mastery-mastered {
 
     .story-content.urdu-story-layout #story-text {
         max-width: 100%;
-        font-size: 1.88rem;
-        line-height: 2.04;
+        font-size: 2.18rem;
+        line-height: 2.12;
     }
 
     .urdu-paragraph-row {
@@ -3625,9 +3625,9 @@ td.mastery-mastered {
     }
 
     .urdu-inline-meaning-badge {
-        margin-right: 8px;
-        padding: 4px 8px;
-        font-size: 0.82rem;
+        margin-right: 10px;
+        padding: 4px 10px;
+        font-size: 0.92rem;
     }
 }
 
@@ -3664,9 +3664,9 @@ td.mastery-mastered {
 
 
     .urdu-inline-meaning-badge {
-        margin-right: 6px;
-        padding: 3px 7px;
-        font-size: 0.76rem;
+        margin-right: 8px;
+        padding: 4px 8px;
+        font-size: 0.86rem;
     }
 
     .urdu-support-header {

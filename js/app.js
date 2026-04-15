@@ -2428,18 +2428,44 @@ class KidsMathsApp {
 
             const wordBtn = e.target.closest('.urdu-word-button');
             if (wordBtn) {
-                this._selectUrduWord(
-                    wordBtn.dataset.word,
-                    wordBtn.dataset.meaning,
-                    Number(wordBtn.dataset.paragraphIndex),
-                    Number(wordBtn.dataset.occurrenceIndex)
-                );
+                const nextWord = wordBtn.dataset.word;
+                const nextMeaning = wordBtn.dataset.meaning;
+                const nextParagraphIndex = Number(wordBtn.dataset.paragraphIndex);
+                const nextOccurrenceIndex = Number(wordBtn.dataset.occurrenceIndex);
+                const isSameWord = this._selectedUrduWord
+                    && this._selectedUrduWord.word === nextWord
+                    && Number(this._selectedUrduWord.paragraphIndex ?? -1) === nextParagraphIndex
+                    && Number(this._selectedUrduWord.occurrenceIndex ?? -1) === nextOccurrenceIndex;
+
+                if (isSameWord) {
+                    this._clearSelectedUrduWord();
+                } else {
+                    this._selectUrduWord(
+                        nextWord,
+                        nextMeaning,
+                        nextParagraphIndex,
+                        nextOccurrenceIndex
+                    );
+                }
                 return;
             }
 
             const tappedWord = this._getTappedUrduWord(e);
             if (tappedWord) {
+                const isSameTappedWord = this._selectedUrduWord
+                    && this._selectedUrduWord.word === tappedWord.word
+                    && Number(this._selectedUrduWord.paragraphIndex ?? -1) === Number(tappedWord.paragraphIndex ?? -1)
+                    && Number(this._selectedUrduWord.occurrenceIndex ?? -1) === Number(tappedWord.occurrenceIndex ?? -1);
+                if (isSameTappedWord) {
+                    this._clearSelectedUrduWord();
+                    return;
+                }
                 await this._translateTappedUrduText(tappedWord);
+                return;
+            }
+
+            if (this._selectedUrduWord) {
+                this._clearSelectedUrduWord();
             }
         });
 
@@ -2451,6 +2477,10 @@ class KidsMathsApp {
         document.getElementById('urdu-saved-toggle-btn').addEventListener('click', () => {
             this._showUrduSavedWords = !this._showUrduSavedWords;
             this._renderUrduSupportPanel();
+        });
+
+        document.getElementById('urdu-clear-selection-btn').addEventListener('click', () => {
+            this._clearSelectedUrduWord();
         });
 
         document.getElementById('story-screen').addEventListener('click', (e) => {
@@ -3619,6 +3649,14 @@ class KidsMathsApp {
         this._renderUrduSupportPanel();
     }
 
+    _clearSelectedUrduWord() {
+        this._selectedUrduWord = null;
+        this._pendingUrduSelectionText = '';
+        this._renderCurrentStoryText();
+        this._renderUrduSupportPanel();
+        window.getSelection?.()?.removeAllRanges?.();
+    }
+
     _getCurrentUrduSelectionText() {
         return (this._pendingUrduSelectionText || '').trim();
     }
@@ -3817,6 +3855,7 @@ class KidsMathsApp {
         const savedPanel = document.getElementById('urdu-saved-words-panel');
         const translationBtn = document.getElementById('urdu-translation-toggle-btn');
         const savedBtn = document.getElementById('urdu-saved-toggle-btn');
+        const clearBtn = document.getElementById('urdu-clear-selection-btn');
         const saveBtn = document.getElementById('urdu-save-word-btn');
         const supportTitle = document.getElementById('urdu-support-title');
         const supportStatus = document.getElementById('urdu-support-status');
@@ -3827,6 +3866,7 @@ class KidsMathsApp {
             savedPanel.classList.add('hidden');
             translationBtn.classList.remove('is-active');
             savedBtn.classList.remove('is-active');
+            clearBtn.classList.add('hidden');
             saveBtn.classList.add('hidden');
             translationBtn.setAttribute('aria-pressed', 'false');
             savedBtn.setAttribute('aria-pressed', 'false');
@@ -3849,12 +3889,14 @@ class KidsMathsApp {
         if (this._selectedUrduWord) {
             supportTitle.textContent = 'English sits beside the line so the reading stays open.';
             supportStatus.textContent = wordAlreadySaved ? `Saved: ${this._selectedUrduWord.word}` : `Selected: ${this._selectedUrduWord.word}`;
+            clearBtn.classList.remove('hidden');
             saveBtn.classList.remove('hidden');
             saveBtn.disabled = wordAlreadySaved;
             saveBtn.textContent = wordAlreadySaved ? 'Saved ✓' : 'Save word';
         } else {
             supportTitle.textContent = 'Tap a word and its English appears beside the text, not on top of it.';
             supportStatus.textContent = currentSelectionText ? `Last word: ${currentSelectionText}` : 'Tap any highlighted word';
+            clearBtn.classList.add('hidden');
             saveBtn.classList.add('hidden');
             saveBtn.disabled = true;
             saveBtn.textContent = 'Save word';
