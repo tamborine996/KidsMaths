@@ -2514,6 +2514,11 @@ td.mastery-mastered {
     overflow-y: auto;
 }
 
+.story-list.urdu-story-list {
+    display: block;
+    overflow-y: visible;
+}
+
 .story-card {
     display: flex;
     align-items: stretch;
@@ -2612,28 +2617,55 @@ td.mastery-mastered {
     color: var(--reading-text);
 }
 
+.urdu-reading-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.urdu-dashboard-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(300px, 0.95fr);
+    gap: 18px;
+    align-items: start;
+}
+
 .urdu-library-section {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: 14px;
+}
+
+.urdu-current-section,
+.urdu-library-main-section,
+.urdu-archive-section,
+.urdu-bbc-section {
+    background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,250,244,0.94));
+    border: 1px solid rgba(140, 106, 158, 0.16);
+    border-radius: 28px;
+    padding: 18px;
+    box-shadow: 0 14px 32px rgba(140, 106, 158, 0.08);
+}
+
+.urdu-current-section {
+    background: linear-gradient(145deg, #fff8eb 0%, #fffdf8 50%, #f7fbff 100%);
+    border-color: rgba(197, 156, 74, 0.26);
+    box-shadow: 0 18px 40px rgba(197, 156, 74, 0.12);
 }
 
 .urdu-bbc-section {
-    background: rgba(255, 255, 255, 0.72);
-    border: 2px solid rgba(163, 213, 232, 0.4);
-    border-radius: var(--border-radius-xl);
-    padding: var(--spacing-md);
-    box-shadow: 0 6px 18px rgba(163, 213, 232, 0.16);
+    background: linear-gradient(180deg, rgba(247,251,255,0.98), rgba(255,255,255,0.96));
+    border-color: rgba(163, 213, 232, 0.45);
 }
 
 .urdu-bbc-panel {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
-    background: rgba(255,255,255,0.88);
-    border: 2px solid rgba(163, 213, 232, 0.32);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-md);
+    gap: 12px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(163, 213, 232, 0.28);
+    border-radius: 22px;
+    padding: 14px;
 }
 
 .urdu-bbc-panel-head {
@@ -2644,25 +2676,31 @@ td.mastery-mastered {
 }
 
 .urdu-bbc-panel-copy,
-.urdu-bbc-feed-hint {
+.urdu-bbc-feed-hint,
+.urdu-library-copy {
     color: var(--text-secondary);
-    font-size: 0.92rem;
-    line-height: 1.4;
+    font-size: 0.98rem;
+    line-height: 1.5;
+}
+
+.urdu-library-copy {
+    margin-top: 8px;
+    max-width: 42rem;
 }
 
 .urdu-bbc-feed-list {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: 10px;
 }
 
 .urdu-bbc-feed-row {
     display: flex;
     align-items: flex-start;
-    gap: var(--spacing-md);
-    padding: var(--spacing-md);
-    border: 2px solid rgba(163, 213, 232, 0.28);
-    border-radius: var(--border-radius-lg);
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid rgba(163, 213, 232, 0.24);
+    border-radius: 20px;
     background: #fff;
 }
 
@@ -2673,29 +2711,30 @@ td.mastery-mastered {
 
 .urdu-bbc-feed-title {
     font-family: var(--font-display);
-    font-size: 1.05rem;
+    font-size: 1.12rem;
     font-weight: 700;
     color: var(--text-heading);
     text-align: right;
+    line-height: 1.45;
 }
 
 .urdu-bbc-feed-meta {
     margin-top: 4px;
     color: var(--text-muted);
-    font-size: 0.84rem;
+    font-size: 0.88rem;
 }
 
 .urdu-bbc-feed-title-english {
     margin-top: 4px;
     color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.4;
+    font-size: 1rem;
+    line-height: 1.45;
 }
 
 .urdu-bbc-feed-summary {
     margin-top: 6px;
     color: var(--text-secondary);
-    font-size: 0.94rem;
+    font-size: 0.96rem;
     line-height: 1.5;
     text-align: right;
 }
@@ -2703,78 +2742,102 @@ td.mastery-mastered {
 .urdu-bbc-feed-add,
 .urdu-bbc-refresh,
 .urdu-bbc-toggle {
-    min-height: 42px;
+    min-height: 46px;
 }
 
 .urdu-bbc-empty {
-    padding: var(--spacing-md);
-    border-radius: var(--border-radius-lg);
+    padding: 14px;
+    border-radius: 18px;
     background: rgba(255, 253, 247, 0.92);
     color: var(--text-secondary);
 }
 
 .urdu-bbc-error {
-    border: 2px solid rgba(232, 160, 96, 0.35);
+    border: 1px solid rgba(232, 160, 96, 0.35);
 }
 
 .urdu-library-heading-row {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: flex-start;
     gap: var(--spacing-md);
 }
 
 .urdu-library-kicker {
-    font-size: 0.78rem;
+    font-size: 0.82rem;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text-secondary);
+    letter-spacing: 0.08em;
+    color: #8a6a4d;
     font-weight: 700;
 }
 
 .urdu-library-heading {
     margin: 4px 0 0;
     font-family: var(--font-display);
-    font-size: 1.15rem;
+    font-size: 1.38rem;
     color: var(--text-heading);
+    line-height: 1.18;
+}
+
+.urdu-hero-heading {
+    font-size: clamp(1.6rem, 3vw, 2rem);
 }
 
 .urdu-library-count {
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     font-weight: 700;
     white-space: nowrap;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(140, 106, 158, 0.1);
 }
 
 .urdu-library-list {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: 12px;
+}
+
+.urdu-library-card-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
 }
 
 .urdu-library-empty {
-    padding: var(--spacing-md);
-    border: 2px dashed rgba(140, 106, 158, 0.24);
-    border-radius: var(--border-radius-lg);
+    padding: 16px;
+    border: 1px dashed rgba(140, 106, 158, 0.24);
+    border-radius: 18px;
     color: var(--text-secondary);
     background: rgba(255,255,255,0.65);
 }
 
 .urdu-current-section .urdu-item-row {
-    border-color: #8C6A9E;
-    box-shadow: 5px 5px 0 rgba(140, 106, 158, 0.35);
+    border-color: rgba(197, 156, 74, 0.3);
+    box-shadow: 0 16px 34px rgba(197, 156, 74, 0.12);
 }
 
 .urdu-item-row {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     cursor: pointer;
-    gap: var(--spacing-md);
-    padding: var(--spacing-md);
-    background: var(--bg-card);
-    border: var(--border-width) solid rgba(140, 106, 158, 0.28);
-    border-radius: var(--border-radius-lg);
-    box-shadow: 3px 3px 0 rgba(140, 106, 158, 0.2);
+    gap: 14px;
+    padding: 16px;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(140, 106, 158, 0.22);
+    border-radius: 24px;
+    box-shadow: 0 10px 24px rgba(140, 106, 158, 0.08);
+}
+
+.urdu-item-row.is-featured {
+    padding: 20px;
+    gap: 18px;
+}
+
+.urdu-item-row.is-archived {
+    background: rgba(252, 249, 245, 0.9);
+    border-color: rgba(140, 106, 158, 0.16);
 }
 
 .urdu-item-progress {
@@ -2783,8 +2846,8 @@ td.mastery-mastered {
 
 .urdu-item-progress-ring {
     --urdu-progress: 0%;
-    width: 64px;
-    height: 64px;
+    width: 72px;
+    height: 72px;
     border-radius: 50%;
     display: grid;
     place-items: center;
@@ -2797,7 +2860,7 @@ td.mastery-mastered {
 .urdu-item-progress-ring::before {
     content: '';
     position: absolute;
-    inset: 7px;
+    inset: 8px;
     border-radius: 50%;
     background: var(--bg-card);
 }
@@ -2805,7 +2868,7 @@ td.mastery-mastered {
 .urdu-item-progress-ring span {
     position: relative;
     z-index: 1;
-    font-size: 0.82rem;
+    font-size: 0.9rem;
 }
 
 .urdu-item-main {
@@ -2814,42 +2877,47 @@ td.mastery-mastered {
 }
 
 .urdu-item-title-wrap {
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 
 .urdu-item-title {
     font-family: var(--font-display);
-    font-size: 1.15rem;
+    font-size: 1.24rem;
     font-weight: 700;
     color: var(--text-heading);
     text-align: right;
+    line-height: 1.45;
+}
+
+.urdu-item-row.is-featured .urdu-item-title {
+    font-size: clamp(1.35rem, 2.5vw, 1.8rem);
 }
 
 .urdu-item-subtitle {
-    font-size: 0.92rem;
-    line-height: 1.35;
+    font-size: 0.98rem;
+    line-height: 1.45;
     color: var(--text-secondary);
-    margin-top: 2px;
+    margin-top: 6px;
 }
 
 .urdu-item-meta {
-    font-size: 0.85rem;
-    line-height: 1.35;
+    font-size: 0.9rem;
+    line-height: 1.4;
     color: var(--text-muted);
 }
 
 .urdu-item-progress-line {
-    margin-top: 4px;
+    margin-top: 8px;
 }
 
 .urdu-item-analysis-chip {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    margin-top: 8px;
-    padding: 6px 10px;
+    margin-top: 10px;
+    padding: 7px 11px;
     border-radius: 999px;
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     font-weight: 700;
     width: fit-content;
 }
@@ -2869,18 +2937,18 @@ td.mastery-mastered {
 .urdu-item-actions {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: 10px;
     flex-shrink: 0;
-    min-width: 100px;
+    min-width: 136px;
 }
 
 .urdu-item-action {
-    min-height: 42px;
-    padding: var(--spacing-sm) var(--spacing-md);
+    min-height: 48px;
+    padding: 12px 14px;
 }
 
 .urdu-archive-toggle {
-    min-height: 42px;
+    min-height: 46px;
     white-space: nowrap;
 }
 
@@ -3284,12 +3352,30 @@ td.mastery-mastered {
 
 /* Small phones */
 @media (max-width: 640px) {
+    .urdu-dashboard-top,
+    .urdu-library-card-list {
+        grid-template-columns: 1fr;
+    }
+
+    .urdu-current-section,
+    .urdu-library-main-section,
+    .urdu-archive-section,
+    .urdu-bbc-section {
+        padding: 16px;
+        border-radius: 24px;
+    }
+
     .urdu-item-row,
+    .urdu-item-row.is-featured,
     .urdu-library-heading-row,
     .urdu-bbc-panel-head,
     .urdu-bbc-feed-row {
         align-items: stretch;
         flex-direction: column;
+    }
+
+    .urdu-item-progress {
+        align-self: flex-start;
     }
 
     .urdu-item-actions {
@@ -3389,6 +3475,50 @@ td.mastery-mastered {
     .footer-btn {
         flex: 1 1 140px;
         min-width: 0;
+    }
+
+    .urdu-reading-dashboard {
+        gap: 16px;
+    }
+
+    .urdu-library-heading {
+        font-size: 1.26rem;
+    }
+
+    .urdu-hero-heading {
+        font-size: 1.48rem;
+    }
+
+    .urdu-library-copy,
+    .urdu-bbc-panel-copy,
+    .urdu-bbc-feed-hint {
+        font-size: 0.94rem;
+    }
+
+    .urdu-item-title,
+    .urdu-item-row.is-featured .urdu-item-title {
+        font-size: 1.18rem;
+    }
+
+    .urdu-item-subtitle,
+    .urdu-bbc-feed-title-english,
+    .urdu-bbc-feed-summary {
+        font-size: 0.94rem;
+    }
+
+    .urdu-item-meta,
+    .urdu-bbc-feed-meta,
+    .urdu-library-count {
+        font-size: 0.86rem;
+    }
+
+    .urdu-item-progress-ring {
+        width: 64px;
+        height: 64px;
+    }
+
+    .urdu-item-progress-ring span {
+        font-size: 0.82rem;
     }
 
     #story-screen .screen-header {

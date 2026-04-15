@@ -2650,7 +2650,7 @@ class KidsMathsApp {
 
     _buildBbcFeedSelectionSection() {
         const feedHint = this._formatFeedFetchedAt();
-        const buttonLabel = this._bbcFeedExpanded ? 'Hide BBC list' : 'Add from BBC Urdu';
+        const buttonLabel = this._bbcFeedExpanded ? 'Hide choices' : 'Add from BBC Urdu';
 
         let panel = '';
         if (this._bbcFeedExpanded) {
@@ -2684,8 +2684,8 @@ class KidsMathsApp {
                 <div class="urdu-bbc-panel">
                     <div class="urdu-bbc-panel-head">
                         <div>
-                            <div class="urdu-library-kicker">Fresh RSS list</div>
-                            <div class="urdu-bbc-panel-copy">Pick one BBC Urdu article to bring into your study list.</div>
+                            <div class="urdu-library-kicker">Fresh BBC choices</div>
+                            <div class="urdu-bbc-panel-copy">Pick one BBC Urdu article to bring onto your reading shelf.</div>
                         </div>
                         <button class="secondary-btn urdu-bbc-refresh" type="button" data-bbc-feed-action="refresh">Refresh</button>
                     </div>
@@ -2699,12 +2699,12 @@ class KidsMathsApp {
             <section class="urdu-library-section urdu-bbc-section">
                 <div class="urdu-library-heading-row">
                     <div>
-                        <div class="urdu-library-kicker">BBC Urdu pipeline</div>
-                        <h3 class="urdu-library-heading">Choose a fresh article</h3>
+                        <div class="urdu-library-kicker">Add something new</div>
+                        <h3 class="urdu-library-heading">Bring in a fresh BBC Urdu article</h3>
                     </div>
                     <button class="secondary-btn urdu-bbc-toggle" type="button" data-bbc-feed-action="toggle">${buttonLabel}</button>
                 </div>
-                <div class="urdu-bbc-feed-hint">Uses the BBC Urdu RSS feed for discovery, then imports the full article into KidsMaths.</div>
+                <div class="urdu-bbc-feed-hint">Use the BBC Urdu RSS feed to discover a recent article, then add it straight into KidsMaths.</div>
                 ${panel}
             </section>
         `;
@@ -3023,7 +3023,7 @@ class KidsMathsApp {
         return { label: 'Needs smartening', className: 'is-basic' };
     }
 
-    _buildUrduStoryRow(story, { archived = false, current = false } = {}) {
+    _buildUrduStoryRow(story, { archived = false, current = false, featured = false } = {}) {
         const progress = this._getUrduStoryProgress(story);
         const resumePage = progress.bookmark?.page;
         const sourceLine = [story.source, this._formatUrduPublishedDate(story)].filter(Boolean).join(' • ');
@@ -3031,9 +3031,24 @@ class KidsMathsApp {
         const status = current ? 'Current' : archived ? 'Archived' : progress.status;
         const actionLabel = archived ? 'Restore' : 'Archive';
         const preparationState = this._getUrduStoryPreparationState(story);
+        const primaryLabel = archived
+            ? 'Restore item'
+            : progress.isFinished
+                ? 'Read again'
+                : progress.status === 'New'
+                    ? 'Open'
+                    : current || featured
+                        ? 'Continue reading'
+                        : 'Continue';
+        const rowClasses = [
+            'urdu-item-row',
+            current ? 'is-current' : '',
+            featured ? 'is-featured' : '',
+            archived ? 'is-archived' : ''
+        ].filter(Boolean).join(' ');
 
         return `
-            <div class="urdu-item-row ${current ? 'is-current' : ''}" data-story-id="${story.id}" ${resumePage !== undefined ? `data-resume-page="${resumePage}"` : ''}>
+            <div class="${rowClasses}" data-story-id="${story.id}" ${resumePage !== undefined ? `data-resume-page="${resumePage}"` : ''}>
                 <div class="urdu-item-progress" aria-hidden="true">
                     <div class="urdu-item-progress-ring" style="--urdu-progress:${progress.percent}%">
                         <span>${progress.percent}%</span>
@@ -3049,7 +3064,7 @@ class KidsMathsApp {
                     <div class="urdu-item-meta urdu-item-progress-line">${this._escapeHtml(progressLine)} • ${this._escapeHtml(status)}</div>
                 </div>
                 <div class="urdu-item-actions">
-                    <button class="primary-btn urdu-item-action" type="button" data-urdu-story-action="open" data-story-id="${story.id}">${progress.status === 'New' ? 'Open' : 'Continue'}</button>
+                    <button class="primary-btn urdu-item-action" type="button" data-urdu-story-action="open" data-story-id="${story.id}">${primaryLabel}</button>
                     <button class="secondary-btn urdu-item-action" type="button" data-urdu-story-action="${archived ? 'restore' : 'archive'}" data-story-id="${story.id}">${actionLabel}</button>
                 </div>
             </div>
@@ -3076,49 +3091,59 @@ class KidsMathsApp {
 
         const activeStories = ranked.filter(item => !archivedIds.has(item.story.id)).map(item => item.story);
         const archivedStories = ranked.filter(item => archivedIds.has(item.story.id)).map(item => item.story);
-        const currentStory = activeStories.find(story => story.id === currentId) || activeStories.find(story => this._getUrduStoryProgress(story).status === 'In progress') || null;
+        const currentStory = activeStories.find(story => story.id === currentId)
+            || activeStories.find(story => this._getUrduStoryProgress(story).status === 'In progress')
+            || activeStories[0]
+            || null;
         const activeList = activeStories.filter(story => story.id !== currentStory?.id);
 
         list.innerHTML = `
-            ${this._buildBbcFeedSelectionSection()}
+            <div class="urdu-reading-dashboard">
+                <div class="urdu-dashboard-top">
+                    <section class="urdu-library-section urdu-current-section ${currentStory ? '' : 'hidden'}">
+                        <div class="urdu-library-heading-row urdu-hero-heading-row">
+                            <div>
+                                <div class="urdu-library-kicker">Pick up again</div>
+                                <h3 class="urdu-library-heading urdu-hero-heading">Continue your Urdu reading</h3>
+                                <div class="urdu-library-copy">Your current article stays at the top so you can jump straight back in.</div>
+                            </div>
+                        </div>
+                        ${currentStory ? this._buildUrduStoryRow(currentStory, { current: true, featured: true }) : ''}
+                    </section>
 
-            <section class="urdu-library-section urdu-current-section ${currentStory ? '' : 'hidden'}">
-                <div class="urdu-library-heading-row">
-                    <div>
-                        <div class="urdu-library-kicker">Current item</div>
-                        <h3 class="urdu-library-heading">Currently reading</h3>
-                    </div>
+                    ${this._buildBbcFeedSelectionSection()}
                 </div>
-                ${currentStory ? this._buildUrduStoryRow(currentStory, { current: true }) : ''}
-            </section>
 
-            <section class="urdu-library-section">
-                <div class="urdu-library-heading-row">
-                    <div>
-                        <div class="urdu-library-kicker">Active Urdu items</div>
-                        <h3 class="urdu-library-heading">Urdu library</h3>
+                <section class="urdu-library-section urdu-library-main-section">
+                    <div class="urdu-library-heading-row">
+                        <div>
+                            <div class="urdu-library-kicker">Your reading shelf</div>
+                            <h3 class="urdu-library-heading">Urdu library</h3>
+                            <div class="urdu-library-copy">Open another piece, revisit a finished one, or keep curating your shelf.</div>
+                        </div>
+                        <div class="urdu-library-count">${activeStories.length} active</div>
                     </div>
-                    <div class="urdu-library-count">${activeStories.length} items</div>
-                </div>
-                <div class="urdu-library-list">
-                    ${activeList.length
-                        ? activeList.map(story => this._buildUrduStoryRow(story)).join('')
-                        : '<div class="urdu-library-empty">No other active Urdu items yet.</div>'}
-                </div>
-            </section>
+                    <div class="urdu-library-list urdu-library-card-list">
+                        ${activeList.length
+                            ? activeList.map(story => this._buildUrduStoryRow(story)).join('')
+                            : '<div class="urdu-library-empty">No other active Urdu items yet.</div>'}
+                    </div>
+                </section>
 
-            <section class="urdu-library-section ${archivedStories.length ? '' : 'hidden'}">
-                <div class="urdu-library-heading-row">
-                    <div>
-                        <div class="urdu-library-kicker">Archive</div>
-                        <h3 class="urdu-library-heading">Older items kept out of the way</h3>
+                <section class="urdu-library-section urdu-archive-section ${archivedStories.length ? '' : 'hidden'}">
+                    <div class="urdu-library-heading-row">
+                        <div>
+                            <div class="urdu-library-kicker">Archive</div>
+                            <h3 class="urdu-library-heading">Older items, tucked away</h3>
+                            <div class="urdu-library-copy">Keep the live shelf focused while older imports stay close by.</div>
+                        </div>
+                        <button class="secondary-btn urdu-archive-toggle" type="button" data-urdu-story-action="toggle-archive">${showArchived ? 'Hide archive' : `Show archive (${archivedStories.length})`}</button>
                     </div>
-                    <button class="secondary-btn urdu-archive-toggle" type="button" data-urdu-story-action="toggle-archive">${showArchived ? 'Hide archive' : `Show archive (${archivedStories.length})`}</button>
-                </div>
-                <div class="urdu-library-list ${showArchived ? '' : 'hidden'}" id="urdu-archive-list">
-                    ${archivedStories.map(story => this._buildUrduStoryRow(story, { archived: true })).join('')}
-                </div>
-            </section>
+                    <div class="urdu-library-list urdu-library-card-list ${showArchived ? '' : 'hidden'}" id="urdu-archive-list">
+                        ${archivedStories.map(story => this._buildUrduStoryRow(story, { archived: true })).join('')}
+                    </div>
+                </section>
+            </div>
         `;
     }
 
@@ -3128,6 +3153,7 @@ class KidsMathsApp {
         const levelId = state.get(stateKey);
         const level = levels.find(l => l.id === levelId);
         const list = document.getElementById('story-list');
+        list.classList.toggle('urdu-story-list', tab === 'urdu');
         list.innerHTML = '';
 
         if (tab === 'urdu') {
