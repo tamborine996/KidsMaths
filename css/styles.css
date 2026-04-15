@@ -692,14 +692,6 @@ body {
         gap: 20px;
     }
 
-    .learning-area-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .home-resume-list {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
     .next-up-card {
         max-width: 760px;
         margin: 0 auto;
@@ -986,7 +978,7 @@ body {
 
 .home-grownups-actions {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     gap: 12px;
 }
 
@@ -3584,10 +3576,6 @@ td.mastery-mastered {
         font-size: 0.92rem;
     }
 
-    .home-grownups-actions {
-        grid-template-columns: 1fr;
-    }
-
     .footer-btn {
         min-width: 0;
     }
@@ -3771,18 +3759,10 @@ td.mastery-mastered {
     }
 
     .home-dashboard {
-        max-width: 1020px;
+        max-width: 760px;
     }
 
     .module-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    .home-resume-list {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .learning-area-grid {
         grid-template-columns: repeat(3, 1fr);
     }
 

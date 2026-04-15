@@ -18,6 +18,11 @@ assert(!html.includes('class="home-footer"'), 'Expected old footer-style grown-u
 assert(js.includes("Ready for your first quick mission") || js.includes("Pick your first cosy story") || js.includes("Start with one gentle Urdu page"), 'Expected homepage learning cards to use encouraging zero-state copy instead of flat 0-count summaries');
 assert(css.includes('.home-kicker {'), 'Expected dedicated home kicker styling');
 assert(css.includes('.home-grownups-actions {'), 'Expected compact grown-ups action group styling');
+assert(css.includes('grid-template-columns: 1fr;'), 'Expected one-column home grid rules');
+assert(!css.includes('.learning-area-grid {\n        grid-template-columns: repeat(3, minmax(0, 1fr));'), 'Expected learning areas to stop switching to 3 columns on wide home layouts');
+assert(!css.includes('.learning-area-grid {\n        grid-template-columns: repeat(3, 1fr);'), 'Expected learning areas to stop switching to 3 columns in later responsive overrides');
+assert(!css.includes('.home-resume-list {\n        grid-template-columns: repeat(2, minmax(0, 1fr));'), 'Expected resume cards to stop switching to 2 columns on wide home layouts');
+assert(!css.includes('.home-resume-list {\n        grid-template-columns: repeat(2, 1fr);'), 'Expected resume cards to stop switching to 2 columns in later responsive overrides');
 assert(css.includes('@media (max-width: 560px) {'), 'Expected phone-specific homepage refinement breakpoint');
 assert(css.includes('.subtitle {') && !css.includes('background: rgba(255, 255, 255, 0.55);'), 'Expected subtitle styling to stop looking like a fake input pill');
 assert(!css.includes('.home-footer {'), 'Expected footer-style home spacing rules to be removed');
