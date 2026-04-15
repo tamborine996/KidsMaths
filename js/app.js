@@ -3383,15 +3383,17 @@ class KidsMathsApp {
         const page = story.pages[this.currentStoryPage];
         const direction = story.direction || 'ltr';
         const isInteractiveUrdu = this._storySupportsUrduTools(story);
+        const isUrduArticle = this._isUrduArticleStory(story);
 
         const storyTitle = document.getElementById('story-title');
         const storyTitleSubtitle = document.getElementById('story-title-subtitle');
         const storyTitleTranslationToggle = document.getElementById('story-title-translation-toggle');
         const storyText = document.getElementById('story-text');
+        const storyScreen = document.getElementById('story-screen');
 
         storyTitle.textContent = story.title;
         storyTitle.dir = direction;
-        const shouldCollapseEnglishTitle = isInteractiveUrdu && window.matchMedia?.('(max-width: 720px)').matches;
+        const shouldCollapseEnglishTitle = isUrduArticle || (isInteractiveUrdu && window.matchMedia?.('(max-width: 720px)').matches);
         if (story.titleEnglish) {
             storyTitleSubtitle.textContent = story.titleEnglish;
             if (shouldCollapseEnglishTitle) {
@@ -3421,7 +3423,9 @@ class KidsMathsApp {
         // Show/hide illustration
         const img = document.getElementById('story-image');
         const storyContent = document.getElementById('story-content');
+        storyScreen.classList.toggle('article-reader-mode', isUrduArticle);
         storyContent.classList.toggle('urdu-story-layout', isInteractiveUrdu);
+        storyContent.classList.toggle('urdu-article-reader-layout', isUrduArticle);
         if (page.image) {
             img.src = page.image;
             img.alt = page.imageAlt || `Illustration for ${story.title}`;
@@ -3469,6 +3473,10 @@ class KidsMathsApp {
         return Boolean(String(currentPageText || '').trim());
     }
 
+    _isUrduArticleStory(story = this.currentStory) {
+        return Boolean(story && story.direction === 'rtl' && story.sourceType === 'news');
+    }
+
     _renderCurrentStoryText() {
         if (!this.currentStory) return;
 
@@ -3477,9 +3485,12 @@ class KidsMathsApp {
         const storyText = document.getElementById('story-text');
         const isInteractiveUrdu = this._storySupportsUrduTools(story);
         const pageVocabulary = this._getEffectiveUrduVocabularyForPage(page.text || '', story);
+        const isUrduArticle = this._isUrduArticleStory(story);
 
         if (isInteractiveUrdu) {
-            storyText.innerHTML = this._renderInteractiveUrduText(page.text || '', pageVocabulary);
+            storyText.innerHTML = isUrduArticle
+                ? this._renderUrduArticleText(page.text || '')
+                : this._renderInteractiveUrduText(page.text || '', pageVocabulary);
         } else {
             storyText.textContent = page.text || '';
         }
@@ -3574,6 +3585,30 @@ class KidsMathsApp {
                     <div class="urdu-paragraph-row">
                         <button class="urdu-paragraph-translate-btn${translation ? ' is-active' : ''}" type="button" data-paragraph-translate="${index}" aria-label="Translate paragraph ${index + 1}">EN</button>
                         <div class="urdu-paragraph-text">${this._renderInteractiveUrduParagraph(paragraph, vocabulary, index)}</div>
+                    </div>
+                    <div class="urdu-paragraph-translation${translation || isLoading ? '' : ' hidden'}">${translationHtml}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    _renderUrduArticleText(text = '') {
+        const paragraphs = this._splitUrduParagraphs(text);
+
+        return paragraphs.map((paragraph, index) => {
+            const key = this._getUrduParagraphCacheKey(index);
+            const translation = this._urduParagraphTranslations[key] || '';
+            const isLoading = this._urduParagraphLoadingKey === key;
+            const hasInlineSelection = Number(this._selectedUrduWord?.paragraphIndex ?? -1) === index;
+            const translationHtml = isLoading
+                ? '<div class="urdu-page-translation-label">English for this paragraph</div><p>Translating paragraph…</p>'
+                : `<div class="urdu-page-translation-label">English for this paragraph</div><p>${this._escapeHtml(translation).replace(/\n/g, '<br>')}</p>`;
+
+            return `
+                <div class="urdu-paragraph-block urdu-article-paragraph${hasInlineSelection ? ' has-selection' : ''}" data-paragraph-index="${index}">
+                    <div class="urdu-paragraph-row urdu-article-paragraph-row">
+                        <button class="urdu-paragraph-translate-btn urdu-article-translate-btn${translation ? ' is-active' : ''}" type="button" data-paragraph-translate="${index}" aria-label="Translate paragraph ${index + 1}">EN</button>
+                        <div class="urdu-paragraph-text urdu-article-paragraph-text">${this._renderInteractiveUrduParagraph(paragraph, {}, index)}</div>
                     </div>
                     <div class="urdu-paragraph-translation${translation || isLoading ? '' : ' hidden'}">${translationHtml}</div>
                 </div>
@@ -3859,9 +3894,13 @@ class KidsMathsApp {
         const saveBtn = document.getElementById('urdu-save-word-btn');
         const supportTitle = document.getElementById('urdu-support-title');
         const supportStatus = document.getElementById('urdu-support-status');
+        const supportCard = document.querySelector('#urdu-story-tools .urdu-support-card');
+        const isUrduArticle = this._isUrduArticleStory();
 
         if (!this._storySupportsUrduTools()) {
             tools.classList.add('hidden');
+            tools.classList.remove('urdu-article-tools', 'is-article-idle');
+            supportCard?.classList.remove('is-article-idle');
             translation.classList.add('hidden');
             savedPanel.classList.add('hidden');
             translationBtn.classList.remove('is-active');
@@ -3877,7 +3916,11 @@ class KidsMathsApp {
         const page = this.currentStory.pages[this.currentStoryPage] || {};
         const savedWords = this._getUrduSavedWords();
         const wordAlreadySaved = this._isSelectedUrduWordSaved(savedWords);
+        const articleIdle = isUrduArticle && !this._selectedUrduWord && !this._showUrduTranslation && !this._showUrduSavedWords;
         tools.classList.remove('hidden');
+        tools.classList.toggle('urdu-article-tools', isUrduArticle);
+        tools.classList.toggle('is-article-idle', articleIdle);
+        supportCard?.classList.toggle('is-article-idle', articleIdle);
         const currentSelectionText = this._getCurrentUrduSelectionText();
         translationBtn.textContent = this._showUrduTranslation ? 'Hide English help' : 'Show English help';
         savedBtn.textContent = `Saved words (${savedWords.length})`;
@@ -3894,8 +3937,12 @@ class KidsMathsApp {
             saveBtn.disabled = wordAlreadySaved;
             saveBtn.textContent = wordAlreadySaved ? 'Saved ✓' : 'Save word';
         } else {
-            supportTitle.textContent = 'Tap a word and its English appears beside the text, not on top of it.';
-            supportStatus.textContent = currentSelectionText ? `Last word: ${currentSelectionText}` : 'Tap any highlighted word';
+            supportTitle.textContent = isUrduArticle
+                ? 'Tap any Urdu word and keep reading in place.'
+                : 'Tap a word and its English appears beside the text, not on top of it.';
+            supportStatus.textContent = isUrduArticle
+                ? (currentSelectionText ? `Last word: ${currentSelectionText}` : 'Tap any Urdu word')
+                : (currentSelectionText ? `Last word: ${currentSelectionText}` : 'Tap any highlighted word');
             clearBtn.classList.add('hidden');
             saveBtn.classList.add('hidden');
             saveBtn.disabled = true;
