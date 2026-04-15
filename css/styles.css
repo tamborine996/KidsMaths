@@ -1039,7 +1039,7 @@ body {
 
 .story-title-subtitle {
     margin-top: 8px;
-    font-size: clamp(1rem, 2.8vw, 1.08rem);
+    font-size: clamp(1.06rem, 3vw, 1.18rem);
     color: var(--text-secondary);
     line-height: 1.55;
     max-width: 56ch;
@@ -1068,8 +1068,8 @@ body {
 }
 
 #story-screen .screen-header h2 {
-    font-size: clamp(1.45rem, 4.6vw, 2rem);
-    line-height: 1.35;
+    font-size: clamp(1.58rem, 5vw, 2.16rem);
+    line-height: 1.28;
 }
 
 #story-screen .back-btn,
@@ -3065,7 +3065,7 @@ td.mastery-mastered {
 }
 
 #story-page-text {
-    font-size: 0.98rem;
+    font-size: 1.08rem;
     font-weight: 700;
     color: var(--text-secondary);
 }
@@ -3076,7 +3076,7 @@ td.mastery-mastered {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding: clamp(18px, 4vw, 28px);
+    padding: clamp(12px, 3.2vw, 22px);
     background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,250,243,0.96));
     border: 2px solid rgba(118, 160, 215, 0.38);
     border-radius: var(--border-radius-xl);
@@ -3122,12 +3122,12 @@ td.mastery-mastered {
 
 .story-content.urdu-story-layout #story-text {
     margin-inline: auto;
-    max-width: min(100%, 30rem);
-    font-size: clamp(2.2rem, 6vw, 2.7rem);
-    line-height: 2.18;
+    max-width: min(100%, 34rem);
+    font-size: clamp(2.55rem, 7vw, 3.15rem);
+    line-height: 2.24;
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 24px;
 }
 
 #story-title[dir="rtl"],
@@ -3141,13 +3141,13 @@ td.mastery-mastered {
     appearance: none;
     border: none;
     border-bottom: 2px dotted #8C6A9E;
-    background: rgba(140, 106, 158, 0.09);
+    background: transparent;
     color: inherit;
     font: inherit;
     line-height: inherit;
-    padding: 0.1em 0.22em;
-    margin: 0 2px;
-    border-radius: 10px;
+    padding: 0.04em 0.06em;
+    margin: 0;
+    border-radius: 8px;
     cursor: pointer;
     transition: background 0.15s ease, transform 0.15s ease, border-bottom-color 0.15s ease;
 }
@@ -3181,7 +3181,7 @@ td.mastery-mastered {
 .urdu-paragraph-row {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: var(--spacing-sm);
+    gap: 8px;
     align-items: flex-start;
 }
 
@@ -3190,13 +3190,13 @@ td.mastery-mastered {
 }
 
 .urdu-paragraph-translate-btn {
-    min-width: 42px;
-    min-height: 42px;
+    min-width: 38px;
+    min-height: 38px;
     border-radius: 999px;
     border: 1px solid rgba(140, 106, 158, 0.28);
     background: rgba(255, 255, 255, 0.9);
     color: #6E4E88;
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     font-weight: 800;
     cursor: pointer;
     align-self: flex-start;
@@ -3596,11 +3596,11 @@ td.mastery-mastered {
     }
 
     #story-screen .screen-header h2 {
-        font-size: 1.3rem;
+        font-size: 1.52rem;
     }
 
     .story-title-subtitle {
-        font-size: 0.98rem;
+        font-size: 1.08rem;
     }
 
     .story-title-translation-toggle {
@@ -3611,23 +3611,33 @@ td.mastery-mastered {
     }
 
     .story-content {
-        padding: 16px;
+        padding: 12px;
     }
 
     .story-content.urdu-story-layout #story-text {
         max-width: 100%;
-        font-size: 2.18rem;
-        line-height: 2.12;
+        font-size: 2.48rem;
+        line-height: 2.18;
+    }
+
+    #story-page-text {
+        font-size: 1.06rem;
     }
 
     .urdu-paragraph-row {
-        gap: 10px;
+        gap: 6px;
     }
 
     .urdu-inline-meaning-badge {
         margin-right: 10px;
         padding: 4px 10px;
         font-size: 0.92rem;
+    }
+
+    .urdu-paragraph-translate-btn {
+        min-width: 34px;
+        min-height: 34px;
+        font-size: 0.72rem;
     }
 }
 
@@ -3662,6 +3672,32 @@ td.mastery-mastered {
         font-size: 1.05rem;
     }
 
+    #story-screen .screen-header h2 {
+        font-size: 1.42rem;
+    }
+
+    .story-title-subtitle {
+        font-size: 1rem;
+    }
+
+    .story-content {
+        padding: 10px;
+    }
+
+    .story-content.urdu-story-layout #story-text {
+        font-size: 2.28rem;
+        line-height: 2.14;
+    }
+
+    #story-page-text {
+        font-size: 1rem;
+    }
+
+    .urdu-paragraph-translate-btn {
+        min-width: 32px;
+        min-height: 32px;
+        font-size: 0.7rem;
+    }
 
     .urdu-inline-meaning-badge {
         margin-right: 8px;
