@@ -3535,7 +3535,6 @@ class KidsMathsApp {
             const translation = this._urduParagraphTranslations[key] || '';
             const isLoading = this._urduParagraphLoadingKey === key;
             const hasInlineSelection = Number(this._selectedUrduWord?.paragraphIndex ?? -1) === index;
-            const inlineHelper = this._renderInlineUrduWordHelper(index);
             const translationHtml = isLoading
                 ? '<div class="urdu-page-translation-label">English for this paragraph</div><p>Translating paragraph…</p>'
                 : `<div class="urdu-page-translation-label">English for this paragraph</div><p>${this._escapeHtml(translation).replace(/\n/g, '<br>')}</p>`;
@@ -3546,7 +3545,6 @@ class KidsMathsApp {
                         <button class="urdu-paragraph-translate-btn${translation ? ' is-active' : ''}" type="button" data-paragraph-translate="${index}" aria-label="Translate paragraph ${index + 1}">EN</button>
                         <div class="urdu-paragraph-text">${this._renderInteractiveUrduParagraph(paragraph, vocabulary, index)}</div>
                     </div>
-                    ${inlineHelper}
                     <div class="urdu-paragraph-translation${translation || isLoading ? '' : ' hidden'}">${translationHtml}</div>
                 </div>
             `;
@@ -3554,27 +3552,13 @@ class KidsMathsApp {
     }
 
     _renderInlineUrduWordHelper(paragraphIndex) {
-        const selectedWord = this._selectedUrduWord;
-        if (!selectedWord || Number(selectedWord.paragraphIndex ?? -1) !== paragraphIndex) {
-            return '';
-        }
+        return '';
+    }
 
-        const savedWords = this._getUrduSavedWords();
-        const wordAlreadySaved = this._isSelectedUrduWordSaved(savedWords);
-        const disabledAttr = wordAlreadySaved ? ' disabled' : '';
-        const buttonLabel = wordAlreadySaved ? 'Saved ✓' : 'Save word';
-
-        return `
-            <div class="urdu-inline-word-helper${wordAlreadySaved ? ' is-saved' : ''}">
-                <div class="urdu-inline-word-helper-label">Word help</div>
-                <div class="urdu-inline-word-helper-main">
-                    <span class="urdu-inline-word-helper-urdu">${this._escapeHtml(selectedWord.word || '')}</span>
-                    <span class="urdu-inline-word-helper-arrow">means</span>
-                    <span class="urdu-inline-word-helper-english">${this._escapeHtml(selectedWord.meaning || '')}</span>
-                </div>
-                <button class="secondary-btn urdu-save-word-btn" type="button"${disabledAttr}>${buttonLabel}</button>
-            </div>
-        `;
+    _renderActiveUrduMeaningBadge() {
+        const meaning = String(this._selectedUrduWord?.meaning || '').trim();
+        if (!meaning) return '';
+        return `<span class="urdu-inline-meaning-badge">${this._escapeHtml(meaning)}</span>`;
     }
 
     _renderInteractiveUrduParagraph(text, vocabulary, paragraphIndex) {
@@ -3593,7 +3577,7 @@ class KidsMathsApp {
             rendered = rendered.replace(new RegExp(escapedSelectedWord, 'g'), match => {
                 if (selectedMatchIndex === selectedOccurrenceIndex) {
                     const placeholder = `__URDU_ACTIVE_WORD_${paragraphIndex}_${selectedMatchIndex}__`;
-                    const selectedHtml = `<span class="urdu-inline-selection active">${this._escapeHtml(selectedWord)}</span>`;
+                    const selectedHtml = `<span class="urdu-inline-selection active">${this._renderActiveUrduMeaningBadge()}${this._escapeHtml(selectedWord)}</span>`;
                     placeholders.push({ placeholder, html: selectedHtml });
                     selectedMatchIndex += 1;
                     return placeholder;
@@ -3613,7 +3597,8 @@ class KidsMathsApp {
             rendered = rendered.replace(new RegExp(escapedWord, 'g'), () => {
                 const placeholder = `__URDU_WORD_${paragraphIndex}_${index}_${wordOccurrenceIndex}__`;
                 const isActive = selectedWord === word && selectedParagraphIndex === paragraphIndex && selectedOccurrenceIndex === wordOccurrenceIndex;
-                const buttonHtml = `<button class="urdu-word-button${isActive ? ' active' : ''}" data-word="${safeWord}" data-meaning="${safeMeaning}" data-paragraph-index="${paragraphIndex}" data-occurrence-index="${wordOccurrenceIndex}" type="button">${safeWord}</button>`;
+                const meaningBadge = isActive ? this._renderActiveUrduMeaningBadge() : '';
+                const buttonHtml = `<button class="urdu-word-button${isActive ? ' active' : ''}" data-word="${safeWord}" data-meaning="${safeMeaning}" data-paragraph-index="${paragraphIndex}" data-occurrence-index="${wordOccurrenceIndex}" type="button">${meaningBadge}${safeWord}</button>`;
                 placeholders.push({ placeholder, html: buttonHtml });
                 wordOccurrenceIndex += 1;
                 return placeholder;
@@ -3832,6 +3817,7 @@ class KidsMathsApp {
         const savedPanel = document.getElementById('urdu-saved-words-panel');
         const translationBtn = document.getElementById('urdu-translation-toggle-btn');
         const savedBtn = document.getElementById('urdu-saved-toggle-btn');
+        const saveBtn = document.getElementById('urdu-save-word-btn');
         const supportTitle = document.getElementById('urdu-support-title');
         const supportStatus = document.getElementById('urdu-support-status');
 
@@ -3841,6 +3827,7 @@ class KidsMathsApp {
             savedPanel.classList.add('hidden');
             translationBtn.classList.remove('is-active');
             savedBtn.classList.remove('is-active');
+            saveBtn.classList.add('hidden');
             translationBtn.setAttribute('aria-pressed', 'false');
             savedBtn.setAttribute('aria-pressed', 'false');
             document.querySelectorAll('.urdu-word-button.active').forEach(btn => btn.classList.remove('active'));
@@ -3860,11 +3847,17 @@ class KidsMathsApp {
         savedBtn.setAttribute('aria-pressed', this._showUrduSavedWords ? 'true' : 'false');
 
         if (this._selectedUrduWord) {
-            supportTitle.textContent = 'Word help stays close to the line so you can keep your place.';
+            supportTitle.textContent = 'English sits beside the line so the reading stays open.';
             supportStatus.textContent = wordAlreadySaved ? `Saved: ${this._selectedUrduWord.word}` : `Selected: ${this._selectedUrduWord.word}`;
+            saveBtn.classList.remove('hidden');
+            saveBtn.disabled = wordAlreadySaved;
+            saveBtn.textContent = wordAlreadySaved ? 'Saved ✓' : 'Save word';
         } else {
-            supportTitle.textContent = 'Tap a word and its meaning appears close to the line you are reading.';
+            supportTitle.textContent = 'Tap a word and its English appears beside the text, not on top of it.';
             supportStatus.textContent = currentSelectionText ? `Last word: ${currentSelectionText}` : 'Tap any highlighted word';
+            saveBtn.classList.add('hidden');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Save word';
         }
 
         if (this._showUrduTranslation && page.translation) {

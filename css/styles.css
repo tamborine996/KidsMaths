@@ -3122,12 +3122,12 @@ td.mastery-mastered {
 
 .story-content.urdu-story-layout #story-text {
     margin-inline: auto;
-    max-width: 22ch;
+    max-width: min(100%, 26rem);
     font-size: clamp(1.88rem, 5.2vw, 2.14rem);
-    line-height: 2.24;
+    line-height: 2.12;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 18px;
 }
 
 #story-title[dir="rtl"],
@@ -3218,18 +3218,18 @@ td.mastery-mastered {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
-    margin-bottom: calc(var(--spacing-lg) + 84px);
-    padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+    margin-bottom: 0;
+    padding-bottom: max(var(--spacing-sm), env(safe-area-inset-bottom, 0px));
 }
 
 .urdu-support-card {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     background: rgba(255, 255, 255, 0.84);
     border: 1px solid rgba(140, 106, 158, 0.18);
     border-radius: var(--border-radius-xl);
-    padding: 14px;
+    padding: 12px 14px;
     box-shadow: 0 10px 24px rgba(140, 106, 158, 0.08);
 }
 
@@ -3278,6 +3278,10 @@ td.mastery-mastered {
     gap: var(--spacing-sm);
 }
 
+.urdu-story-actions .secondary-btn {
+    flex: 1 1 0;
+}
+
 .urdu-story-actions .secondary-btn,
 .urdu-save-word-btn,
 .urdu-remove-word-btn {
@@ -3308,58 +3312,19 @@ td.mastery-mastered {
     margin-bottom: var(--spacing-xs);
 }
 
-.urdu-inline-word-helper {
+.urdu-inline-meaning-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 10px;
+    padding: 4px 10px;
+    border-radius: 999px;
     background: linear-gradient(180deg, rgba(255, 251, 239, 0.98), rgba(255, 246, 228, 0.98));
     border: 1px solid rgba(214, 162, 32, 0.32);
-    border-radius: 22px;
-    padding: 14px 16px;
-    box-shadow: 0 10px 24px rgba(214, 162, 32, 0.12);
-    font-size: 1rem;
-    line-height: 1.35;
-}
-
-.urdu-inline-word-helper-label {
-    font-size: 0.78rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: #9A6E00;
-    margin-bottom: 8px;
-}
-
-.urdu-inline-word-helper-main {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 12px;
-    line-height: 1.35;
-}
-
-.urdu-inline-word-helper-urdu {
-    font-size: 1.45rem;
+    color: #6A5430;
+    font-size: 0.9rem;
     font-weight: 700;
-    direction: rtl;
-}
-
-.urdu-inline-word-helper-arrow {
-    font-size: 0.84rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-secondary);
-}
-
-.urdu-inline-word-helper-english {
-    font-size: 1.02rem;
-    line-height: 1.45;
-    color: var(--text-primary);
-}
-
-.urdu-inline-word-helper .urdu-save-word-btn {
-    width: 100%;
-    font-size: 0.95rem;
-    line-height: 1.2;
-    padding: 12px 14px;
+    line-height: 1.25;
+    vertical-align: middle;
 }
 
 .urdu-save-word-btn[disabled] {
@@ -3650,17 +3615,19 @@ td.mastery-mastered {
     }
 
     .story-content.urdu-story-layout #story-text {
-        max-width: 20ch;
-        font-size: 1.95rem;
-        line-height: 2.16;
+        max-width: 100%;
+        font-size: 1.88rem;
+        line-height: 2.04;
     }
 
     .urdu-paragraph-row {
         gap: 10px;
     }
 
-    .urdu-inline-word-helper {
-        padding: 12px 14px;
+    .urdu-inline-meaning-badge {
+        margin-right: 8px;
+        padding: 4px 8px;
+        font-size: 0.82rem;
     }
 }
 
@@ -3696,8 +3663,10 @@ td.mastery-mastered {
     }
 
 
-    .urdu-inline-word-helper-urdu {
-        font-size: 1.3rem;
+    .urdu-inline-meaning-badge {
+        margin-right: 6px;
+        padding: 3px 7px;
+        font-size: 0.76rem;
     }
 
     .urdu-support-header {
@@ -3899,33 +3868,6 @@ td.mastery-mastered {
 
     .story-content.side-image-layout #story-text {
         flex: 1;
-    }
-}
-
-@media (min-width: 920px) {
-    .urdu-paragraph-block.has-selection {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(220px, 260px);
-        column-gap: 18px;
-        row-gap: 12px;
-        align-items: start;
-    }
-
-    .urdu-paragraph-block.has-selection .urdu-paragraph-row {
-        grid-column: 1;
-        grid-row: 1;
-    }
-
-    .urdu-paragraph-block.has-selection .urdu-inline-word-helper {
-        grid-column: 2;
-        grid-row: 1;
-        align-self: start;
-        margin-top: 2px;
-    }
-
-    .urdu-paragraph-block.has-selection .urdu-paragraph-translation {
-        grid-column: 1 / -1;
-        grid-row: 2;
     }
 }
 
