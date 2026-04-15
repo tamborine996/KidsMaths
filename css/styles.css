@@ -1010,10 +1010,49 @@ body {
 }
 
 .story-title-subtitle {
-    margin-top: 4px;
-    font-size: 0.92rem;
+    margin-top: 8px;
+    font-size: clamp(1rem, 2.8vw, 1.08rem);
     color: var(--text-secondary);
+    line-height: 1.55;
+    max-width: 56ch;
+}
+
+.story-title-translation-toggle {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(140, 106, 158, 0.24);
+    background: rgba(255, 255, 255, 0.86);
+    color: #6E4E88;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+#story-screen .screen-header {
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+#story-screen .screen-header-copy {
+    padding-top: 2px;
+}
+
+#story-screen .screen-header h2 {
+    font-size: clamp(1.45rem, 4.6vw, 2rem);
     line-height: 1.35;
+}
+
+#story-screen .back-btn,
+#story-screen .home-btn,
+#story-screen .bookmark-btn {
+    width: 48px;
+    height: 48px;
+}
+
+#story-screen .bookmark-btn {
+    font-size: 1.35rem;
 }
 
 .bookmark-btn {
@@ -2858,17 +2897,23 @@ td.mastery-mastered {
     align-self: center;
 }
 
+#story-page-text {
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
 .story-content {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding: var(--spacing-lg);
-    background: var(--bg-card);
-    border: var(--border-width) solid var(--reading-border);
+    padding: clamp(18px, 4vw, 28px);
+    background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,250,243,0.96));
+    border: 2px solid rgba(118, 160, 215, 0.38);
     border-radius: var(--border-radius-xl);
-    box-shadow: var(--shadow-offset-lg) var(--reading-border);
+    box-shadow: 0 12px 28px rgba(118, 160, 215, 0.14);
     margin-bottom: var(--spacing-lg);
     min-height: 200px;
     overflow-y: auto;
@@ -2879,7 +2924,7 @@ td.mastery-mastered {
 
 .story-content.urdu-story-layout {
     flex: 0 1 auto;
-    min-height: clamp(180px, 28vh, 280px);
+    min-height: clamp(220px, 32vh, 420px);
     align-items: stretch;
 }
 
@@ -2910,12 +2955,12 @@ td.mastery-mastered {
 
 .story-content.urdu-story-layout #story-text {
     margin-inline: auto;
-    max-width: 24ch;
-    font-size: 1.7rem;
-    line-height: 2.2;
+    max-width: 22ch;
+    font-size: clamp(1.88rem, 5.2vw, 2.14rem);
+    line-height: 2.24;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: 14px;
 }
 
 #story-title[dir="rtl"],
@@ -2933,7 +2978,7 @@ td.mastery-mastered {
     color: inherit;
     font: inherit;
     line-height: inherit;
-    padding: 0.08em 0.24em;
+    padding: 0.1em 0.28em;
     margin: 0 1px;
     border-radius: 10px;
     cursor: pointer;
@@ -2963,7 +3008,7 @@ td.mastery-mastered {
 .urdu-paragraph-block {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: 10px;
 }
 
 .urdu-paragraph-row {
@@ -3006,18 +3051,19 @@ td.mastery-mastered {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: calc(var(--spacing-lg) + 84px);
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
 }
 
 .urdu-support-card {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
-    background: rgba(255, 255, 255, 0.78);
-    border: 2px solid rgba(140, 106, 158, 0.24);
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.84);
+    border: 1px solid rgba(140, 106, 158, 0.18);
     border-radius: var(--border-radius-xl);
-    padding: var(--spacing-md);
-    box-shadow: 0 8px 20px rgba(140, 106, 158, 0.08);
+    padding: 14px;
+    box-shadow: 0 10px 24px rgba(140, 106, 158, 0.08);
 }
 
 .urdu-support-header {
@@ -3034,7 +3080,7 @@ td.mastery-mastered {
 }
 
 .urdu-support-kicker {
-    font-size: 0.78rem;
+    font-size: 0.82rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -3043,8 +3089,9 @@ td.mastery-mastered {
 
 .urdu-support-title {
     font-family: var(--font-display);
-    font-size: 1.05rem;
+    font-size: clamp(1.06rem, 3vw, 1.2rem);
     color: var(--text-heading);
+    line-height: 1.45;
 }
 
 .urdu-support-status {
@@ -3053,7 +3100,7 @@ td.mastery-mastered {
     border-radius: 999px;
     background: rgba(140, 106, 158, 0.12);
     color: #6E4E88;
-    font-size: 0.92rem;
+    font-size: 0.96rem;
     font-weight: 700;
     line-height: 1.2;
 }
@@ -3085,7 +3132,6 @@ td.mastery-mastered {
     padding: var(--spacing-md);
 }
 
-.urdu-word-helper-label,
 .urdu-page-translation-label {
     font-size: 0.82rem;
     font-weight: 700;
@@ -3095,27 +3141,52 @@ td.mastery-mastered {
     margin-bottom: var(--spacing-xs);
 }
 
-.urdu-word-helper-main {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-sm);
-    align-items: center;
-    margin-bottom: var(--spacing-sm);
+.urdu-inline-word-helper {
+    background: linear-gradient(180deg, rgba(255, 251, 239, 0.98), rgba(255, 246, 228, 0.98));
+    border: 1px solid rgba(214, 162, 32, 0.32);
+    border-radius: 22px;
+    padding: 14px 16px;
+    box-shadow: 0 10px 24px rgba(214, 162, 32, 0.12);
 }
 
-.urdu-word-helper-urdu {
-    font-size: 1.5rem;
+.urdu-inline-word-helper-label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #9A6E00;
+    margin-bottom: 8px;
+}
+
+.urdu-inline-word-helper-main {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.urdu-inline-word-helper-urdu {
+    font-size: 1.45rem;
     font-weight: 700;
     direction: rtl;
 }
 
-.urdu-word-helper-arrow {
+.urdu-inline-word-helper-arrow {
+    font-size: 0.84rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     color: var(--text-secondary);
 }
 
-.urdu-word-helper-english {
-    font-size: 1.05rem;
+.urdu-inline-word-helper-english {
+    font-size: 1.02rem;
+    line-height: 1.45;
     color: var(--text-primary);
+}
+
+.urdu-inline-word-helper .urdu-save-word-btn {
+    width: 100%;
 }
 
 .urdu-save-word-btn[disabled] {
@@ -3171,11 +3242,9 @@ td.mastery-mastered {
     display: flex;
     justify-content: space-between;
     gap: var(--spacing-md);
-    position: sticky;
-    bottom: 0;
     padding-top: var(--spacing-sm);
     padding-bottom: max(var(--spacing-sm), env(safe-area-inset-bottom, 0px));
-    background: linear-gradient(180deg, rgba(255, 247, 236, 0), rgba(255, 247, 236, 0.92) 35%, rgba(255, 247, 236, 1) 100%);
+    background: transparent;
     z-index: 2;
 }
 
@@ -3315,6 +3384,44 @@ td.mastery-mastered {
         flex: 1 1 140px;
         min-width: 0;
     }
+
+    #story-screen .screen-header {
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    #story-screen .screen-header h2 {
+        font-size: 1.3rem;
+    }
+
+    .story-title-subtitle {
+        font-size: 0.98rem;
+    }
+
+    .story-title-translation-toggle {
+        width: fit-content;
+        max-width: 100%;
+        font-size: 0.88rem;
+        padding: 9px 12px;
+    }
+
+    .story-content {
+        padding: 16px;
+    }
+
+    .story-content.urdu-story-layout #story-text {
+        max-width: 20ch;
+        font-size: 1.95rem;
+        line-height: 2.16;
+    }
+
+    .urdu-paragraph-row {
+        gap: 10px;
+    }
+
+    .urdu-inline-word-helper {
+        padding: 12px 14px;
+    }
 }
 
 @media (max-width: 400px) {
@@ -3352,7 +3459,7 @@ td.mastery-mastered {
         gap: var(--spacing-md);
     }
 
-    .urdu-word-helper-urdu {
+    .urdu-inline-word-helper-urdu {
         font-size: 1.3rem;
     }
 
@@ -3567,6 +3674,27 @@ td.mastery-mastered {
     }
 }
 
+@media (min-width: 920px) {
+    .urdu-paragraph-block.has-selection {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(220px, 260px);
+        column-gap: 18px;
+        align-items: start;
+    }
+
+    .urdu-paragraph-block.has-selection .urdu-paragraph-row,
+    .urdu-paragraph-block.has-selection .urdu-paragraph-translation {
+        grid-column: 1;
+    }
+
+    .urdu-paragraph-block.has-selection .urdu-inline-word-helper {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        align-self: start;
+        margin-top: 2px;
+    }
+}
+
 /* Landscape orientation specific */
 @media (orientation: landscape) and (max-height: 500px) {
     /* Compact layout for phone landscape */
@@ -3674,6 +3802,16 @@ td.mastery-mastered {
     .reading-featured-cover {
         width: 76px;
         min-width: 76px;
+    }
+
+    .urdu-support-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .urdu-support-status {
+        width: 100%;
+        text-align: center;
     }
 }
 

@@ -341,6 +341,7 @@
                 </div>
                 <div class="screen-header-copy">
                     <h2 id="story-title">Story</h2>
+                    <button id="story-title-translation-toggle" class="story-title-translation-toggle hidden" type="button" aria-expanded="false"></button>
                     <div id="story-title-subtitle" class="story-title-subtitle hidden"></div>
                 </div>
                 <button class="bookmark-btn" id="bookmark-btn" title="Bookmark this page">&#128278;</button>
@@ -360,22 +361,13 @@
                     <div class="urdu-support-header">
                         <div class="urdu-support-copy">
                             <div class="urdu-support-kicker">Reading help</div>
-                            <div class="urdu-support-title" id="urdu-support-title">Tap any Urdu word for quick help, or use EN beside a paragraph.</div>
+                            <div class="urdu-support-title" id="urdu-support-title">Tap a word and its meaning appears close to the line you are reading.</div>
                         </div>
-                        <div class="urdu-support-status" id="urdu-support-status">No word selected yet</div>
+                        <div class="urdu-support-status" id="urdu-support-status">Tap any highlighted word</div>
                     </div>
                     <div class="urdu-story-actions">
                         <button class="secondary-btn" id="urdu-translation-toggle-btn" aria-pressed="false">Show English help</button>
                         <button class="secondary-btn" id="urdu-saved-toggle-btn" aria-pressed="false">Saved words (0)</button>
-                    </div>
-                    <div class="urdu-word-helper hidden" id="urdu-word-helper">
-                        <div class="urdu-word-helper-label">Selected word</div>
-                        <div class="urdu-word-helper-main">
-                            <span class="urdu-word-helper-urdu" id="urdu-word-helper-urdu"></span>
-                            <span class="urdu-word-helper-arrow">→</span>
-                            <span class="urdu-word-helper-english" id="urdu-word-helper-english"></span>
-                        </div>
-                        <button class="primary-btn urdu-save-word-btn" id="urdu-save-word-btn">Save this word</button>
                     </div>
                     <div class="urdu-page-translation hidden" id="urdu-page-translation"></div>
                     <div class="urdu-saved-words-panel hidden" id="urdu-saved-words-panel"></div>

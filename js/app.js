@@ -45,6 +45,7 @@ class KidsMathsApp {
         this._selectedUrduWord = null;
         this._showUrduTranslation = false;
         this._showUrduSavedWords = false;
+        this._showStoryTitleTranslation = false;
         this._pendingUrduSelectionText = '';
         this._urduParagraphTranslations = {};
         this._urduParagraphLoadingKey = '';
@@ -2450,8 +2451,15 @@ class KidsMathsApp {
             this._renderUrduSupportPanel();
         });
 
-        document.getElementById('urdu-save-word-btn').addEventListener('click', () => {
-            this._saveSelectedUrduWord();
+        document.getElementById('story-screen').addEventListener('click', (e) => {
+            if (e.target.closest('.urdu-save-word-btn')) {
+                this._saveSelectedUrduWord();
+            }
+        });
+
+        document.getElementById('story-title-translation-toggle').addEventListener('click', () => {
+            this._showStoryTitleTranslation = !this._showStoryTitleTranslation;
+            this._renderStoryPage();
         });
 
         document.getElementById('urdu-saved-words-panel').addEventListener('click', (e) => {
@@ -3270,6 +3278,7 @@ class KidsMathsApp {
                     this.currentStoryPage = bm ? bm.page : 0;
                 }
 
+                this._showStoryTitleTranslation = false;
                 this._recordRecentItem(this._buildStoryResumeItem(storyId, this.currentStoryPage));
 
                 if (this._isUrduStory(storyId)) {
@@ -3306,16 +3315,31 @@ class KidsMathsApp {
 
         const storyTitle = document.getElementById('story-title');
         const storyTitleSubtitle = document.getElementById('story-title-subtitle');
+        const storyTitleTranslationToggle = document.getElementById('story-title-translation-toggle');
         const storyText = document.getElementById('story-text');
 
         storyTitle.textContent = story.title;
         storyTitle.dir = direction;
+        const shouldCollapseEnglishTitle = isInteractiveUrdu && window.matchMedia?.('(max-width: 720px)').matches;
         if (story.titleEnglish) {
             storyTitleSubtitle.textContent = story.titleEnglish;
-            storyTitleSubtitle.classList.remove('hidden');
+            if (shouldCollapseEnglishTitle) {
+                storyTitleTranslationToggle.classList.remove('hidden');
+                storyTitleTranslationToggle.textContent = this._showStoryTitleTranslation ? 'Hide English title' : 'Show English title';
+                storyTitleTranslationToggle.setAttribute('aria-expanded', this._showStoryTitleTranslation ? 'true' : 'false');
+                storyTitleSubtitle.classList.toggle('hidden', !this._showStoryTitleTranslation);
+            } else {
+                storyTitleTranslationToggle.classList.add('hidden');
+                storyTitleTranslationToggle.textContent = '';
+                storyTitleTranslationToggle.setAttribute('aria-expanded', 'false');
+                storyTitleSubtitle.classList.remove('hidden');
+            }
         } else {
             storyTitleSubtitle.textContent = '';
             storyTitleSubtitle.classList.add('hidden');
+            storyTitleTranslationToggle.classList.add('hidden');
+            storyTitleTranslationToggle.textContent = '';
+            storyTitleTranslationToggle.setAttribute('aria-expanded', 'false');
         }
         this._renderCurrentStoryText();
         document.getElementById('story-page-text').textContent =
@@ -3349,6 +3373,7 @@ class KidsMathsApp {
             this._pendingUrduSelectionText = '';
             this._showUrduTranslation = false;
             this._showUrduSavedWords = false;
+            this._showStoryTitleTranslation = false;
         }
         this._renderUrduSupportPanel();
 
@@ -3468,20 +3493,47 @@ class KidsMathsApp {
             const key = this._getUrduParagraphCacheKey(index);
             const translation = this._urduParagraphTranslations[key] || '';
             const isLoading = this._urduParagraphLoadingKey === key;
+            const hasInlineSelection = Number(this._selectedUrduWord?.paragraphIndex ?? -1) === index;
+            const inlineHelper = this._renderInlineUrduWordHelper(index);
             const translationHtml = isLoading
                 ? '<div class="urdu-page-translation-label">English for this paragraph</div><p>Translating paragraph…</p>'
                 : `<div class="urdu-page-translation-label">English for this paragraph</div><p>${this._escapeHtml(translation).replace(/\n/g, '<br>')}</p>`;
 
             return `
-                <div class="urdu-paragraph-block" data-paragraph-index="${index}">
+                <div class="urdu-paragraph-block${hasInlineSelection ? ' has-selection' : ''}" data-paragraph-index="${index}">
                     <div class="urdu-paragraph-row">
                         <button class="urdu-paragraph-translate-btn${translation ? ' is-active' : ''}" type="button" data-paragraph-translate="${index}" aria-label="Translate paragraph ${index + 1}">EN</button>
                         <div class="urdu-paragraph-text">${this._renderInteractiveUrduParagraph(paragraph, vocabulary, index)}</div>
                     </div>
+                    ${inlineHelper}
                     <div class="urdu-paragraph-translation${translation || isLoading ? '' : ' hidden'}">${translationHtml}</div>
                 </div>
             `;
         }).join('');
+    }
+
+    _renderInlineUrduWordHelper(paragraphIndex) {
+        const selectedWord = this._selectedUrduWord;
+        if (!selectedWord || Number(selectedWord.paragraphIndex ?? -1) !== paragraphIndex) {
+            return '';
+        }
+
+        const savedWords = this._getUrduSavedWords();
+        const wordAlreadySaved = this._isSelectedUrduWordSaved(savedWords);
+        const disabledAttr = wordAlreadySaved ? ' disabled' : '';
+        const buttonLabel = wordAlreadySaved ? 'Saved ✓' : 'Save word';
+
+        return `
+            <div class="urdu-inline-word-helper${wordAlreadySaved ? ' is-saved' : ''}">
+                <div class="urdu-inline-word-helper-label">Word help</div>
+                <div class="urdu-inline-word-helper-main">
+                    <span class="urdu-inline-word-helper-urdu">${this._escapeHtml(selectedWord.word || '')}</span>
+                    <span class="urdu-inline-word-helper-arrow">means</span>
+                    <span class="urdu-inline-word-helper-english">${this._escapeHtml(selectedWord.meaning || '')}</span>
+                </div>
+                <button class="secondary-btn urdu-save-word-btn" type="button"${disabledAttr}>${buttonLabel}</button>
+            </div>
+        `;
     }
 
     _renderInteractiveUrduParagraph(text, vocabulary, paragraphIndex) {
@@ -3735,18 +3787,15 @@ class KidsMathsApp {
 
     _renderUrduSupportPanel() {
         const tools = document.getElementById('urdu-story-tools');
-        const helper = document.getElementById('urdu-word-helper');
         const translation = document.getElementById('urdu-page-translation');
         const savedPanel = document.getElementById('urdu-saved-words-panel');
         const translationBtn = document.getElementById('urdu-translation-toggle-btn');
         const savedBtn = document.getElementById('urdu-saved-toggle-btn');
         const supportTitle = document.getElementById('urdu-support-title');
         const supportStatus = document.getElementById('urdu-support-status');
-        const saveWordBtn = document.getElementById('urdu-save-word-btn');
 
         if (!this._storySupportsUrduTools()) {
             tools.classList.add('hidden');
-            helper.classList.add('hidden');
             translation.classList.add('hidden');
             savedPanel.classList.add('hidden');
             translationBtn.classList.remove('is-active');
@@ -3770,19 +3819,11 @@ class KidsMathsApp {
         savedBtn.setAttribute('aria-pressed', this._showUrduSavedWords ? 'true' : 'false');
 
         if (this._selectedUrduWord) {
-            helper.classList.remove('hidden');
-            document.getElementById('urdu-word-helper-urdu').textContent = this._selectedUrduWord.word;
-            document.getElementById('urdu-word-helper-english').textContent = this._selectedUrduWord.meaning;
-            supportTitle.textContent = 'Selected word and meaning';
-            supportStatus.textContent = `Selected: ${this._selectedUrduWord.word}`;
-            saveWordBtn.disabled = wordAlreadySaved;
-            saveWordBtn.textContent = wordAlreadySaved ? 'Saved ✓' : 'Save this word';
+            supportTitle.textContent = 'Word help stays close to the line so you can keep your place.';
+            supportStatus.textContent = wordAlreadySaved ? `Saved: ${this._selectedUrduWord.word}` : `Selected: ${this._selectedUrduWord.word}`;
         } else {
-            helper.classList.add('hidden');
-            supportTitle.textContent = 'Tap any Urdu word for quick help, or use EN beside a paragraph.';
-            supportStatus.textContent = currentSelectionText ? `Last word: ${currentSelectionText}` : 'No word selected yet';
-            saveWordBtn.disabled = true;
-            saveWordBtn.textContent = 'Save this word';
+            supportTitle.textContent = 'Tap a word and its meaning appears close to the line you are reading.';
+            supportStatus.textContent = currentSelectionText ? `Last word: ${currentSelectionText}` : 'Tap any highlighted word';
         }
 
         if (this._showUrduTranslation && page.translation) {
