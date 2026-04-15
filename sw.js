@@ -1,5 +1,5 @@
-const CACHE_NAME = 'kidsmaths-v56';
-const BUILD_TIME = '2026-04-15 15:55';
+const CACHE_NAME = 'kidsmaths-v57';
+const BUILD_TIME = '2026-04-15 17:49';
 const ASSETS = [
     './',
     './index.html',
@@ -20,6 +20,7 @@ const ASSETS = [
     './data/urdu.json',
     './data/math-worlds.json',
     './manifest.json',
+    './version.json',
     './assets/stories/alice-page-1-white-rabbit.jpg'
 ];
 
@@ -59,6 +60,13 @@ self.addEventListener('message', (event) => {
     }
     if (event.data?.type === 'GET_BUILD_TIME') {
         event.source.postMessage({ type: 'BUILD_TIME', buildTime: BUILD_TIME });
+    }
+    if (event.data?.type === 'GET_BUILD_INFO') {
+        event.source.postMessage({
+            type: 'BUILD_INFO',
+            buildTime: BUILD_TIME,
+            cacheName: CACHE_NAME
+        });
     }
 });
 

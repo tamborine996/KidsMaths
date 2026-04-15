@@ -56,6 +56,8 @@ class KidsMathsApp {
         this._bbcFeedError = '';
         this._bbcFeedFetchedAt = '';
         this._bbcImportingUrl = '';
+        this._activeBuildInfo = null;
+        this._latestBuildInfo = null;
 
         // Search index (built after data loads)
         this._storyIndex = [];
@@ -4148,12 +4150,73 @@ class KidsMathsApp {
                     const stamp = document.getElementById('build-stamp');
                     if (stamp) stamp.textContent = event.data.buildTime;
                 }
+                if (event.data?.type === 'BUILD_INFO') {
+                    this._activeBuildInfo = {
+                        buildTime: event.data.buildTime,
+                        cacheName: event.data.cacheName
+                    };
+                    this._renderBuildIndicator();
+                    this._fetchLatestBuildInfo();
+                }
             });
 
             // Request build time once SW is ready
             navigator.serviceWorker.ready.then(reg => {
-                reg.active.postMessage({ type: 'GET_BUILD_TIME' });
+                reg.active?.postMessage({ type: 'GET_BUILD_INFO' });
             });
+        }
+    }
+
+    _formatBuildStamp(info) {
+        if (!info) return 'Checking build…';
+        const buildTime = info.buildTime || 'Unknown build';
+        const cacheName = info.cacheName || 'app';
+        return `${cacheName} · ${buildTime}`;
+    }
+
+    _setBuildSyncState(text, stateClass = '') {
+        const syncEl = document.getElementById('build-sync');
+        if (!syncEl) return;
+        syncEl.textContent = text;
+        syncEl.classList.remove('is-synced', 'is-update', 'is-error');
+        if (stateClass) syncEl.classList.add(stateClass);
+    }
+
+    _renderBuildIndicator() {
+        const stamp = document.getElementById('build-stamp');
+        if (stamp) {
+            stamp.textContent = this._formatBuildStamp(this._activeBuildInfo);
+        }
+
+        if (!this._activeBuildInfo) {
+            this._setBuildSyncState('Checking active build…');
+            return;
+        }
+
+        if (!this._latestBuildInfo) {
+            this._setBuildSyncState('Checking live version…');
+            return;
+        }
+
+        const active = `${this._activeBuildInfo.cacheName || ''}|${this._activeBuildInfo.buildTime || ''}`;
+        const latest = `${this._latestBuildInfo.cacheName || ''}|${this._latestBuildInfo.buildTime || ''}`;
+        if (active === latest) {
+            this._setBuildSyncState('Live: synced', 'is-synced');
+        } else {
+            this._setBuildSyncState(`Live: update available (${this._latestBuildInfo.cacheName})`, 'is-update');
+        }
+    }
+
+    async _fetchLatestBuildInfo() {
+        try {
+            const response = await fetch(`version.json?ts=${Date.now()}`, { cache: 'no-store' });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            this._latestBuildInfo = await response.json();
+            this._renderBuildIndicator();
+        } catch (error) {
+            console.warn('Latest version check failed:', error);
+            this._latestBuildInfo = null;
+            this._setBuildSyncState('Live: cannot verify', 'is-error');
         }
     }
 
@@ -4215,10 +4278,15 @@ class KidsMathsApp {
                 if (indicatorBtn) { indicatorBtn.classList.remove('checking'); }
                 if (statusEl) { statusEl.textContent = 'Service worker not found.'; }
                 if (settingsBtn) { settingsBtn.disabled = false; }
+                this._setBuildSyncState('Live: cannot verify', 'is-error');
                 return;
             }
 
             await reg.update();
+            if (reg.active) {
+                reg.active.postMessage({ type: 'GET_BUILD_INFO' });
+            }
+            await this._fetchLatestBuildInfo();
 
             if (reg.installing || reg.waiting) {
                 if (statusEl) { statusEl.textContent = 'Update found! Applying...'; }
@@ -4237,13 +4305,20 @@ class KidsMathsApp {
                     indicatorBtn.classList.add('done');
                     setTimeout(() => indicatorBtn.classList.remove('done'), 2000);
                 }
-                if (statusEl) { statusEl.textContent = 'You\'re on the latest version.'; }
+                const active = `${this._activeBuildInfo?.cacheName || ''}|${this._activeBuildInfo?.buildTime || ''}`;
+                const latest = `${this._latestBuildInfo?.cacheName || ''}|${this._latestBuildInfo?.buildTime || ''}`;
+                if (statusEl) {
+                    statusEl.textContent = active && latest && active === latest
+                        ? 'You\'re on the latest version.'
+                        : 'Update check finished. If the top-left label still says update available, reopen the app once the new version activates.';
+                }
                 if (settingsBtn) { settingsBtn.disabled = false; }
             }
         } catch (err) {
             if (indicatorBtn) { indicatorBtn.classList.remove('checking'); }
             if (statusEl) { statusEl.textContent = 'Update check failed. Are you online?'; }
             if (settingsBtn) { settingsBtn.disabled = false; }
+            this._setBuildSyncState('Live: cannot verify', 'is-error');
         }
     }
 

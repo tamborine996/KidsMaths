@@ -120,6 +120,13 @@
     -webkit-user-select: none;
 }
 
+.build-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+}
+
 .update-dot {
     width: 20px;
     height: 20px;
@@ -133,9 +140,31 @@
 .build-stamp {
     font-size: 0.72rem;
     color: var(--text-secondary);
-    opacity: 0.4;
+    opacity: 0.7;
     font-family: var(--font-body);
     white-space: nowrap;
+}
+
+.build-sync {
+    font-size: 0.64rem;
+    color: var(--text-secondary);
+    opacity: 0.75;
+    white-space: nowrap;
+}
+
+.build-sync.is-synced {
+    color: #4f7b3e;
+    opacity: 0.95;
+}
+
+.build-sync.is-update {
+    color: #9a5a18;
+    opacity: 0.95;
+}
+
+.build-sync.is-error {
+    color: #8f4d5d;
+    opacity: 0.95;
 }
 
 .update-bar.pressing .update-dot {
@@ -147,6 +176,10 @@
     opacity: 0.7;
 }
 
+.update-bar.pressing .build-sync {
+    opacity: 0.9;
+}
+
 .update-bar.checking .update-dot {
     opacity: 1;
     background: var(--accent-warm);
@@ -155,6 +188,10 @@
 
 .update-bar.checking .build-stamp {
     opacity: 0.8;
+}
+
+.update-bar.checking .build-sync {
+    opacity: 1;
 }
 
 .update-bar.done .update-dot {
