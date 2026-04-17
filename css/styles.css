@@ -94,6 +94,10 @@
     /* Typography */
     --font-display: 'Comic Neue', cursive;
     --font-body: 'Comic Neue', cursive;
+    --story-font-size-base: 1.5rem;
+    --story-font-size-urdu: clamp(2.55rem, 7vw, 3.15rem);
+    --story-font-size-article: clamp(2.95rem, 8vw, 3.6rem);
+    --story-font-scale: 1;
 
     /* Warm accent for dark mode */
     --accent-warm: #F4A460;
@@ -3064,6 +3068,61 @@ td.mastery-mastered {
     align-self: center;
 }
 
+.story-font-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 auto 12px;
+}
+
+.story-font-btn {
+    min-width: 52px;
+    min-height: 42px;
+    padding: 8px 12px;
+}
+
+.story-font-reset-btn {
+    min-width: 78px;
+}
+
+.story-font-label {
+    min-width: 118px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.8);
+    border: 1px solid rgba(140, 106, 158, 0.18);
+    color: var(--text-secondary);
+    font-weight: 700;
+    text-align: center;
+}
+
+.story-audio-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 auto 12px;
+}
+
+.story-audio-btn {
+    min-height: 42px;
+}
+
+.story-audio-status {
+    flex: 1 1 220px;
+    min-width: 220px;
+    padding: 8px 12px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.8);
+    border: 1px solid rgba(118, 160, 215, 0.22);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
 #story-page-text {
     font-size: 1.08rem;
     font-weight: 700;
@@ -3109,7 +3168,7 @@ td.mastery-mastered {
 
 #story-text {
     font-family: var(--font-body);
-    font-size: 1.5rem;
+    font-size: calc(var(--story-font-size-base) * var(--story-font-scale));
     line-height: 2;
     color: var(--text-primary);
     text-align: left;
@@ -3123,7 +3182,7 @@ td.mastery-mastered {
 .story-content.urdu-story-layout #story-text {
     margin-inline: auto;
     max-width: min(100%, 34rem);
-    font-size: clamp(2.55rem, 7vw, 3.15rem);
+    font-size: calc(var(--story-font-size-urdu) * var(--story-font-scale));
     line-height: 2.24;
     display: flex;
     flex-direction: column;
@@ -3428,7 +3487,7 @@ td.mastery-mastered {
 
 .story-content.urdu-article-reader-layout #story-text {
     max-width: 100%;
-    font-size: clamp(2.95rem, 8vw, 3.6rem);
+    font-size: calc(var(--story-font-size-article) * var(--story-font-scale));
     line-height: 2.02;
     gap: 18px;
 }
@@ -3704,7 +3763,7 @@ td.mastery-mastered {
 
     .story-content.urdu-story-layout #story-text {
         max-width: 100%;
-        font-size: 2.48rem;
+        font-size: calc(2.48rem * var(--story-font-scale));
         line-height: 2.18;
     }
 
@@ -3747,7 +3806,7 @@ td.mastery-mastered {
     }
 
     .story-content.urdu-article-reader-layout #story-text {
-        font-size: 2.82rem;
+        font-size: calc(2.82rem * var(--story-font-scale));
         line-height: 1.98;
         gap: 14px;
     }
@@ -3804,7 +3863,7 @@ td.mastery-mastered {
     }
 
     .story-content.urdu-story-layout #story-text {
-        font-size: 2.28rem;
+        font-size: calc(2.28rem * var(--story-font-scale));
         line-height: 2.14;
     }
 
@@ -3831,7 +3890,7 @@ td.mastery-mastered {
     }
 
     .story-content.urdu-article-reader-layout #story-text {
-        font-size: 2.56rem;
+        font-size: calc(2.56rem * var(--story-font-scale));
         line-height: 1.94;
     }
 

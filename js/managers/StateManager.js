@@ -17,7 +17,25 @@ export class StateManager {
         try {
             const stored = localStorage.getItem(this._storageKey);
             if (stored) {
-                this._state = JSON.parse(stored);
+                const parsed = JSON.parse(stored);
+                const defaults = this._getDefaultState();
+                this._state = {
+                    ...defaults,
+                    ...parsed,
+                    coins: {
+                        ...defaults.coins,
+                        ...(parsed.coins || {})
+                    },
+                    moduleProgress: {
+                        ...defaults.moduleProgress,
+                        ...(parsed.moduleProgress || {})
+                    },
+                    mathMissionProgress: {
+                        ...defaults.mathMissionProgress,
+                        ...(parsed.mathMissionProgress || {})
+                    }
+                };
+                this._save();
             } else {
                 this._initDefaults();
             }
@@ -31,7 +49,12 @@ export class StateManager {
      * Initialize default state for new users
      */
     _initDefaults() {
-        this._state = {
+        this._state = this._getDefaultState();
+        this._save();
+    }
+
+    _getDefaultState() {
+        return {
             // Coins
             coins: {
                 balance: 0,
@@ -61,6 +84,7 @@ export class StateManager {
             archivedUrduStoryIds: [],
             showArchivedUrdu: false,
             currentUrduStoryId: null,
+            storyFontScale: 1,
             readingLevel: 'R1',
             libraryLevel: 'L1',
             urduLevel: 'U1',
@@ -82,7 +106,6 @@ export class StateManager {
             currentLevel: null,
             currentMode: null
         };
-        this._save();
     }
 
     /**

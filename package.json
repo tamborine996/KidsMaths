@@ -1,0 +1,24 @@
+{
+  "name": "kidsmaths",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sw.js",
+  "scripts": {
+    "test": "node scripts/check-story-font-controls.js && node scripts/check-urdu-reading-layout.js && node scripts/check-english-tts.js",
+    "check:english-tts": "node scripts/check-english-tts.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tamborine996/KidsMaths.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tamborine996/KidsMaths/issues"
+  },
+  "homepage": "https://github.com/tamborine996/KidsMaths#readme",
+  "devDependencies": {
+    "wrangler": "^4.83.0"
+  }
+}

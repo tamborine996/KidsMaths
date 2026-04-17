@@ -359,6 +359,17 @@
                     <div class="progress-fill" id="story-progress-fill"></div>
                 </div>
             </div>
+            <div class="story-font-controls" aria-label="Story text size controls">
+                <button class="secondary-btn story-font-btn" id="story-font-decrease-btn" type="button" aria-label="Make story text smaller">A−</button>
+                <div class="story-font-label" id="story-font-label" aria-live="polite">Text size 100%</div>
+                <button class="secondary-btn story-font-btn story-font-reset-btn" id="story-font-reset-btn" type="button">Reset</button>
+                <button class="secondary-btn story-font-btn" id="story-font-increase-btn" type="button" aria-label="Make story text bigger">A+</button>
+            </div>
+            <div class="story-audio-controls hidden" id="story-audio-controls" aria-label="Story audio controls">
+                <button class="secondary-btn story-audio-btn" id="story-speak-selection-btn" type="button">Speak selection</button>
+                <button class="secondary-btn story-audio-btn" id="story-stop-audio-btn" type="button" disabled>Stop audio</button>
+                <div class="story-audio-status" id="story-audio-status" aria-live="polite">Select a word or short section to hear it aloud.</div>
+            </div>
             <div class="story-content" id="story-content">
                 <img id="story-image" class="story-image hidden" alt="Story illustration">
                 <div id="story-text"></div>
@@ -497,6 +508,9 @@
         </div>
     </div>
 
+    <script>
+        window.KIDSMATHS_TTS_PROXY_URL = 'https://kidsmaths-tts-proxy.mqc200.workers.dev';
+    </script>
     <script type="module" src="js/app.js"></script>
 </body>
 </html>

@@ -23,7 +23,8 @@ assert(js.includes('this._clearSelectedUrduWord();'), 'Expected selected Urdu wo
 assert(js.includes('const isSameWord = this._selectedUrduWord'), 'Expected tapping the same Urdu word to toggle selection off');
 assert(js.includes('urdu-inline-meaning-badge'), 'Expected selected Urdu words to render an inline meaning badge');
 assert(css.includes('.urdu-inline-meaning-badge {'), 'Expected styling for inline English meaning badges');
-assert(css.includes('font-size: clamp(2.55rem, 7vw, 3.15rem);'), 'Expected much larger Urdu reading text sizing');
+assert(css.includes('--story-font-size-urdu: clamp(2.55rem, 7vw, 3.15rem);'), 'Expected much larger Urdu reading text sizing token');
+assert(css.includes('font-size: calc(var(--story-font-size-urdu) * var(--story-font-scale));'), 'Expected Urdu story reader text to respect the shared font scaling control');
 assert(css.includes('.story-content.urdu-article-reader-layout #story-text {'), 'Expected dedicated article-reader typography styling');
 assert(css.includes('#story-screen.article-reader-mode .urdu-support-card.is-article-idle {'), 'Expected article reader to quiet helper chrome when idle');
 assert(!css.includes('.urdu-paragraph-row.has-inline-help'), 'Expected Urdu reading layout to stop using an extra helper column that narrows the text row');

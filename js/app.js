@@ -13,6 +13,17 @@ import { Timer } from './components/Timer.js';
 
 class KidsMathsApp {
     constructor() {
+        this._storyFontScaleMin = 0.85;
+        this._storyFontScaleMax = 1.65;
+        this._storyFontScaleStep = 0.1;
+        this.storyTtsProxyUrl = window.KIDSMATHS_TTS_PROXY_URL || '';
+        this.storyAudioSelection = null;
+        this._storyAudioElement = null;
+        this._storyAudioObjectUrl = '';
+        this._storyAudioAbortController = null;
+        this._storyAudioLoading = false;
+        this._storyAudioStatusOverride = '';
+
         // Managers
         this.coinManager = new CoinManager();
         this.progressManager = new ProgressManager();
@@ -88,6 +99,9 @@ class KidsMathsApp {
 
         // Bind events
         this._bindEvents();
+
+        // Apply persisted story typography settings
+        this._applyStoryFontScale();
 
         // History API - trap back button
         this._initHistoryTrapping();
@@ -2379,6 +2393,11 @@ class KidsMathsApp {
         // Story navigation
         document.getElementById('story-prev-btn').addEventListener('click', () => this._storyPrevPage());
         document.getElementById('story-next-btn').addEventListener('click', () => this._storyNextPage());
+        document.getElementById('story-font-decrease-btn').addEventListener('click', () => this._changeStoryFontScale(-this._storyFontScaleStep));
+        document.getElementById('story-font-increase-btn').addEventListener('click', () => this._changeStoryFontScale(this._storyFontScaleStep));
+        document.getElementById('story-font-reset-btn').addEventListener('click', () => this._resetStoryFontScale());
+        document.getElementById('story-speak-selection-btn').addEventListener('click', () => this._speakStorySelection());
+        document.getElementById('story-stop-audio-btn').addEventListener('click', () => this._stopStoryAudio());
 
         // Story swipe navigation (storybook-style page turns)
         const storyContent = document.getElementById('story-content');
@@ -2467,6 +2486,12 @@ class KidsMathsApp {
             if (this._selectedUrduWord) {
                 this._clearSelectedUrduWord();
             }
+        });
+        document.getElementById('story-text').addEventListener('mouseup', () => {
+            setTimeout(() => this._handleStoryTextSelection(), 0);
+        });
+        document.getElementById('story-text').addEventListener('touchend', () => {
+            setTimeout(() => this._handleStoryTextSelection(), 60);
         });
 
         document.getElementById('urdu-translation-toggle-btn').addEventListener('click', () => {
@@ -3351,6 +3376,9 @@ class KidsMathsApp {
 
                 this._showStoryTitleTranslation = false;
                 this._recordRecentItem(this._buildStoryResumeItem(storyId, this.currentStoryPage));
+                this.storyAudioSelection = null;
+                this._storyAudioStatusOverride = '';
+                this._stopStoryAudio();
 
                 if (this._isUrduStory(storyId)) {
                     state.set('currentUrduStoryId', storyId);
@@ -3381,6 +3409,10 @@ class KidsMathsApp {
 
         const story = this.currentStory;
         const page = story.pages[this.currentStoryPage];
+        if (this.storyAudioSelection && (this.storyAudioSelection.storyId !== story.id || Number(this.storyAudioSelection.page) !== Number(this.currentStoryPage))) {
+            this.storyAudioSelection = null;
+            this._storyAudioStatusOverride = '';
+        }
         const direction = story.direction || 'ltr';
         const isInteractiveUrdu = this._storySupportsUrduTools(story);
         const isUrduArticle = this._isUrduArticleStory(story);
@@ -3419,6 +3451,8 @@ class KidsMathsApp {
             `Page ${this.currentStoryPage + 1} of ${story.pages.length}`;
         document.getElementById('story-progress-fill').style.width =
             `${((this.currentStoryPage + 1) / story.pages.length) * 100}%`;
+        this._updateStoryFontControls();
+        this._renderStoryAudioControls();
 
         // Show/hide illustration
         const img = document.getElementById('story-image');
@@ -3467,6 +3501,282 @@ class KidsMathsApp {
         this._updateBookmarkButton();
     }
 
+    _getStoryFontScale() {
+        const rawScale = Number(state.get('storyFontScale'));
+        if (!Number.isFinite(rawScale)) {
+            return 1;
+        }
+        return Math.min(this._storyFontScaleMax, Math.max(this._storyFontScaleMin, rawScale));
+    }
+
+    _applyStoryFontScale(scale = this._getStoryFontScale()) {
+        const safeScale = Math.min(this._storyFontScaleMax, Math.max(this._storyFontScaleMin, Number(scale) || 1));
+        document.documentElement.style.setProperty('--story-font-scale', safeScale.toFixed(2));
+        this._applyStoryFontScaleToCurrentStoryText(safeScale);
+        this._updateStoryFontControls(safeScale);
+    }
+
+    _changeStoryFontScale(delta = 0) {
+        const currentScale = this._getStoryFontScale();
+        const nextScale = Math.min(
+            this._storyFontScaleMax,
+            Math.max(this._storyFontScaleMin, Number((currentScale + delta).toFixed(2)))
+        );
+
+        state.set('storyFontScale', nextScale);
+        this._applyStoryFontScale(nextScale);
+    }
+
+    _resetStoryFontScale() {
+        state.set('storyFontScale', 1);
+        this._applyStoryFontScale(1);
+    }
+
+    _updateStoryFontControls(scale = this._getStoryFontScale()) {
+        const storyFontLabel = document.getElementById('story-font-label');
+        const decreaseBtn = document.getElementById('story-font-decrease-btn');
+        const increaseBtn = document.getElementById('story-font-increase-btn');
+        const resetBtn = document.getElementById('story-font-reset-btn');
+        if (!storyFontLabel || !decreaseBtn || !increaseBtn || !resetBtn) return;
+
+        const percent = Math.round(scale * 100);
+        storyFontLabel.textContent = `Text size ${percent}%`;
+        decreaseBtn.disabled = scale <= this._storyFontScaleMin + 0.001;
+        increaseBtn.disabled = scale >= this._storyFontScaleMax - 0.001;
+        resetBtn.disabled = Math.abs(scale - 1) < 0.001;
+    }
+
+    _storySupportsEnglishTts(story = this.currentStory) {
+        if (!story) return false;
+        if ((story.direction || 'ltr') !== 'ltr') return false;
+        const text = story.pages?.[this.currentStoryPage]?.text || '';
+        return Boolean(String(text).trim());
+    }
+
+    _normalizeStoryAudioSelectionText(text = '') {
+        return String(text || '').replace(/\s+/g, ' ').trim();
+    }
+
+    _getStoryAudioSelection() {
+        if (!this.storyAudioSelection) return null;
+        if (this.storyAudioSelection.storyId !== this.currentStory?.id) return null;
+        if (Number(this.storyAudioSelection.page) !== Number(this.currentStoryPage)) return null;
+        return this.storyAudioSelection;
+    }
+
+    _clearStoryAudioSelection({ preserveStatus = false } = {}) {
+        this.storyAudioSelection = null;
+        if (!preserveStatus) {
+            this._storyAudioStatusOverride = '';
+        }
+        this._renderStoryAudioControls();
+    }
+
+    _handleStoryTextSelection() {
+        if (!this._storySupportsEnglishTts()) {
+            this._clearStoryAudioSelection();
+            return;
+        }
+
+        const storyText = document.getElementById('story-text');
+        const selection = window.getSelection?.();
+        if (!storyText || !selection || selection.rangeCount === 0 || selection.isCollapsed) {
+            this._clearStoryAudioSelection();
+            return;
+        }
+
+        const range = selection.getRangeAt(0);
+        const commonNode = range.commonAncestorContainer?.nodeType === Node.TEXT_NODE
+            ? range.commonAncestorContainer.parentNode
+            : range.commonAncestorContainer;
+        if (!commonNode || !storyText.contains(commonNode)) {
+            this._clearStoryAudioSelection();
+            return;
+        }
+
+        const text = this._normalizeStoryAudioSelectionText(selection.toString());
+        if (!text) {
+            this._clearStoryAudioSelection();
+            return;
+        }
+
+        if (text.length > 280) {
+            this.storyAudioSelection = {
+                text,
+                kind: 'too-long',
+                storyId: this.currentStory.id,
+                page: this.currentStoryPage
+            };
+            this._storyAudioStatusOverride = 'Keep the selection short — a word or small section.';
+            this._renderStoryAudioControls();
+            return;
+        }
+
+        this.storyAudioSelection = {
+            text,
+            kind: /^\S+$/.test(text) ? 'word' : 'passage',
+            storyId: this.currentStory.id,
+            page: this.currentStoryPage
+        };
+        this._storyAudioStatusOverride = '';
+        this._renderStoryAudioControls();
+    }
+
+    _renderStoryAudioControls() {
+        const controls = document.getElementById('story-audio-controls');
+        const speakBtn = document.getElementById('story-speak-selection-btn');
+        const stopBtn = document.getElementById('story-stop-audio-btn');
+        const status = document.getElementById('story-audio-status');
+        if (!controls || !speakBtn || !stopBtn || !status) return;
+
+        const enabled = this._storySupportsEnglishTts();
+        controls.classList.toggle('hidden', !enabled);
+        if (!enabled) return;
+
+        const selection = this._getStoryAudioSelection();
+        const selectionTooLong = selection?.kind === 'too-long';
+        const canSpeak = Boolean(selection && !selectionTooLong && !this._storyAudioLoading && this.storyTtsProxyUrl);
+        speakBtn.disabled = !canSpeak;
+        stopBtn.disabled = !this._storyAudioElement && !this._storyAudioLoading;
+
+        if (this._storyAudioLoading) {
+            status.textContent = 'Generating narration for your selection…';
+            return;
+        }
+
+        if (this._storyAudioStatusOverride) {
+            status.textContent = this._storyAudioStatusOverride;
+            return;
+        }
+
+        if (!this.storyTtsProxyUrl) {
+            status.textContent = 'TTS proxy not connected yet. Once the secure Worker is deployed, selected text will play here.';
+            return;
+        }
+
+        if (selectionTooLong) {
+            status.textContent = 'Keep the selection short — a word or small section.';
+            return;
+        }
+
+        if (selection) {
+            const label = selection.kind === 'word' ? 'Selected word' : 'Selected passage';
+            status.textContent = `${label}: “${selection.text}”`;
+            return;
+        }
+
+        status.textContent = 'Select a word or short section to hear it aloud.';
+    }
+
+    async _requestStorySpeechAudio(text) {
+        if (!this.storyTtsProxyUrl) {
+            throw new Error('TTS proxy is not configured yet.');
+        }
+
+        const proxyUrl = `${this.storyTtsProxyUrl.replace(/\/$/, '')}/v1/speak`;
+        const response = await fetch(proxyUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text,
+                mode: 'selection'
+            }),
+            signal: this._storyAudioAbortController?.signal
+        });
+
+        if (!response.ok) {
+            let errorMessage = `Speech request failed (${response.status})`;
+            try {
+                const data = await response.json();
+                errorMessage = data?.error || errorMessage;
+            } catch {
+                // Keep fallback message
+            }
+            throw new Error(errorMessage);
+        }
+
+        return response.blob();
+    }
+
+    async _speakStorySelection() {
+        const selection = this._getStoryAudioSelection();
+        if (!selection || selection.kind === 'too-long') {
+            this._renderStoryAudioControls();
+            return;
+        }
+
+        this._stopStoryAudio({ preserveStatus: true });
+        this._storyAudioLoading = true;
+        this._storyAudioStatusOverride = '';
+        this._storyAudioAbortController = new AbortController();
+        this._renderStoryAudioControls();
+
+        try {
+            const audioBlob = await this._requestStorySpeechAudio(selection.text);
+            this._storyAudioObjectUrl = URL.createObjectURL(audioBlob);
+            this._storyAudioElement = new Audio(this._storyAudioObjectUrl);
+            this._storyAudioElement.addEventListener('ended', () => {
+                this._stopStoryAudio({ preserveStatus: true });
+                this._storyAudioStatusOverride = `Finished: “${selection.text}”`;
+                this._renderStoryAudioControls();
+            }, { once: true });
+            await this._storyAudioElement.play();
+            this._storyAudioStatusOverride = `Playing: “${selection.text}”`;
+        } catch (error) {
+            console.error('Story TTS failed:', error);
+            this._storyAudioStatusOverride = error?.message || 'Audio playback failed.';
+        } finally {
+            this._storyAudioLoading = false;
+            this._storyAudioAbortController = null;
+            this._renderStoryAudioControls();
+        }
+    }
+
+    _stopStoryAudio({ preserveStatus = false } = {}) {
+        if (this._storyAudioAbortController) {
+            this._storyAudioAbortController.abort();
+            this._storyAudioAbortController = null;
+        }
+        if (this._storyAudioElement) {
+            this._storyAudioElement.pause();
+            this._storyAudioElement.currentTime = 0;
+            this._storyAudioElement.src = '';
+            this._storyAudioElement = null;
+        }
+        if (this._storyAudioObjectUrl) {
+            URL.revokeObjectURL(this._storyAudioObjectUrl);
+            this._storyAudioObjectUrl = '';
+        }
+        this._storyAudioLoading = false;
+        if (!preserveStatus) {
+            this._storyAudioStatusOverride = '';
+        }
+        this._renderStoryAudioControls();
+    }
+
+    _applyStoryFontScaleToCurrentStoryText(scale = this._getStoryFontScale()) {
+        const storyText = document.getElementById('story-text');
+        if (!storyText) return;
+
+        const previousInlineFontSize = storyText.style.fontSize;
+        storyText.style.fontSize = '';
+
+        const root = document.documentElement;
+        const previousScale = root.style.getPropertyValue('--story-font-scale');
+        root.style.setProperty('--story-font-scale', '1');
+        const baseFontSizePx = parseFloat(getComputedStyle(storyText).fontSize);
+        root.style.setProperty('--story-font-scale', previousScale || '1');
+
+        if (!Number.isFinite(baseFontSizePx) || baseFontSizePx <= 0) {
+            storyText.style.fontSize = previousInlineFontSize;
+            return;
+        }
+
+        storyText.style.fontSize = `${(baseFontSizePx * scale).toFixed(2)}px`;
+    }
+
     _storySupportsUrduTools(story = this.currentStory) {
         if (!story || story.direction !== 'rtl') return false;
         const currentPageText = story.pages?.[this.currentStoryPage]?.text || '';
@@ -3496,6 +3806,7 @@ class KidsMathsApp {
         }
 
         storyText.dir = story.direction || 'ltr';
+        this._applyStoryFontScaleToCurrentStoryText();
     }
 
     _splitUrduParagraphs(text = '') {
