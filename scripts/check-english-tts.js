@@ -33,9 +33,12 @@ assert(css.includes('.story-audio-status'), 'Expected story audio status styling
 assert(app.includes('_handleStoryTextSelection'), 'Expected story text selection handler in app.js');
 assert(app.includes('_speakStorySelection'), 'Expected story selection speech method in app.js');
 assert(app.includes('_requestStorySpeechAudio'), 'Expected proxy speech request method in app.js');
+assert(app.includes('_playStorySelectionWithDeviceVoice'), 'Expected device-voice fallback method in app.js');
 assert(app.includes('_stopStoryAudio'), 'Expected audio stop method in app.js');
 assert(app.includes('storyAudioSelection'), 'Expected persisted/managed story audio selection state in app.js');
 assert(app.includes('storyTtsProxyUrl'), 'Expected configurable TTS proxy URL state in app.js');
+assert(app.includes('Cloud voice is temporarily unavailable on the current ElevenLabs plan.'), 'Expected a clear fallback message when ElevenLabs free-tier abuse detection blocks a request');
+assert(app.includes('speechSynthesis'), 'Expected browser speech synthesis fallback support in app.js');
 
 assert(pkg.includes('wrangler'), 'Expected wrangler dependency in package.json');
 assert(wrangler.includes('name = "kidsmaths-tts-proxy"'), 'Expected Worker name in wrangler.toml');

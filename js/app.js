@@ -23,6 +23,8 @@ class KidsMathsApp {
         this._storyAudioAbortController = null;
         this._storyAudioLoading = false;
         this._storyAudioStatusOverride = '';
+        this._storySpeechUtterance = null;
+        this._storyDeviceSpeechActive = false;
 
         // Managers
         this.coinManager = new CoinManager();
@@ -3637,7 +3639,7 @@ class KidsMathsApp {
         const selectionTooLong = selection?.kind === 'too-long';
         const canSpeak = Boolean(selection && !selectionTooLong && !this._storyAudioLoading && this.storyTtsProxyUrl);
         speakBtn.disabled = !canSpeak;
-        stopBtn.disabled = !this._storyAudioElement && !this._storyAudioLoading;
+        stopBtn.disabled = !this._storyAudioElement && !this._storyAudioLoading && !this._storyDeviceSpeechActive;
 
         if (this._storyAudioLoading) {
             status.textContent = 'Generating narration for your selection…';
@@ -3688,13 +3690,32 @@ class KidsMathsApp {
 
         if (!response.ok) {
             let errorMessage = `Speech request failed (${response.status})`;
+            let allowDeviceFallback = false;
             try {
                 const data = await response.json();
-                errorMessage = data?.error || errorMessage;
+                const upstreamDetails = typeof data?.details === 'string' ? data.details : '';
+                let parsedDetails = null;
+                if (upstreamDetails) {
+                    try {
+                        parsedDetails = JSON.parse(upstreamDetails);
+                    } catch {
+                        parsedDetails = null;
+                    }
+                }
+                const upstreamStatus = parsedDetails?.detail?.status || '';
+                const upstreamMessage = parsedDetails?.detail?.message || '';
+                if (upstreamStatus === 'detected_unusual_activity') {
+                    errorMessage = 'Cloud voice is temporarily unavailable on the current ElevenLabs plan.';
+                    allowDeviceFallback = true;
+                } else {
+                    errorMessage = upstreamMessage || data?.error || errorMessage;
+                }
             } catch {
                 // Keep fallback message
             }
-            throw new Error(errorMessage);
+            const error = new Error(errorMessage);
+            error.allowDeviceFallback = allowDeviceFallback;
+            throw error;
         }
 
         return response.blob();
@@ -3726,12 +3747,60 @@ class KidsMathsApp {
             this._storyAudioStatusOverride = `Playing: “${selection.text}”`;
         } catch (error) {
             console.error('Story TTS failed:', error);
-            this._storyAudioStatusOverride = error?.message || 'Audio playback failed.';
+            if (error?.allowDeviceFallback && 'speechSynthesis' in window) {
+                try {
+                    await this._playStorySelectionWithDeviceVoice(selection.text);
+                    this._storyAudioStatusOverride = `Playing on this device: “${selection.text}”`;
+                } catch (fallbackError) {
+                    console.error('Story device-voice fallback failed:', fallbackError);
+                    this._storyAudioStatusOverride = fallbackError?.message || error?.message || 'Audio playback failed.';
+                }
+            } else {
+                this._storyAudioStatusOverride = error?.message || 'Audio playback failed.';
+            }
         } finally {
             this._storyAudioLoading = false;
             this._storyAudioAbortController = null;
             this._renderStoryAudioControls();
         }
+    }
+
+    async _playStorySelectionWithDeviceVoice(text) {
+        if (!('speechSynthesis' in window)) {
+            throw new Error('This device does not offer a built-in voice fallback.');
+        }
+
+        const synth = window.speechSynthesis;
+        if (typeof synth.cancel === 'function') {
+            synth.cancel();
+        }
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-GB';
+        utterance.rate = 0.92;
+        utterance.pitch = 1;
+
+        const voices = typeof synth.getVoices === 'function' ? synth.getVoices() : [];
+        const preferredVoice = voices.find((voice) => /^en-GB/i.test(voice.lang || '')) || voices.find((voice) => /^en/i.test(voice.lang || '')) || null;
+        if (preferredVoice) {
+            utterance.voice = preferredVoice;
+            utterance.lang = preferredVoice.lang || utterance.lang;
+        }
+
+        this._storySpeechUtterance = utterance;
+        this._storyDeviceSpeechActive = true;
+
+        await new Promise((resolve, reject) => {
+            utterance.onstart = () => resolve();
+            utterance.onerror = (event) => reject(new Error(event?.error || 'Device voice playback failed.'));
+            utterance.onend = () => {
+                this._storyDeviceSpeechActive = false;
+                this._storySpeechUtterance = null;
+                this._storyAudioStatusOverride = `Finished on this device: “${text}”`;
+                this._renderStoryAudioControls();
+            };
+            synth.speak(utterance);
+        });
     }
 
     _stopStoryAudio({ preserveStatus = false } = {}) {
@@ -3749,6 +3818,11 @@ class KidsMathsApp {
             URL.revokeObjectURL(this._storyAudioObjectUrl);
             this._storyAudioObjectUrl = '';
         }
+        if ('speechSynthesis' in window && this._storySpeechUtterance) {
+            window.speechSynthesis.cancel();
+            this._storySpeechUtterance = null;
+        }
+        this._storyDeviceSpeechActive = false;
         this._storyAudioLoading = false;
         if (!preserveStatus) {
             this._storyAudioStatusOverride = '';
