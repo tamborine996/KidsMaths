@@ -29,6 +29,8 @@ class KidsMathsApp {
         this._storyAudioSource = '';
         this._storySpeechUtterance = null;
         this._storyDeviceSpeechActive = false;
+        this._storyPinchState = null;
+        this._storyPinchResizeHint = 'Pinch to resize story text.';
         this._storyWordDragState = null;
         this._suppressStoryWordClick = false;
 
@@ -2422,14 +2424,32 @@ class KidsMathsApp {
         // Story swipe navigation (storybook-style page turns)
         const storyContent = document.getElementById('story-content');
         storyContent.addEventListener('touchstart', (e) => {
-            if (!this.currentStory || e.touches.length !== 1) return;
+            if (!this.currentStory) return;
+            if (e.touches.length === 2) {
+                this._beginStoryPinchResize(e.touches);
+                this._storyTouchStartedInText = false;
+                return;
+            }
+            if (e.touches.length !== 1) return;
+            if (this._storyPinchState) return;
             this._storyTouchStartX = e.touches[0].clientX;
             this._storyTouchStartY = e.touches[0].clientY;
             this._storyTouchStartedInText = Boolean(e.target.closest('#story-text'));
         }, { passive: true });
 
+        storyContent.addEventListener('touchmove', (e) => {
+            if (!this.currentStory || !this._storyPinchState) return;
+            if (e.touches.length < 2) return;
+            this._updateStoryPinchResize(e.touches);
+        }, { passive: true });
+
         storyContent.addEventListener('touchend', (e) => {
-            if (!this.currentStory || e.changedTouches.length !== 1) return;
+            if (!this.currentStory) return;
+            if (this._storyPinchState) {
+                this._endStoryPinchResize(e.touches);
+                return;
+            }
+            if (e.changedTouches.length !== 1) return;
             if (this._storyTouchStartedInText) return;
 
             const deltaX = e.changedTouches[0].clientX - this._storyTouchStartX;
@@ -2444,6 +2464,12 @@ class KidsMathsApp {
                 this._storyNextPage();
             } else {
                 this._storyPrevPage();
+            }
+        }, { passive: true });
+
+        storyContent.addEventListener('touchcancel', () => {
+            if (this._storyPinchState) {
+                this._endStoryPinchResize([]);
             }
         }, { passive: true });
 
@@ -3575,6 +3601,52 @@ class KidsMathsApp {
         return Math.min(this._storyFontScaleMax, Math.max(this._storyFontScaleMin, rawScale));
     }
 
+    _getTouchDistance(touches = []) {
+        if (!touches || touches.length < 2) return 0;
+        const [firstTouch, secondTouch] = touches;
+        const deltaX = Number(secondTouch.clientX) - Number(firstTouch.clientX);
+        const deltaY = Number(secondTouch.clientY) - Number(firstTouch.clientY);
+        return Math.hypot(deltaX, deltaY);
+    }
+
+    _beginStoryPinchResize(touches = []) {
+        const distance = this._getTouchDistance(touches);
+        if (!distance) return;
+        this._storyPinchState = {
+            initialDistance: distance,
+            initialScale: this._getStoryFontScale()
+        };
+        this._storyAudioStatusOverride = this._storyPinchResizeHint;
+        this._renderStorySelectionControls();
+    }
+
+    _updateStoryPinchResize(touches = []) {
+        if (!this._storyPinchState) return;
+        const distance = this._getTouchDistance(touches);
+        if (!distance || !this._storyPinchState.initialDistance) return;
+        const pinchRatio = distance / this._storyPinchState.initialDistance;
+        const rawScale = this._storyPinchState.initialScale * pinchRatio;
+        const nextScale = Math.min(this._storyFontScaleMax, Math.max(this._storyFontScaleMin, Number(rawScale.toFixed(2))));
+        if (Math.abs(nextScale - this._getStoryFontScale()) < 0.01) return;
+        state.set('storyFontScale', nextScale);
+        this._applyStoryFontScale(nextScale);
+        this._storyAudioStatusOverride = `${this._storyPinchResizeHint} Text size ${Math.round(nextScale * 100)}%.`;
+        this._renderStorySelectionControls();
+    }
+
+    _endStoryPinchResize(touches = []) {
+        if (!this._storyPinchState) return;
+        if (touches && touches.length >= 2) {
+            this._beginStoryPinchResize(touches);
+            return;
+        }
+        this._storyPinchState = null;
+        if (this._storyAudioStatusOverride?.includes(this._storyPinchResizeHint)) {
+            this._storyAudioStatusOverride = '';
+        }
+        this._renderStorySelectionControls();
+    }
+
     _applyStoryFontScale(scale = this._getStoryFontScale()) {
         const safeScale = Math.min(this._storyFontScaleMax, Math.max(this._storyFontScaleMin, Number(scale) || 1));
         document.documentElement.style.setProperty('--story-font-scale', safeScale.toFixed(2));
@@ -3932,7 +4004,7 @@ class KidsMathsApp {
         } else if (selectedWord) {
             status.textContent = `Selected word: “${selectedWord.word}”`;
         } else {
-            status.textContent = 'Tap a word or drag across a phrase to hear it, save it, or clear it.';
+            status.textContent = `Tap a word or drag across a phrase to hear it, save it, or clear it. ${this._storyPinchResizeHint}`;
         }
 
         if (selectedWord && isSingleWordSelection) {

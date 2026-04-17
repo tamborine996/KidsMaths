@@ -30,6 +30,10 @@ assert(app.includes('_changeStoryFontScale'), 'Expected story font scale change 
 assert(app.includes('_applyStoryFontScale'), 'Expected story font scale application method in app.js');
 assert(app.includes('_applyStoryFontScaleToCurrentStoryText'), 'Expected story text scaling to be applied directly after rendering');
 assert(app.includes('_updateStoryFontControls'), 'Expected story font controls UI refresh method in app.js');
+assert(app.includes('_beginStoryPinchResize('), 'Expected pinch-to-resize start handler in app.js');
+assert(app.includes('_updateStoryPinchResize('), 'Expected pinch-to-resize update handler in app.js');
+assert(app.includes('_endStoryPinchResize('), 'Expected pinch-to-resize end handler in app.js');
+assert(app.includes('Pinch to resize story text'), 'Expected explicit pinch helper/status copy in app.js');
 
 assert(stateManager.includes('storyFontScale'), 'Expected story font scale persisted in StateManager defaults');
 
