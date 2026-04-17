@@ -45,17 +45,22 @@ assert(css.includes('#story-screen.story-custom-selection-mode #story-text {'), 
 assert(gitignore.includes('kidsmaths-config.js'), 'Expected local KidsMaths config file to be gitignored');
 assert(configExample.includes('window.KIDSMATHS_GEMINI_API_KEY'), 'Expected config example to document Gemini TTS key wiring');
 assert(configExample.includes('window.KIDSMATHS_GEMINI_TTS_VOICE'), 'Expected config example to document Gemini TTS voice override');
+assert(configExample.includes("'gemini-3.1-flash-tts-preview'"), 'Expected config example to default to Gemini 3.1 Flash TTS Preview');
 assert(!configExample.includes('window.KIDSMATHS_ELEVENLABS_API_KEY'), 'Expected config example to stop steering toward ElevenLabs');
 
 assert(app.includes('window.KIDSMATHS_GEMINI_API_KEY'), 'Expected app.js to support Gemini API key configuration');
 assert(app.includes('window.KIDSMATHS_GEMINI_TTS_VOICE'), 'Expected app.js to support Gemini TTS voice configuration');
+assert(app.includes("'gemini-3.1-flash-tts-preview'"), 'Expected app.js to default to Gemini 3.1 Flash TTS Preview');
 assert(app.includes('_requestStorySpeechAudioViaGemini'), 'Expected Gemini speech request path in app.js');
 assert(app.includes('Trying Gemini voice directly in this browser'), 'Expected explicit Gemini status');
 assert(app.includes('Playing with Gemini voice'), 'Expected explicit Gemini playback status');
 assert(app.includes('_getStoryVoiceSourceLabel()'), 'Expected story voice-source label helper in app.js');
 assert(app.includes('Voice: Gemini'), 'Expected Gemini voice badge label');
-assert(app.includes('Voice: device fallback'), 'Expected explicit device fallback badge label');
-assert(app.includes('speechSynthesis'), 'Expected browser speech synthesis fallback support in app.js');
+assert(!app.includes('Voice: device fallback'), 'Expected device fallback labels to be removed');
+assert(!app.includes('speechSynthesis'), 'Expected browser speech synthesis fallback support to be removed');
+assert(!app.includes('allowDeviceFallback'), 'Expected Gemini-only path to avoid fallback flags');
+assert(!app.includes('Playing on this device'), 'Expected device fallback playback copy to be removed');
+assert(!app.includes('This device does not offer a built-in voice fallback.'), 'Expected built-in fallback error copy to be removed');
 assert(!app.includes('Trying ElevenLabs directly in this browser'), 'Expected ElevenLabs-specific reader status to be removed');
 assert(!app.includes('Voice: ElevenLabs direct'), 'Expected ElevenLabs-specific badge labels to be removed');
 assert(!app.includes('Voice: ElevenLabs via Worker'), 'Expected Worker-specific badge labels to be removed');

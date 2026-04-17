@@ -18,7 +18,7 @@ class KidsMathsApp {
         this._storyFontScaleStep = 0.1;
         this.storyGeminiApiKey = window.KIDSMATHS_GEMINI_API_KEY || '';
         this.storyGeminiTtsVoice = window.KIDSMATHS_GEMINI_TTS_VOICE || 'Zephyr';
-        this.storyGeminiTtsModel = window.KIDSMATHS_GEMINI_TTS_MODEL || 'gemini-2.5-flash-preview-tts';
+        this.storyGeminiTtsModel = window.KIDSMATHS_GEMINI_TTS_MODEL || 'gemini-3.1-flash-tts-preview';
         this._selectedStoryWord = null;
         this._showStorySavedWords = false;
         this._storyAudioElement = null;
@@ -27,8 +27,6 @@ class KidsMathsApp {
         this._storyAudioLoading = false;
         this._storyAudioStatusOverride = '';
         this._storyAudioSource = '';
-        this._storySpeechUtterance = null;
-        this._storyDeviceSpeechActive = false;
         this._storyPinchState = null;
         this._storyPinchResizeHint = 'Pinch to resize story text.';
         this._storyWordDragState = null;
@@ -3990,7 +3988,7 @@ class KidsMathsApp {
         speakBtn.disabled = !canSpeak;
         saveBtn.disabled = !selectedWord || !isSingleWordSelection || wordAlreadySaved;
         clearBtn.disabled = !selectedWord;
-        stopBtn.disabled = !this._storyAudioElement && !this._storyAudioLoading && !this._storyDeviceSpeechActive;
+        stopBtn.disabled = !this._storyAudioElement && !this._storyAudioLoading;
         savedToggleBtn.textContent = `Saved words (${savedWords.length})`;
         savedToggleBtn.setAttribute('aria-pressed', this._showStorySavedWords ? 'true' : 'false');
         voiceBadge.textContent = this._getStoryVoiceSourceLabel();
@@ -4035,15 +4033,13 @@ class KidsMathsApp {
     }
 
     _getStoryVoiceSourceLabel() {
-        if (this._storyDeviceSpeechActive) return 'Voice: device fallback';
         if (this._storyAudioSource === 'gemini-direct') return 'Voice: Gemini';
         if (this.storyGeminiApiKey) return 'Voice: Gemini ready';
-        if ('speechSynthesis' in window) return 'Voice: device fallback ready';
         return 'Voice: unavailable';
     }
 
     _storyHasAnySpeechPath() {
-        return Boolean(this.storyGeminiApiKey || ('speechSynthesis' in window));
+        return Boolean(this.storyGeminiApiKey);
     }
 
     _decodeBase64ToUint8Array(base64Text) {
@@ -4132,7 +4128,6 @@ class KidsMathsApp {
 
         if (!response.ok) {
             let errorMessage = `Gemini speech request failed (${response.status})`;
-            let allowDeviceFallback = true;
             try {
                 const data = await response.json();
                 const message = data?.error?.message || data?.message || '';
@@ -4140,9 +4135,7 @@ class KidsMathsApp {
             } catch {
                 // Keep generic message
             }
-            const error = new Error(errorMessage);
-            error.allowDeviceFallback = allowDeviceFallback;
-            throw error;
+            throw new Error(errorMessage);
         }
 
         const data = await response.json();
@@ -4168,7 +4161,7 @@ class KidsMathsApp {
             this._storyAudioSource = 'gemini-direct';
             return this._requestStorySpeechAudioViaGemini(text);
         }
-        throw new Error('Gemini voice is not configured yet on this device.');
+        throw new Error('Gemini 3.1 TTS is not configured yet on this device.');
     }
 
     async _speakStorySelection() {
@@ -4189,86 +4182,24 @@ class KidsMathsApp {
         this._renderStorySelectionControls();
 
         try {
-            if (!this.storyGeminiApiKey) {
-                await this._playStorySelectionWithDeviceVoice(selection.text);
-                this._storyAudioStatusOverride = `Playing on this device: “${selection.text}”`;
-                return;
-            }
-
             const audioBlob = await this._requestStorySpeechAudio(selection.text);
             this._storyAudioObjectUrl = URL.createObjectURL(audioBlob);
             this._storyAudioElement = new Audio(this._storyAudioObjectUrl);
             this._storyAudioElement.addEventListener('ended', () => {
                 this._stopStoryAudio({ preserveStatus: true });
-                if (this._storyAudioSource === 'gemini-direct') {
-                    this._storyAudioStatusOverride = `Finished with Gemini voice: “${selection.text}”`;
-                } else {
-                    this._storyAudioStatusOverride = `Finished: “${selection.text}”`;
-                }
+                this._storyAudioStatusOverride = `Finished with Gemini voice: “${selection.text}”`;
                 this._renderStorySelectionControls();
             }, { once: true });
             await this._storyAudioElement.play();
-            if (this._storyAudioSource === 'gemini-direct') {
-                this._storyAudioStatusOverride = `Playing with Gemini voice: “${selection.text}”`;
-            } else {
-                this._storyAudioStatusOverride = `Playing: “${selection.text}”`;
-            }
+            this._storyAudioStatusOverride = `Playing with Gemini voice: “${selection.text}”`;
         } catch (error) {
             console.error('Story TTS failed:', error);
-            if (error?.allowDeviceFallback && 'speechSynthesis' in window) {
-                try {
-                    await this._playStorySelectionWithDeviceVoice(selection.text);
-                    this._storyAudioStatusOverride = `Playing on this device: “${selection.text}”`;
-                } catch (fallbackError) {
-                    console.error('Story device-voice fallback failed:', fallbackError);
-                    this._storyAudioStatusOverride = fallbackError?.message || error?.message || 'Audio playback failed.';
-                }
-            } else {
-                this._storyAudioStatusOverride = error?.message || 'Audio playback failed.';
-            }
+            this._storyAudioStatusOverride = error?.message || 'Gemini audio playback failed.';
         } finally {
             this._storyAudioLoading = false;
             this._storyAudioAbortController = null;
             this._renderStorySelectionControls();
         }
-    }
-
-    async _playStorySelectionWithDeviceVoice(text) {
-        if (!('speechSynthesis' in window)) {
-            throw new Error('This device does not offer a built-in voice fallback.');
-        }
-
-        const synth = window.speechSynthesis;
-        if (typeof synth.cancel === 'function') {
-            synth.cancel();
-        }
-
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-GB';
-        utterance.rate = 0.92;
-        utterance.pitch = 1;
-
-        const voices = typeof synth.getVoices === 'function' ? synth.getVoices() : [];
-        const preferredVoice = voices.find((voice) => /^en-GB/i.test(voice.lang || '')) || voices.find((voice) => /^en/i.test(voice.lang || '')) || null;
-        if (preferredVoice) {
-            utterance.voice = preferredVoice;
-            utterance.lang = preferredVoice.lang || utterance.lang;
-        }
-
-        this._storySpeechUtterance = utterance;
-        this._storyDeviceSpeechActive = true;
-
-        await new Promise((resolve, reject) => {
-            utterance.onstart = () => resolve();
-            utterance.onerror = (event) => reject(new Error(event?.error || 'Device voice playback failed.'));
-            utterance.onend = () => {
-                this._storyDeviceSpeechActive = false;
-                this._storySpeechUtterance = null;
-                this._storyAudioStatusOverride = `Finished on this device: “${text}”`;
-                this._renderStorySelectionControls();
-            };
-            synth.speak(utterance);
-        });
     }
 
     _stopStoryAudio({ preserveStatus = false } = {}) {
@@ -4286,11 +4217,6 @@ class KidsMathsApp {
             URL.revokeObjectURL(this._storyAudioObjectUrl);
             this._storyAudioObjectUrl = '';
         }
-        if ('speechSynthesis' in window && this._storySpeechUtterance) {
-            window.speechSynthesis.cancel();
-            this._storySpeechUtterance = null;
-        }
-        this._storyDeviceSpeechActive = false;
         this._storyAudioLoading = false;
         if (!preserveStatus) {
             this._storyAudioStatusOverride = '';
