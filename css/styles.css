@@ -3098,29 +3098,78 @@ td.mastery-mastered {
     text-align: center;
 }
 
-.story-audio-controls {
+.story-selection-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: min(100%, 760px);
+    margin: 0 auto 12px;
+    padding: 12px 14px;
+    border-radius: var(--border-radius-xl);
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(118, 160, 215, 0.22);
+    box-shadow: 0 10px 24px rgba(118, 160, 215, 0.08);
+}
+
+.story-selection-status {
+    color: var(--text-secondary);
+    font-size: 0.98rem;
+    line-height: 1.45;
+}
+
+.story-selection-actions {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
     gap: 8px;
-    margin: 0 auto 12px;
 }
 
-.story-audio-btn {
+.story-selection-btn {
     min-height: 42px;
+    flex: 1 1 120px;
 }
 
-.story-audio-status {
-    flex: 1 1 220px;
-    min-width: 220px;
-    padding: 8px 12px;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.8);
-    border: 1px solid rgba(118, 160, 215, 0.22);
+.story-selection-saved-panel {
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(118, 160, 215, 0.18);
+    border-radius: var(--border-radius-lg);
+    padding: 12px 14px;
+}
+
+.story-selection-saved-panel-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.4;
+    margin-bottom: var(--spacing-sm);
+}
+
+.story-saved-word-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px dashed rgba(93, 78, 55, 0.18);
+}
+
+.story-saved-word-row:last-child {
+    border-bottom: none;
+}
+
+.story-saved-word-text {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-heading);
+}
+
+.story-saved-word-story,
+.story-empty-state {
+    color: var(--text-secondary);
+}
+
+.story-saved-word-story {
+    font-size: 0.85rem;
 }
 
 #story-page-text {
@@ -3166,12 +3215,10 @@ td.mastery-mastered {
     display: none;
 }
 
-#story-screen,
-#story-content,
-#story-text {
-    -webkit-user-select: text;
-    user-select: text;
-    -webkit-touch-callout: default;
+#story-screen.story-custom-selection-mode #story-text {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
 }
 
 #story-text {
@@ -3183,6 +3230,40 @@ td.mastery-mastered {
     white-space: pre-line;
     max-width: 100%;
     width: 100%;
+}
+
+.story-text-paragraph {
+    margin: 0 0 1.15em;
+}
+
+.story-text-paragraph:last-child {
+    margin-bottom: 0;
+}
+
+.story-word-button {
+    appearance: none;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    line-height: inherit;
+    margin: 0;
+    padding: 0.06em 0.14em;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.story-word-button:hover,
+.story-word-button:focus-visible {
+    background: rgba(118, 160, 215, 0.14);
+    outline: none;
+}
+
+.story-word-button.is-selected {
+    background: rgba(255, 226, 138, 0.72);
+    box-shadow: 0 0 0 2px rgba(214, 162, 32, 0.18);
+    color: var(--text-heading);
 }
 
 .story-content.urdu-story-layout #story-text {

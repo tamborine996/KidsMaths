@@ -22,29 +22,34 @@ assert(fs.existsSync(workerPath), 'Expected Cloudflare Worker source file at wor
 const wrangler = fs.readFileSync(wranglerPath, 'utf8');
 const worker = fs.readFileSync(workerPath, 'utf8');
 
-assert(html.includes('story-audio-controls'), 'Expected story audio controls in index.html');
-assert(html.includes('story-speak-selection-btn'), 'Expected speak-selection button in index.html');
+assert(html.includes('story-selection-controls'), 'Expected custom story-selection controls in index.html');
+assert(html.includes('story-selection-speak-btn'), 'Expected custom Speak button in index.html');
+assert(html.includes('story-selection-save-btn'), 'Expected custom Save button in index.html');
+assert(html.includes('story-selection-clear-btn'), 'Expected custom Clear button in index.html');
+assert(html.includes('story-selection-saved-toggle-btn'), 'Expected saved-words toggle in index.html');
 assert(html.includes('story-stop-audio-btn'), 'Expected stop-audio button in index.html');
-assert(html.includes('story-audio-status'), 'Expected story audio status label in index.html');
 
-assert(css.includes('.story-audio-controls'), 'Expected story audio controls styling in css');
-assert(css.includes('.story-audio-status'), 'Expected story audio status styling in css');
-assert(css.includes('#story-screen,\n#story-content,\n#story-text {'), 'Expected story reading surface to explicitly allow text selection');
-assert(css.includes('-webkit-touch-callout: default;'), 'Expected iOS text callout support on the story reading surface');
+assert(css.includes('.story-selection-controls'), 'Expected story-selection controls styling in css');
+assert(css.includes('.story-word-button {'), 'Expected tappable English story word styling in css');
+assert(css.includes('.story-word-button.is-selected {'), 'Expected selected English word styling in css');
+assert(css.includes('#story-screen.story-custom-selection-mode #story-text {'), 'Expected native text selection to be disabled in custom-selection mode');
 
-assert(app.includes('_handleStoryTextSelection'), 'Expected story text selection handler in app.js');
-assert(app.includes('_queueStoryTextSelectionCheck'), 'Expected debounced selectionchange handling in app.js');
-assert(app.includes('_getNormalizedActiveStorySelectionText'), 'Expected helper for active story selection text in app.js');
-assert(app.includes("document.addEventListener('selectionchange'"), 'Expected global selectionchange listener for mobile selection reliability');
-assert(app.includes('_speakStorySelection'), 'Expected story selection speech method in app.js');
+assert(app.includes('_renderInteractiveEnglishStoryText('), 'Expected English story text to render into tappable word units');
+assert(app.includes('_storySupportsCustomWordSelection('), 'Expected dedicated custom-selection mode detection in app.js');
+assert(app.includes('_selectStoryWord('), 'Expected custom story-word selection handler in app.js');
+assert(app.includes('_clearStoryWordSelection('), 'Expected custom story-word clear handler in app.js');
+assert(app.includes('_saveSelectedStoryWord('), 'Expected save action for selected English story words');
+assert(app.includes('_renderStorySelectionControls('), 'Expected dedicated story-selection controls renderer in app.js');
+assert(app.includes('Tap a word to hear it, save it, or clear it.'), 'Expected calm helper copy for custom story selection');
+assert(app.includes('Saved ✓'), 'Expected saved feedback for selected story words');
 assert(app.includes('_requestStorySpeechAudio'), 'Expected proxy speech request method in app.js');
 assert(app.includes('_playStorySelectionWithDeviceVoice'), 'Expected device-voice fallback method in app.js');
 assert(app.includes('_stopStoryAudio'), 'Expected audio stop method in app.js');
-assert(app.includes('storyAudioSelection'), 'Expected persisted/managed story audio selection state in app.js');
 assert(app.includes('storyTtsProxyUrl'), 'Expected configurable TTS proxy URL state in app.js');
 assert(app.includes('Cloud voice is temporarily unavailable on the current ElevenLabs plan.'), 'Expected a clear fallback message when ElevenLabs free-tier abuse detection blocks a request');
 assert(app.includes('speechSynthesis'), 'Expected browser speech synthesis fallback support in app.js');
-assert(app.includes('this._storyTouchStartedInText'), 'Expected swipe navigation to ignore text-selection gestures that start inside story text');
+assert(!app.includes('_handleStoryTextSelection()'), 'Expected native selection-based English TTS handler to be removed');
+assert(!app.includes("document.addEventListener('selectionchange'"), 'Expected native selectionchange listener to be removed from English selection flow');
 
 assert(pkg.includes('wrangler'), 'Expected wrangler dependency in package.json');
 assert(wrangler.includes('name = "kidsmaths-tts-proxy"'), 'Expected Worker name in wrangler.toml');

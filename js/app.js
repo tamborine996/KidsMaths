@@ -17,7 +17,8 @@ class KidsMathsApp {
         this._storyFontScaleMax = 1.65;
         this._storyFontScaleStep = 0.1;
         this.storyTtsProxyUrl = window.KIDSMATHS_TTS_PROXY_URL || '';
-        this.storyAudioSelection = null;
+        this._selectedStoryWord = null;
+        this._showStorySavedWords = false;
         this._storyAudioElement = null;
         this._storyAudioObjectUrl = '';
         this._storyAudioAbortController = null;
@@ -2398,8 +2399,20 @@ class KidsMathsApp {
         document.getElementById('story-font-decrease-btn').addEventListener('click', () => this._changeStoryFontScale(-this._storyFontScaleStep));
         document.getElementById('story-font-increase-btn').addEventListener('click', () => this._changeStoryFontScale(this._storyFontScaleStep));
         document.getElementById('story-font-reset-btn').addEventListener('click', () => this._resetStoryFontScale());
-        document.getElementById('story-speak-selection-btn').addEventListener('click', () => this._speakStorySelection());
+        document.getElementById('story-selection-speak-btn').addEventListener('click', () => this._speakStorySelection());
+        document.getElementById('story-selection-save-btn').addEventListener('click', () => this._saveSelectedStoryWord());
+        document.getElementById('story-selection-clear-btn').addEventListener('click', () => this._clearStoryWordSelection());
+        document.getElementById('story-selection-saved-toggle-btn').addEventListener('click', () => {
+            this._showStorySavedWords = !this._showStorySavedWords;
+            this._renderStorySelectionControls();
+        });
         document.getElementById('story-stop-audio-btn').addEventListener('click', () => this._stopStoryAudio());
+        document.getElementById('story-selection-saved-panel').addEventListener('click', (e) => {
+            const removeBtn = e.target.closest('[data-remove-story-word]');
+            if (removeBtn) {
+                this._removeStorySavedWord(removeBtn.dataset.removeStoryWord);
+            }
+        });
 
         // Story swipe navigation (storybook-style page turns)
         const storyContent = document.getElementById('story-content');
@@ -2413,7 +2426,6 @@ class KidsMathsApp {
         storyContent.addEventListener('touchend', (e) => {
             if (!this.currentStory || e.changedTouches.length !== 1) return;
             if (this._storyTouchStartedInText) return;
-            if (this._getNormalizedActiveStorySelectionText()) return;
 
             const deltaX = e.changedTouches[0].clientX - this._storyTouchStartX;
             const deltaY = e.changedTouches[0].clientY - this._storyTouchStartY;
@@ -2442,7 +2454,24 @@ class KidsMathsApp {
         });
 
         document.getElementById('story-text').addEventListener('click', async (e) => {
-            if (!this.currentStory || !this._storySupportsUrduTools()) return;
+            if (!this.currentStory) return;
+
+            const storyWordBtn = e.target.closest('.story-word-button');
+            if (storyWordBtn && this._storySupportsCustomWordSelection()) {
+                this._selectStoryWord(
+                    storyWordBtn.dataset.storyWordNormalized || storyWordBtn.dataset.storyWord,
+                    Number(storyWordBtn.dataset.paragraphIndex),
+                    Number(storyWordBtn.dataset.occurrenceIndex)
+                );
+                return;
+            }
+
+            if (!this._storySupportsUrduTools()) {
+                if (this._getSelectedStoryWord() && this._storySupportsCustomWordSelection()) {
+                    this._clearStoryWordSelection();
+                }
+                return;
+            }
 
             const paragraphBtn = e.target.closest('[data-paragraph-translate]');
             if (paragraphBtn) {
@@ -2491,16 +2520,6 @@ class KidsMathsApp {
             if (this._selectedUrduWord) {
                 this._clearSelectedUrduWord();
             }
-        });
-        document.getElementById('story-text').addEventListener('mouseup', () => {
-            this._queueStoryTextSelectionCheck(0);
-        });
-        document.getElementById('story-text').addEventListener('touchend', () => {
-            this._queueStoryTextSelectionCheck(120);
-        });
-        document.addEventListener('selectionchange', () => {
-            if (!this.currentStory) return;
-            this._queueStoryTextSelectionCheck(0);
         });
 
         document.getElementById('urdu-translation-toggle-btn').addEventListener('click', () => {
@@ -3385,7 +3404,8 @@ class KidsMathsApp {
 
                 this._showStoryTitleTranslation = false;
                 this._recordRecentItem(this._buildStoryResumeItem(storyId, this.currentStoryPage));
-                this.storyAudioSelection = null;
+                this._selectedStoryWord = null;
+                this._showStorySavedWords = false;
                 this._storyAudioStatusOverride = '';
                 this._stopStoryAudio();
 
@@ -3418,8 +3438,8 @@ class KidsMathsApp {
 
         const story = this.currentStory;
         const page = story.pages[this.currentStoryPage];
-        if (this.storyAudioSelection && (this.storyAudioSelection.storyId !== story.id || Number(this.storyAudioSelection.page) !== Number(this.currentStoryPage))) {
-            this.storyAudioSelection = null;
+        if (this._selectedStoryWord && (this._selectedStoryWord.storyId !== story.id || Number(this._selectedStoryWord.page) !== Number(this.currentStoryPage))) {
+            this._selectedStoryWord = null;
             this._storyAudioStatusOverride = '';
         }
         const direction = story.direction || 'ltr';
@@ -3461,12 +3481,13 @@ class KidsMathsApp {
         document.getElementById('story-progress-fill').style.width =
             `${((this.currentStoryPage + 1) / story.pages.length) * 100}%`;
         this._updateStoryFontControls();
-        this._renderStoryAudioControls();
+        this._renderStorySelectionControls();
 
         // Show/hide illustration
         const img = document.getElementById('story-image');
         const storyContent = document.getElementById('story-content');
         storyScreen.classList.toggle('article-reader-mode', isUrduArticle);
+        storyScreen.classList.toggle('story-custom-selection-mode', this._storySupportsCustomWordSelection(story));
         storyContent.classList.toggle('urdu-story-layout', isInteractiveUrdu);
         storyContent.classList.toggle('urdu-article-reader-layout', isUrduArticle);
         if (page.image) {
@@ -3492,6 +3513,10 @@ class KidsMathsApp {
             this._showUrduTranslation = false;
             this._showUrduSavedWords = false;
             this._showStoryTitleTranslation = false;
+        }
+        if (!this._storySupportsCustomWordSelection(story)) {
+            this._selectedStoryWord = null;
+            this._showStorySavedWords = false;
         }
         this._renderUrduSupportPanel();
 
@@ -3556,141 +3581,221 @@ class KidsMathsApp {
     }
 
     _storySupportsEnglishTts(story = this.currentStory) {
+        return this._storySupportsCustomWordSelection(story);
+    }
+
+    _storySupportsCustomWordSelection(story = this.currentStory) {
         if (!story) return false;
         if ((story.direction || 'ltr') !== 'ltr') return false;
         const text = story.pages?.[this.currentStoryPage]?.text || '';
         return Boolean(String(text).trim());
     }
 
-    _normalizeStoryAudioSelectionText(text = '') {
-        return String(text || '').replace(/\s+/g, ' ').trim();
+    _splitStoryParagraphs(text = '') {
+        return String(text || '')
+            .split(/\n\s*\n/g)
+            .map(paragraph => paragraph.trim())
+            .filter(Boolean);
     }
 
-    _getNormalizedActiveStorySelectionText() {
-        const selection = window.getSelection?.();
-        return this._normalizeStoryAudioSelectionText(selection?.toString() || '');
+    _normalizeStoryWordText(text = '') {
+        return String(text || '')
+            .replace(/^[^\p{L}\p{N}'’-]+|[^\p{L}\p{N}'’-]+$/gu, '')
+            .replace(/\s+/g, ' ')
+            .trim();
     }
 
-    _queueStoryTextSelectionCheck(delay = 0) {
-        clearTimeout(this._storyTextSelectionTimer);
-        this._storyTextSelectionTimer = setTimeout(() => this._handleStoryTextSelection(), delay);
+    _getSelectedStoryWord() {
+        if (!this._selectedStoryWord) return null;
+        if (this._selectedStoryWord.storyId !== this.currentStory?.id) return null;
+        if (Number(this._selectedStoryWord.page) !== Number(this.currentStoryPage)) return null;
+        return this._selectedStoryWord;
     }
 
-    _getStoryAudioSelection() {
-        if (!this.storyAudioSelection) return null;
-        if (this.storyAudioSelection.storyId !== this.currentStory?.id) return null;
-        if (Number(this.storyAudioSelection.page) !== Number(this.currentStoryPage)) return null;
-        return this.storyAudioSelection;
-    }
-
-    _clearStoryAudioSelection({ preserveStatus = false } = {}) {
-        this.storyAudioSelection = null;
+    _clearStoryWordSelection({ preserveStatus = false } = {}) {
+        this._selectedStoryWord = null;
         if (!preserveStatus) {
             this._storyAudioStatusOverride = '';
         }
-        this._renderStoryAudioControls();
+        this._renderCurrentStoryText();
+        this._renderStorySelectionControls();
     }
 
-    _handleStoryTextSelection() {
-        if (!this._storySupportsEnglishTts()) {
-            this._clearStoryAudioSelection();
+    _selectStoryWord(word, paragraphIndex = -1, occurrenceIndex = -1) {
+        const cleanWord = this._normalizeStoryWordText(word);
+        if (!cleanWord || !this.currentStory) {
+            this._clearStoryWordSelection();
             return;
         }
 
-        const storyText = document.getElementById('story-text');
-        const selection = window.getSelection?.();
-        if (!storyText || !selection || selection.rangeCount === 0 || selection.isCollapsed) {
-            this._clearStoryAudioSelection();
+        const active = this._getSelectedStoryWord();
+        const isSameWord = active
+            && active.word === cleanWord
+            && Number(active.paragraphIndex ?? -1) === Number(paragraphIndex)
+            && Number(active.occurrenceIndex ?? -1) === Number(occurrenceIndex);
+        if (isSameWord) {
+            this._clearStoryWordSelection();
             return;
         }
 
-        const range = selection.getRangeAt(0);
-        const commonNode = range.commonAncestorContainer?.nodeType === Node.TEXT_NODE
-            ? range.commonAncestorContainer.parentNode
-            : range.commonAncestorContainer;
-        const anchorNode = selection.anchorNode?.nodeType === Node.TEXT_NODE
-            ? selection.anchorNode.parentNode
-            : selection.anchorNode;
-        const focusNode = selection.focusNode?.nodeType === Node.TEXT_NODE
-            ? selection.focusNode.parentNode
-            : selection.focusNode;
-        if (!commonNode || !storyText.contains(commonNode) || (anchorNode && !storyText.contains(anchorNode)) || (focusNode && !storyText.contains(focusNode))) {
-            this._clearStoryAudioSelection();
-            return;
-        }
-
-        const text = this._normalizeStoryAudioSelectionText(selection.toString());
-        if (!text) {
-            this._clearStoryAudioSelection();
-            return;
-        }
-
-        if (text.length > 280) {
-            this.storyAudioSelection = {
-                text,
-                kind: 'too-long',
-                storyId: this.currentStory.id,
-                page: this.currentStoryPage
-            };
-            this._storyAudioStatusOverride = 'Keep the selection short — a word or small section.';
-            this._renderStoryAudioControls();
-            return;
-        }
-
-        this.storyAudioSelection = {
-            text,
-            kind: /^\S+$/.test(text) ? 'word' : 'passage',
+        this._selectedStoryWord = {
+            text: cleanWord,
+            word: cleanWord,
+            paragraphIndex: Number(paragraphIndex),
+            occurrenceIndex: Number(occurrenceIndex),
             storyId: this.currentStory.id,
             page: this.currentStoryPage
         };
         this._storyAudioStatusOverride = '';
-        this._renderStoryAudioControls();
+        this._renderCurrentStoryText();
+        this._renderStorySelectionControls();
     }
 
-    _renderStoryAudioControls() {
-        const controls = document.getElementById('story-audio-controls');
-        const speakBtn = document.getElementById('story-speak-selection-btn');
+    _renderInteractiveEnglishStoryText(text = '') {
+        const paragraphs = this._splitStoryParagraphs(text);
+        const selectedWord = this._getSelectedStoryWord();
+        const wordPattern = /^([^\p{L}\p{N}'’-]*)([\p{L}\p{N}][\p{L}\p{N}'’-]*)([^\p{L}\p{N}'’-]*)$/u;
+
+        return paragraphs.map((paragraph, paragraphIndex) => {
+            const occurrenceCounts = new Map();
+            const tokens = paragraph.split(/(\s+)/);
+            const renderedTokens = tokens.map(token => {
+                if (!token) return '';
+                if (/^\s+$/u.test(token)) {
+                    return token.replace(/ /g, '&nbsp;');
+                }
+
+                const match = token.match(wordPattern);
+                if (!match) {
+                    return this._escapeHtml(token);
+                }
+
+                const [, prefix = '', rawWord = '', suffix = ''] = match;
+                const normalizedWord = this._normalizeStoryWordText(rawWord);
+                if (!normalizedWord) {
+                    return this._escapeHtml(token);
+                }
+
+                const occurrenceIndex = occurrenceCounts.get(normalizedWord) || 0;
+                occurrenceCounts.set(normalizedWord, occurrenceIndex + 1);
+
+                const isSelected = selectedWord
+                    && selectedWord.word === normalizedWord
+                    && Number(selectedWord.paragraphIndex ?? -1) === paragraphIndex
+                    && Number(selectedWord.occurrenceIndex ?? -1) === occurrenceIndex;
+
+                return `${this._escapeHtml(prefix)}<button class="story-word-button${isSelected ? ' is-selected' : ''}" data-story-word="${this._escapeHtml(rawWord)}" data-story-word-normalized="${this._escapeHtml(normalizedWord)}" data-paragraph-index="${paragraphIndex}" data-occurrence-index="${occurrenceIndex}" type="button">${this._escapeHtml(rawWord)}</button>${this._escapeHtml(suffix)}`;
+            }).join('');
+
+            return `<p class="story-text-paragraph" data-story-paragraph="${paragraphIndex}">${renderedTokens}</p>`;
+        }).join('');
+    }
+
+    _getStorySavedWords() {
+        return state.get('storySavedWords') || [];
+    }
+
+    _isSelectedStoryWordSaved(savedWords = this._getStorySavedWords()) {
+        const selectedWord = this._getSelectedStoryWord();
+        if (!selectedWord || !this.currentStory) return false;
+        const key = `${selectedWord.word.toLowerCase()}::${this.currentStory.id}`;
+        return savedWords.some(item => item.key === key);
+    }
+
+    _saveSelectedStoryWord() {
+        const selectedWord = this._getSelectedStoryWord();
+        if (!selectedWord || !this.currentStory) return;
+
+        const existing = this._getStorySavedWords();
+        const key = `${selectedWord.word.toLowerCase()}::${this.currentStory.id}`;
+        if (existing.some(item => item.key === key)) {
+            this._showStorySavedWords = true;
+            this._renderStorySelectionControls();
+            return;
+        }
+
+        state.set('storySavedWords', [
+            {
+                key,
+                word: selectedWord.word,
+                storyId: this.currentStory.id,
+                storyTitle: this.currentStory.title
+            },
+            ...existing
+        ].slice(0, 80));
+        this._showStorySavedWords = true;
+        this._renderStorySelectionControls();
+    }
+
+    _removeStorySavedWord(key) {
+        state.set('storySavedWords', this._getStorySavedWords().filter(item => item.key !== key));
+        this._renderStorySelectionControls();
+    }
+
+    _renderStorySelectionControls() {
+        const controls = document.getElementById('story-selection-controls');
+        const speakBtn = document.getElementById('story-selection-speak-btn');
+        const saveBtn = document.getElementById('story-selection-save-btn');
+        const clearBtn = document.getElementById('story-selection-clear-btn');
         const stopBtn = document.getElementById('story-stop-audio-btn');
-        const status = document.getElementById('story-audio-status');
-        if (!controls || !speakBtn || !stopBtn || !status) return;
+        const savedToggleBtn = document.getElementById('story-selection-saved-toggle-btn');
+        const savedPanel = document.getElementById('story-selection-saved-panel');
+        const status = document.getElementById('story-selection-status');
+        if (!controls || !speakBtn || !saveBtn || !clearBtn || !stopBtn || !savedToggleBtn || !savedPanel || !status) return;
 
-        const enabled = this._storySupportsEnglishTts();
+        const enabled = this._storySupportsCustomWordSelection();
         controls.classList.toggle('hidden', !enabled);
-        if (!enabled) return;
+        if (!enabled) {
+            savedPanel.classList.add('hidden');
+            savedPanel.innerHTML = '';
+            return;
+        }
 
-        const selection = this._getStoryAudioSelection();
-        const selectionTooLong = selection?.kind === 'too-long';
-        const canSpeak = Boolean(selection && !selectionTooLong && !this._storyAudioLoading && this.storyTtsProxyUrl);
+        const selectedWord = this._getSelectedStoryWord();
+        const savedWords = this._getStorySavedWords();
+        const wordAlreadySaved = this._isSelectedStoryWordSaved(savedWords);
+        const canSpeak = Boolean(selectedWord && !this._storyAudioLoading && (this.storyTtsProxyUrl || 'speechSynthesis' in window));
+
         speakBtn.disabled = !canSpeak;
+        saveBtn.disabled = !selectedWord || wordAlreadySaved;
+        clearBtn.disabled = !selectedWord;
         stopBtn.disabled = !this._storyAudioElement && !this._storyAudioLoading && !this._storyDeviceSpeechActive;
+        savedToggleBtn.textContent = `Saved words (${savedWords.length})`;
+        savedToggleBtn.setAttribute('aria-pressed', this._showStorySavedWords ? 'true' : 'false');
 
         if (this._storyAudioLoading) {
-            status.textContent = 'Generating narration for your selection…';
-            return;
-        }
-
-        if (this._storyAudioStatusOverride) {
+            status.textContent = 'Generating narration for your word…';
+        } else if (this._storyAudioStatusOverride) {
             status.textContent = this._storyAudioStatusOverride;
-            return;
+        } else if (selectedWord) {
+            status.textContent = `Selected word: “${selectedWord.word}”`;
+        } else {
+            status.textContent = 'Tap a word to hear it, save it, or clear it.';
         }
 
-        if (!this.storyTtsProxyUrl) {
-            status.textContent = 'TTS proxy not connected yet. Once the secure Worker is deployed, selected text will play here.';
-            return;
+        if (selectedWord) {
+            saveBtn.textContent = wordAlreadySaved ? 'Saved ✓' : 'Save';
+        } else {
+            saveBtn.textContent = 'Save';
         }
 
-        if (selectionTooLong) {
-            status.textContent = 'Keep the selection short — a word or small section.';
-            return;
+        if (this._showStorySavedWords) {
+            savedPanel.classList.remove('hidden');
+            savedPanel.innerHTML = savedWords.length
+                ? `<div class="story-selection-saved-panel-label">Saved words</div>${savedWords.map(item => `
+                    <div class="story-saved-word-row">
+                        <div>
+                            <div class="story-saved-word-text">${this._escapeHtml(item.word)}</div>
+                            <div class="story-saved-word-story">${this._escapeHtml(item.storyTitle)}</div>
+                        </div>
+                        <button class="secondary-btn" type="button" data-remove-story-word="${this._escapeHtml(item.key)}">Remove</button>
+                    </div>
+                `).join('')}`
+                : '<div class="story-selection-saved-panel-label">Saved words</div><div class="story-empty-state">Save a few words from a story and they will appear here.</div>';
+        } else {
+            savedPanel.classList.add('hidden');
+            savedPanel.innerHTML = '';
         }
-
-        if (selection) {
-            const label = selection.kind === 'word' ? 'Selected word' : 'Selected passage';
-            status.textContent = `${label}: “${selection.text}”`;
-            return;
-        }
-
-        status.textContent = 'Select a word or short section to hear it aloud.';
     }
 
     async _requestStorySpeechAudio(text) {
@@ -3745,9 +3850,9 @@ class KidsMathsApp {
     }
 
     async _speakStorySelection() {
-        const selection = this._getStoryAudioSelection();
-        if (!selection || selection.kind === 'too-long') {
-            this._renderStoryAudioControls();
+        const selection = this._getSelectedStoryWord();
+        if (!selection) {
+            this._renderStorySelectionControls();
             return;
         }
 
@@ -3755,16 +3860,22 @@ class KidsMathsApp {
         this._storyAudioLoading = true;
         this._storyAudioStatusOverride = '';
         this._storyAudioAbortController = new AbortController();
-        this._renderStoryAudioControls();
+        this._renderStorySelectionControls();
 
         try {
+            if (!this.storyTtsProxyUrl) {
+                await this._playStorySelectionWithDeviceVoice(selection.text);
+                this._storyAudioStatusOverride = `Playing on this device: “${selection.text}”`;
+                return;
+            }
+
             const audioBlob = await this._requestStorySpeechAudio(selection.text);
             this._storyAudioObjectUrl = URL.createObjectURL(audioBlob);
             this._storyAudioElement = new Audio(this._storyAudioObjectUrl);
             this._storyAudioElement.addEventListener('ended', () => {
                 this._stopStoryAudio({ preserveStatus: true });
                 this._storyAudioStatusOverride = `Finished: “${selection.text}”`;
-                this._renderStoryAudioControls();
+                this._renderStorySelectionControls();
             }, { once: true });
             await this._storyAudioElement.play();
             this._storyAudioStatusOverride = `Playing: “${selection.text}”`;
@@ -3784,7 +3895,7 @@ class KidsMathsApp {
         } finally {
             this._storyAudioLoading = false;
             this._storyAudioAbortController = null;
-            this._renderStoryAudioControls();
+            this._renderStorySelectionControls();
         }
     }
 
@@ -3820,7 +3931,7 @@ class KidsMathsApp {
                 this._storyDeviceSpeechActive = false;
                 this._storySpeechUtterance = null;
                 this._storyAudioStatusOverride = `Finished on this device: “${text}”`;
-                this._renderStoryAudioControls();
+                this._renderStorySelectionControls();
             };
             synth.speak(utterance);
         });
@@ -3850,7 +3961,7 @@ class KidsMathsApp {
         if (!preserveStatus) {
             this._storyAudioStatusOverride = '';
         }
-        this._renderStoryAudioControls();
+        this._renderStorySelectionControls();
     }
 
     _applyStoryFontScaleToCurrentStoryText(scale = this._getStoryFontScale()) {
@@ -3898,6 +4009,8 @@ class KidsMathsApp {
             storyText.innerHTML = isUrduArticle
                 ? this._renderUrduArticleText(page.text || '')
                 : this._renderInteractiveUrduText(page.text || '', pageVocabulary);
+        } else if (this._storySupportsCustomWordSelection(story)) {
+            storyText.innerHTML = this._renderInteractiveEnglishStoryText(page.text || '');
         } else {
             storyText.textContent = page.text || '';
         }

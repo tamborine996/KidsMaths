@@ -365,10 +365,16 @@
                 <button class="secondary-btn story-font-btn story-font-reset-btn" id="story-font-reset-btn" type="button">Reset</button>
                 <button class="secondary-btn story-font-btn" id="story-font-increase-btn" type="button" aria-label="Make story text bigger">A+</button>
             </div>
-            <div class="story-audio-controls hidden" id="story-audio-controls" aria-label="Story audio controls">
-                <button class="secondary-btn story-audio-btn" id="story-speak-selection-btn" type="button">Speak selection</button>
-                <button class="secondary-btn story-audio-btn" id="story-stop-audio-btn" type="button" disabled>Stop audio</button>
-                <div class="story-audio-status" id="story-audio-status" aria-live="polite">Select a word or short section to hear it aloud.</div>
+            <div class="story-selection-controls hidden" id="story-selection-controls" aria-label="Story word actions">
+                <div class="story-selection-status" id="story-selection-status" aria-live="polite">Tap a word to hear it, save it, or clear it.</div>
+                <div class="story-selection-actions">
+                    <button class="secondary-btn story-selection-btn" id="story-selection-speak-btn" type="button" disabled>Speak</button>
+                    <button class="secondary-btn story-selection-btn" id="story-selection-save-btn" type="button" disabled>Save</button>
+                    <button class="secondary-btn story-selection-btn" id="story-selection-clear-btn" type="button" disabled>Clear</button>
+                    <button class="secondary-btn story-selection-btn" id="story-stop-audio-btn" type="button" disabled>Stop audio</button>
+                    <button class="secondary-btn story-selection-btn" id="story-selection-saved-toggle-btn" type="button" aria-pressed="false">Saved words (0)</button>
+                </div>
+                <div class="story-selection-saved-panel hidden" id="story-selection-saved-panel"></div>
             </div>
             <div class="story-content" id="story-content">
                 <img id="story-image" class="story-image hidden" alt="Story illustration">

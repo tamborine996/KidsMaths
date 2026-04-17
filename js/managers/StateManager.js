@@ -80,6 +80,7 @@ export class StateManager {
             // Reading
             readStories: [],
             bookmarks: {},
+            storySavedWords: [],
             urduSavedWords: [],
             archivedUrduStoryIds: [],
             showArchivedUrdu: false,
