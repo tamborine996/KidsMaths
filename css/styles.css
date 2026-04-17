@@ -3286,6 +3286,11 @@ td.mastery-mastered {
     color: var(--text-heading);
 }
 
+.story-word-button.is-range-edge {
+    background: rgba(255, 214, 92, 0.9);
+    box-shadow: 0 0 0 2px rgba(214, 162, 32, 0.3);
+}
+
 .story-content.urdu-story-layout #story-text {
     margin-inline: auto;
     max-width: min(100%, 34rem);

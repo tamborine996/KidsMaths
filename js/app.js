@@ -29,6 +29,8 @@ class KidsMathsApp {
         this._storyAudioSource = '';
         this._storySpeechUtterance = null;
         this._storyDeviceSpeechActive = false;
+        this._storyWordDragState = null;
+        this._suppressStoryWordClick = false;
 
         // Managers
         this.coinManager = new CoinManager();
@@ -2456,15 +2458,42 @@ class KidsMathsApp {
             }
         });
 
+        document.getElementById('story-text').addEventListener('pointerdown', (e) => {
+            if (!this.currentStory || !this._storySupportsCustomWordSelection()) return;
+            const storyWordBtn = e.target.closest('.story-word-button');
+            if (!storyWordBtn) return;
+            this._beginStoryWordDragSelection(storyWordBtn, e.pointerId);
+        });
+
+        document.addEventListener('pointermove', (e) => {
+            if (!this._storyWordDragState || !this._storySupportsCustomWordSelection()) return;
+            this._updateStoryWordDragSelection(e.clientX, e.clientY, e.pointerId);
+        });
+
+        document.addEventListener('pointerup', (e) => {
+            if (!this._storyWordDragState) return;
+            this._endStoryWordDragSelection(e.pointerId);
+        });
+
+        document.addEventListener('pointercancel', (e) => {
+            if (!this._storyWordDragState) return;
+            this._endStoryWordDragSelection(e.pointerId, { cancelled: true });
+        });
+
         document.getElementById('story-text').addEventListener('click', async (e) => {
             if (!this.currentStory) return;
 
             const storyWordBtn = e.target.closest('.story-word-button');
             if (storyWordBtn && this._storySupportsCustomWordSelection()) {
+                if (this._suppressStoryWordClick) {
+                    this._suppressStoryWordClick = false;
+                    return;
+                }
                 this._selectStoryWord(
                     storyWordBtn.dataset.storyWordNormalized || storyWordBtn.dataset.storyWord,
                     Number(storyWordBtn.dataset.paragraphIndex),
-                    Number(storyWordBtn.dataset.occurrenceIndex)
+                    Number(storyWordBtn.dataset.occurrenceIndex),
+                    Number(storyWordBtn.dataset.tokenIndex)
                 );
                 return;
             }
@@ -3615,8 +3644,81 @@ class KidsMathsApp {
         return this._selectedStoryWord;
     }
 
+    _extractStoryWordSelectionData(button) {
+        if (!button) return null;
+        const word = this._normalizeStoryWordText(button.dataset.storyWordNormalized || button.dataset.storyWord || button.textContent || '');
+        const paragraphIndex = Number(button.dataset.paragraphIndex);
+        const occurrenceIndex = Number(button.dataset.occurrenceIndex);
+        const tokenIndex = Number(button.dataset.tokenIndex);
+        if (!word || Number.isNaN(paragraphIndex) || Number.isNaN(occurrenceIndex) || Number.isNaN(tokenIndex)) {
+            return null;
+        }
+        return { word, paragraphIndex, occurrenceIndex, tokenIndex };
+    }
+
+    _beginStoryWordDragSelection(button, pointerId = null) {
+        const anchor = this._extractStoryWordSelectionData(button);
+        if (!anchor) return;
+        this._storyWordDragState = {
+            pointerId,
+            anchor,
+            lastTokenIndex: anchor.tokenIndex,
+            hasDragged: false
+        };
+        this._suppressStoryWordClick = false;
+    }
+
+    _updateStoryWordDragSelection(clientX, clientY, pointerId = null) {
+        if (!this._storyWordDragState) return;
+        if (this._storyWordDragState.pointerId !== null && pointerId !== null && this._storyWordDragState.pointerId !== pointerId) {
+            return;
+        }
+        const hovered = document.elementFromPoint(clientX, clientY)?.closest?.('.story-word-button');
+        const nextSelection = this._extractStoryWordSelectionData(hovered);
+        if (!nextSelection) return;
+        if (Number(nextSelection.paragraphIndex) !== Number(this._storyWordDragState.anchor.paragraphIndex)) return;
+        if (Number(nextSelection.tokenIndex) === Number(this._storyWordDragState.lastTokenIndex)) return;
+        this._storyWordDragState.lastTokenIndex = Number(nextSelection.tokenIndex);
+        this._storyWordDragState.hasDragged = true;
+        this._suppressStoryWordClick = true;
+        this._selectStoryWordRange(this._storyWordDragState.anchor, nextSelection);
+    }
+
+    _endStoryWordDragSelection(pointerId = null, { cancelled = false } = {}) {
+        if (!this._storyWordDragState) return;
+        if (this._storyWordDragState.pointerId !== null && pointerId !== null && this._storyWordDragState.pointerId !== pointerId) {
+            return;
+        }
+        if (cancelled && this._storyWordDragState.hasDragged) {
+            this._clearStoryWordSelection({ preserveStatus: true });
+        }
+        this._storyWordDragState = null;
+    }
+
+    _buildStorySelectionTextFromRange(paragraphIndex, startTokenIndex, endTokenIndex) {
+        const storyText = document.getElementById('story-text');
+        if (!storyText) return '';
+        const buttons = Array.from(storyText.querySelectorAll(`.story-word-button[data-paragraph-index="${paragraphIndex}"]`));
+        const selectedButtons = buttons.filter((button) => {
+            const tokenIndex = Number(button.dataset.tokenIndex);
+            return tokenIndex >= Number(startTokenIndex) && tokenIndex <= Number(endTokenIndex);
+        });
+        return selectedButtons
+            .map(button => this._normalizeStoryWordText(button.dataset.storyWordNormalized || button.dataset.storyWord || button.textContent || ''))
+            .filter(Boolean)
+            .join(' ')
+            .trim();
+    }
+
+    _selectionIsSingleWord(selection = this._getSelectedStoryWord()) {
+        if (!selection) return false;
+        return Number(selection.startTokenIndex ?? selection.tokenIndex ?? -1) === Number(selection.endTokenIndex ?? selection.tokenIndex ?? -1);
+    }
+
     _clearStoryWordSelection({ preserveStatus = false } = {}) {
         this._selectedStoryWord = null;
+        this._storyWordDragState = null;
+        this._suppressStoryWordClick = false;
         if (!preserveStatus) {
             this._storyAudioStatusOverride = '';
         }
@@ -3624,7 +3726,7 @@ class KidsMathsApp {
         this._renderStorySelectionControls();
     }
 
-    _selectStoryWord(word, paragraphIndex = -1, occurrenceIndex = -1) {
+    _selectStoryWord(word, paragraphIndex = -1, occurrenceIndex = -1, tokenIndex = occurrenceIndex) {
         const cleanWord = this._normalizeStoryWordText(word);
         if (!cleanWord || !this.currentStory) {
             this._clearStoryWordSelection();
@@ -3632,20 +3734,68 @@ class KidsMathsApp {
         }
 
         const active = this._getSelectedStoryWord();
+        const resolvedTokenIndex = Number(tokenIndex);
         const isSameWord = active
+            && this._selectionIsSingleWord(active)
             && active.word === cleanWord
             && Number(active.paragraphIndex ?? -1) === Number(paragraphIndex)
-            && Number(active.occurrenceIndex ?? -1) === Number(occurrenceIndex);
+            && Number(active.occurrenceIndex ?? -1) === Number(occurrenceIndex)
+            && Number(active.startTokenIndex ?? -1) === resolvedTokenIndex;
         if (isSameWord) {
             this._clearStoryWordSelection();
             return;
         }
 
+        this._selectStoryWordRange(
+            {
+                word: cleanWord,
+                paragraphIndex: Number(paragraphIndex),
+                occurrenceIndex: Number(occurrenceIndex),
+                tokenIndex: Number.isNaN(resolvedTokenIndex) ? Number(occurrenceIndex) : resolvedTokenIndex
+            },
+            {
+                word: cleanWord,
+                paragraphIndex: Number(paragraphIndex),
+                occurrenceIndex: Number(occurrenceIndex),
+                tokenIndex: Number.isNaN(resolvedTokenIndex) ? Number(occurrenceIndex) : resolvedTokenIndex
+            }
+        );
+    }
+
+    _selectStoryWordRange(startSelection, endSelection = startSelection) {
+        if (!this.currentStory || !startSelection || !endSelection) {
+            this._clearStoryWordSelection();
+            return;
+        }
+        if (Number(startSelection.paragraphIndex) !== Number(endSelection.paragraphIndex)) {
+            endSelection = startSelection;
+        }
+
+        const startTokenIndex = Math.min(Number(startSelection.tokenIndex), Number(endSelection.tokenIndex));
+        const endTokenIndex = Math.max(Number(startSelection.tokenIndex), Number(endSelection.tokenIndex));
+        const startOccurrenceIndex = Number(startSelection.tokenIndex) <= Number(endSelection.tokenIndex)
+            ? Number(startSelection.occurrenceIndex)
+            : Number(endSelection.occurrenceIndex);
+        const endOccurrenceIndex = Number(startSelection.tokenIndex) <= Number(endSelection.tokenIndex)
+            ? Number(endSelection.occurrenceIndex)
+            : Number(startSelection.occurrenceIndex);
+        const text = this._buildStorySelectionTextFromRange(Number(startSelection.paragraphIndex), startTokenIndex, endTokenIndex)
+            || this._normalizeStoryWordText(startSelection.word)
+            || this._normalizeStoryWordText(endSelection.word);
+        if (!text) {
+            this._clearStoryWordSelection();
+            return;
+        }
+
         this._selectedStoryWord = {
-            text: cleanWord,
-            word: cleanWord,
-            paragraphIndex: Number(paragraphIndex),
-            occurrenceIndex: Number(occurrenceIndex),
+            text,
+            word: text,
+            paragraphIndex: Number(startSelection.paragraphIndex),
+            occurrenceIndex: startOccurrenceIndex,
+            startOccurrenceIndex,
+            endOccurrenceIndex,
+            startTokenIndex,
+            endTokenIndex,
             storyId: this.currentStory.id,
             page: this.currentStoryPage
         };
@@ -3662,7 +3812,7 @@ class KidsMathsApp {
         return paragraphs.map((paragraph, paragraphIndex) => {
             const occurrenceCounts = new Map();
             const tokens = paragraph.split(/(\s+)/);
-            const renderedTokens = tokens.map(token => {
+            const renderedTokens = tokens.map((token, tokenIndex) => {
                 if (!token) return '';
                 if (/^\s+$/u.test(token)) {
                     return token.replace(/ /g, '&nbsp;');
@@ -3683,11 +3833,15 @@ class KidsMathsApp {
                 occurrenceCounts.set(normalizedWord, occurrenceIndex + 1);
 
                 const isSelected = selectedWord
-                    && selectedWord.word === normalizedWord
                     && Number(selectedWord.paragraphIndex ?? -1) === paragraphIndex
-                    && Number(selectedWord.occurrenceIndex ?? -1) === occurrenceIndex;
+                    && Number(selectedWord.startTokenIndex ?? -1) <= tokenIndex
+                    && Number(selectedWord.endTokenIndex ?? -1) >= tokenIndex;
+                const isRangeEdge = isSelected && (
+                    Number(selectedWord.startTokenIndex ?? -1) === tokenIndex
+                    || Number(selectedWord.endTokenIndex ?? -1) === tokenIndex
+                );
 
-                return `${this._escapeHtml(prefix)}<button class="story-word-button${isSelected ? ' is-selected' : ''}" data-story-word="${this._escapeHtml(rawWord)}" data-story-word-normalized="${this._escapeHtml(normalizedWord)}" data-paragraph-index="${paragraphIndex}" data-occurrence-index="${occurrenceIndex}" type="button">${this._escapeHtml(rawWord)}</button>${this._escapeHtml(suffix)}`;
+                return `${this._escapeHtml(prefix)}<button class="story-word-button${isSelected ? ' is-selected' : ''}${isRangeEdge ? ' is-range-edge' : ''}" data-story-word="${this._escapeHtml(rawWord)}" data-story-word-normalized="${this._escapeHtml(normalizedWord)}" data-paragraph-index="${paragraphIndex}" data-occurrence-index="${occurrenceIndex}" data-token-index="${tokenIndex}" type="button">${this._escapeHtml(rawWord)}</button>${this._escapeHtml(suffix)}`;
             }).join('');
 
             return `<p class="story-text-paragraph" data-story-paragraph="${paragraphIndex}">${renderedTokens}</p>`;
@@ -3700,14 +3854,14 @@ class KidsMathsApp {
 
     _isSelectedStoryWordSaved(savedWords = this._getStorySavedWords()) {
         const selectedWord = this._getSelectedStoryWord();
-        if (!selectedWord || !this.currentStory) return false;
+        if (!selectedWord || !this.currentStory || !this._selectionIsSingleWord(selectedWord)) return false;
         const key = `${selectedWord.word.toLowerCase()}::${this.currentStory.id}`;
         return savedWords.some(item => item.key === key);
     }
 
     _saveSelectedStoryWord() {
         const selectedWord = this._getSelectedStoryWord();
-        if (!selectedWord || !this.currentStory) return;
+        if (!selectedWord || !this.currentStory || !this._selectionIsSingleWord(selectedWord)) return;
 
         const existing = this._getStorySavedWords();
         const key = `${selectedWord.word.toLowerCase()}::${this.currentStory.id}`;
@@ -3757,11 +3911,12 @@ class KidsMathsApp {
 
         const selectedWord = this._getSelectedStoryWord();
         const savedWords = this._getStorySavedWords();
+        const isSingleWordSelection = this._selectionIsSingleWord(selectedWord);
         const wordAlreadySaved = this._isSelectedStoryWordSaved(savedWords);
         const canSpeak = Boolean(selectedWord && !this._storyAudioLoading && this._storyHasAnySpeechPath());
 
         speakBtn.disabled = !canSpeak;
-        saveBtn.disabled = !selectedWord || wordAlreadySaved;
+        saveBtn.disabled = !selectedWord || !isSingleWordSelection || wordAlreadySaved;
         clearBtn.disabled = !selectedWord;
         stopBtn.disabled = !this._storyAudioElement && !this._storyAudioLoading && !this._storyDeviceSpeechActive;
         savedToggleBtn.textContent = `Saved words (${savedWords.length})`;
@@ -3769,17 +3924,21 @@ class KidsMathsApp {
         voiceBadge.textContent = this._getStoryVoiceSourceLabel();
 
         if (this._storyAudioLoading) {
-            status.textContent = 'Generating narration for your word…';
+            status.textContent = 'Generating narration for your selection…';
         } else if (this._storyAudioStatusOverride) {
             status.textContent = this._storyAudioStatusOverride;
+        } else if (selectedWord && !isSingleWordSelection) {
+            status.textContent = `Selected phrase: “${selectedWord.text}”`;
         } else if (selectedWord) {
             status.textContent = `Selected word: “${selectedWord.word}”`;
         } else {
-            status.textContent = 'Tap a word to hear it, save it, or clear it.';
+            status.textContent = 'Tap a word or drag across a phrase to hear it, save it, or clear it.';
         }
 
-        if (selectedWord) {
+        if (selectedWord && isSingleWordSelection) {
             saveBtn.textContent = wordAlreadySaved ? 'Saved ✓' : 'Save';
+        } else if (selectedWord) {
+            saveBtn.textContent = 'Save word only';
         } else {
             saveBtn.textContent = 'Save';
         }
