@@ -29,8 +29,13 @@ assert(html.includes('story-audio-status'), 'Expected story audio status label i
 
 assert(css.includes('.story-audio-controls'), 'Expected story audio controls styling in css');
 assert(css.includes('.story-audio-status'), 'Expected story audio status styling in css');
+assert(css.includes('#story-screen,\n#story-content,\n#story-text {'), 'Expected story reading surface to explicitly allow text selection');
+assert(css.includes('-webkit-touch-callout: default;'), 'Expected iOS text callout support on the story reading surface');
 
 assert(app.includes('_handleStoryTextSelection'), 'Expected story text selection handler in app.js');
+assert(app.includes('_queueStoryTextSelectionCheck'), 'Expected debounced selectionchange handling in app.js');
+assert(app.includes('_getNormalizedActiveStorySelectionText'), 'Expected helper for active story selection text in app.js');
+assert(app.includes("document.addEventListener('selectionchange'"), 'Expected global selectionchange listener for mobile selection reliability');
 assert(app.includes('_speakStorySelection'), 'Expected story selection speech method in app.js');
 assert(app.includes('_requestStorySpeechAudio'), 'Expected proxy speech request method in app.js');
 assert(app.includes('_playStorySelectionWithDeviceVoice'), 'Expected device-voice fallback method in app.js');
@@ -39,6 +44,7 @@ assert(app.includes('storyAudioSelection'), 'Expected persisted/managed story au
 assert(app.includes('storyTtsProxyUrl'), 'Expected configurable TTS proxy URL state in app.js');
 assert(app.includes('Cloud voice is temporarily unavailable on the current ElevenLabs plan.'), 'Expected a clear fallback message when ElevenLabs free-tier abuse detection blocks a request');
 assert(app.includes('speechSynthesis'), 'Expected browser speech synthesis fallback support in app.js');
+assert(app.includes('this._storyTouchStartedInText'), 'Expected swipe navigation to ignore text-selection gestures that start inside story text');
 
 assert(pkg.includes('wrangler'), 'Expected wrangler dependency in package.json');
 assert(wrangler.includes('name = "kidsmaths-tts-proxy"'), 'Expected Worker name in wrangler.toml');

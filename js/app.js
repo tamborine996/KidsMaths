@@ -2407,10 +2407,13 @@ class KidsMathsApp {
             if (!this.currentStory || e.touches.length !== 1) return;
             this._storyTouchStartX = e.touches[0].clientX;
             this._storyTouchStartY = e.touches[0].clientY;
+            this._storyTouchStartedInText = Boolean(e.target.closest('#story-text'));
         }, { passive: true });
 
         storyContent.addEventListener('touchend', (e) => {
             if (!this.currentStory || e.changedTouches.length !== 1) return;
+            if (this._storyTouchStartedInText) return;
+            if (this._getNormalizedActiveStorySelectionText()) return;
 
             const deltaX = e.changedTouches[0].clientX - this._storyTouchStartX;
             const deltaY = e.changedTouches[0].clientY - this._storyTouchStartY;
@@ -2490,10 +2493,14 @@ class KidsMathsApp {
             }
         });
         document.getElementById('story-text').addEventListener('mouseup', () => {
-            setTimeout(() => this._handleStoryTextSelection(), 0);
+            this._queueStoryTextSelectionCheck(0);
         });
         document.getElementById('story-text').addEventListener('touchend', () => {
-            setTimeout(() => this._handleStoryTextSelection(), 60);
+            this._queueStoryTextSelectionCheck(120);
+        });
+        document.addEventListener('selectionchange', () => {
+            if (!this.currentStory) return;
+            this._queueStoryTextSelectionCheck(0);
         });
 
         document.getElementById('urdu-translation-toggle-btn').addEventListener('click', () => {
@@ -3559,6 +3566,16 @@ class KidsMathsApp {
         return String(text || '').replace(/\s+/g, ' ').trim();
     }
 
+    _getNormalizedActiveStorySelectionText() {
+        const selection = window.getSelection?.();
+        return this._normalizeStoryAudioSelectionText(selection?.toString() || '');
+    }
+
+    _queueStoryTextSelectionCheck(delay = 0) {
+        clearTimeout(this._storyTextSelectionTimer);
+        this._storyTextSelectionTimer = setTimeout(() => this._handleStoryTextSelection(), delay);
+    }
+
     _getStoryAudioSelection() {
         if (!this.storyAudioSelection) return null;
         if (this.storyAudioSelection.storyId !== this.currentStory?.id) return null;
@@ -3591,7 +3608,13 @@ class KidsMathsApp {
         const commonNode = range.commonAncestorContainer?.nodeType === Node.TEXT_NODE
             ? range.commonAncestorContainer.parentNode
             : range.commonAncestorContainer;
-        if (!commonNode || !storyText.contains(commonNode)) {
+        const anchorNode = selection.anchorNode?.nodeType === Node.TEXT_NODE
+            ? selection.anchorNode.parentNode
+            : selection.anchorNode;
+        const focusNode = selection.focusNode?.nodeType === Node.TEXT_NODE
+            ? selection.focusNode.parentNode
+            : selection.focusNode;
+        if (!commonNode || !storyText.contains(commonNode) || (anchorNode && !storyText.contains(anchorNode)) || (focusNode && !storyText.contains(focusNode))) {
             this._clearStoryAudioSelection();
             return;
         }

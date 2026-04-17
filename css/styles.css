@@ -3166,6 +3166,14 @@ td.mastery-mastered {
     display: none;
 }
 
+#story-screen,
+#story-content,
+#story-text {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+}
+
 #story-text {
     font-family: var(--font-body);
     font-size: calc(var(--story-font-size-base) * var(--story-font-scale));
@@ -3175,8 +3183,6 @@ td.mastery-mastered {
     white-space: pre-line;
     max-width: 100%;
     width: 100%;
-    user-select: text;
-    -webkit-user-select: text;
 }
 
 .story-content.urdu-story-layout #story-text {
