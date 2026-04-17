@@ -34,6 +34,7 @@ assert(html.includes('story-selection-saved-toggle-btn'), 'Expected saved-words 
 assert(html.includes('story-stop-audio-btn'), 'Expected stop-audio button in index.html');
 assert(html.includes('story-voice-source-badge'), 'Expected visible voice-source badge in index.html');
 assert(html.includes('kidsmaths-config.js'), 'Expected optional local KidsMaths config script in index.html');
+assert(!html.includes('KIDSMATHS_TTS_PROXY_URL'), 'Expected legacy Worker proxy config to be removed from index.html');
 
 assert(css.includes('.story-selection-controls'), 'Expected story-selection controls styling in css');
 assert(css.includes('.story-voice-source-badge {'), 'Expected story voice-source badge styling in css');
@@ -42,29 +43,23 @@ assert(css.includes('.story-word-button.is-selected {'), 'Expected selected Engl
 assert(css.includes('#story-screen.story-custom-selection-mode #story-text {'), 'Expected native text selection to be disabled in custom-selection mode');
 
 assert(gitignore.includes('kidsmaths-config.js'), 'Expected local KidsMaths config file to be gitignored');
-assert(configExample.includes('window.KIDSMATHS_ELEVENLABS_API_KEY'), 'Expected config example to document client-side ElevenLabs key wiring');
-assert(configExample.includes('window.KIDSMATHS_ELEVENLABS_VOICE_ID'), 'Expected config example to document client-side voice override');
 assert(configExample.includes('window.KIDSMATHS_GEMINI_API_KEY'), 'Expected config example to document Gemini TTS key wiring');
 assert(configExample.includes('window.KIDSMATHS_GEMINI_TTS_VOICE'), 'Expected config example to document Gemini TTS voice override');
+assert(!configExample.includes('window.KIDSMATHS_ELEVENLABS_API_KEY'), 'Expected config example to stop steering toward ElevenLabs');
 
-assert(app.includes('window.KIDSMATHS_ELEVENLABS_API_KEY'), 'Expected app.js to support client-side ElevenLabs key configuration');
-assert(app.includes('window.KIDSMATHS_ELEVENLABS_VOICE_ID'), 'Expected app.js to support client-side ElevenLabs voice configuration');
 assert(app.includes('window.KIDSMATHS_GEMINI_API_KEY'), 'Expected app.js to support Gemini API key configuration');
 assert(app.includes('window.KIDSMATHS_GEMINI_TTS_VOICE'), 'Expected app.js to support Gemini TTS voice configuration');
-assert(app.includes('_requestStorySpeechAudioDirect'), 'Expected direct ElevenLabs speech request path in app.js');
-assert(app.includes('_requestStorySpeechAudioViaProxy'), 'Expected proxy speech request path in app.js');
 assert(app.includes('_requestStorySpeechAudioViaGemini'), 'Expected Gemini speech request path in app.js');
-assert(app.includes('Playing with ElevenLabs cloud voice'), 'Expected explicit cloud-voice playback status');
-assert(app.includes('Trying ElevenLabs directly in this browser'), 'Expected explicit direct-browser ElevenLabs status');
-assert(app.includes('Trying Gemini voice directly in this browser'), 'Expected explicit direct-browser Gemini status');
-assert(app.includes('Cloud voice via Worker is blocked right now'), 'Expected explicit Worker-blocked status copy');
+assert(app.includes('Trying Gemini voice directly in this browser'), 'Expected explicit Gemini status');
+assert(app.includes('Playing with Gemini voice'), 'Expected explicit Gemini playback status');
 assert(app.includes('_getStoryVoiceSourceLabel()'), 'Expected story voice-source label helper in app.js');
-assert(app.includes('Voice: ElevenLabs direct'), 'Expected explicit direct ElevenLabs badge label');
-assert(app.includes('Voice: Gemini direct'), 'Expected explicit Gemini badge label');
-assert(app.includes('Voice: ElevenLabs via Worker'), 'Expected explicit Worker ElevenLabs badge label');
+assert(app.includes('Voice: Gemini'), 'Expected Gemini voice badge label');
 assert(app.includes('Voice: device fallback'), 'Expected explicit device fallback badge label');
-assert(app.includes('storyTtsProxyUrl'), 'Expected configurable TTS proxy URL state in app.js');
 assert(app.includes('speechSynthesis'), 'Expected browser speech synthesis fallback support in app.js');
+assert(!app.includes('Trying ElevenLabs directly in this browser'), 'Expected ElevenLabs-specific reader status to be removed');
+assert(!app.includes('Voice: ElevenLabs direct'), 'Expected ElevenLabs-specific badge labels to be removed');
+assert(!app.includes('Voice: ElevenLabs via Worker'), 'Expected Worker-specific badge labels to be removed');
+assert(!app.includes('Cloud voice via Worker is blocked right now'), 'Expected Worker-blocked copy to be removed from normal reader flow');
 assert(!app.includes('_handleStoryTextSelection()'), 'Expected native selection-based English TTS handler to be removed');
 assert(!app.includes("document.addEventListener('selectionchange'"), 'Expected native selectionchange listener to be removed from English selection flow');
 

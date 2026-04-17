@@ -16,10 +16,6 @@ class KidsMathsApp {
         this._storyFontScaleMin = 0.85;
         this._storyFontScaleMax = 1.65;
         this._storyFontScaleStep = 0.1;
-        this.storyTtsProxyUrl = window.KIDSMATHS_TTS_PROXY_URL || '';
-        this.storyElevenLabsApiKey = window.KIDSMATHS_ELEVENLABS_API_KEY || '';
-        this.storyElevenLabsVoiceId = window.KIDSMATHS_ELEVENLABS_VOICE_ID || 'JBFqnCBsd6RMkjVDRZzb';
-        this.storyElevenLabsModelId = window.KIDSMATHS_ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2';
         this.storyGeminiApiKey = window.KIDSMATHS_GEMINI_API_KEY || '';
         this.storyGeminiTtsVoice = window.KIDSMATHS_GEMINI_TTS_VOICE || 'Zephyr';
         this.storyGeminiTtsModel = window.KIDSMATHS_GEMINI_TTS_MODEL || 'gemini-2.5-flash-preview-tts';
@@ -3809,18 +3805,14 @@ class KidsMathsApp {
 
     _getStoryVoiceSourceLabel() {
         if (this._storyDeviceSpeechActive) return 'Voice: device fallback';
-        if (this._storyAudioSource === 'elevenlabs-direct') return 'Voice: ElevenLabs direct';
-        if (this._storyAudioSource === 'gemini-direct') return 'Voice: Gemini direct';
-        if (this._storyAudioSource === 'elevenlabs-worker') return 'Voice: ElevenLabs via Worker';
-        if (this.storyElevenLabsApiKey) return 'Voice: ElevenLabs direct ready';
-        if (this.storyGeminiApiKey) return 'Voice: Gemini direct ready';
-        if (this.storyTtsProxyUrl) return 'Voice: Worker path ready';
+        if (this._storyAudioSource === 'gemini-direct') return 'Voice: Gemini';
+        if (this.storyGeminiApiKey) return 'Voice: Gemini ready';
         if ('speechSynthesis' in window) return 'Voice: device fallback ready';
         return 'Voice: unavailable';
     }
 
     _storyHasAnySpeechPath() {
-        return Boolean(this.storyElevenLabsApiKey || this.storyGeminiApiKey || this.storyTtsProxyUrl || ('speechSynthesis' in window));
+        return Boolean(this.storyGeminiApiKey || ('speechSynthesis' in window));
     }
 
     _decodeBase64ToUint8Array(base64Text) {
@@ -3869,107 +3861,6 @@ class KidsMathsApp {
         new Uint8Array(wavBuffer, 44).set(audioBytes);
 
         return new Blob([wavBuffer], { type: 'audio/wav' });
-    }
-
-    async _requestStorySpeechAudioViaProxy(text) {
-        if (!this.storyTtsProxyUrl) {
-            throw new Error('TTS proxy is not configured yet.');
-        }
-
-        const proxyUrl = `${this.storyTtsProxyUrl.replace(/\/$/, '')}/v1/speak`;
-        const response = await fetch(proxyUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                text,
-                mode: 'selection'
-            }),
-            signal: this._storyAudioAbortController?.signal
-        });
-
-        if (!response.ok) {
-            let errorMessage = `Speech request failed (${response.status})`;
-            let allowDeviceFallback = false;
-            try {
-                const data = await response.json();
-                const upstreamDetails = typeof data?.details === 'string' ? data.details : '';
-                let parsedDetails = null;
-                if (upstreamDetails) {
-                    try {
-                        parsedDetails = JSON.parse(upstreamDetails);
-                    } catch {
-                        parsedDetails = null;
-                    }
-                }
-                const upstreamStatus = parsedDetails?.detail?.status || '';
-                const upstreamMessage = parsedDetails?.detail?.message || '';
-                if (upstreamStatus === 'detected_unusual_activity') {
-                    errorMessage = 'Cloud voice via Worker is blocked right now.';
-                    allowDeviceFallback = true;
-                } else {
-                    errorMessage = upstreamMessage || data?.error || errorMessage;
-                }
-            } catch {
-                // Keep fallback message
-            }
-            const error = new Error(errorMessage);
-            error.allowDeviceFallback = allowDeviceFallback;
-            throw error;
-        }
-
-        return response.blob();
-    }
-
-    async _requestStorySpeechAudioDirect(text) {
-        if (!this.storyElevenLabsApiKey) {
-            throw new Error('Client-side ElevenLabs key is not configured.');
-        }
-
-        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(this.storyElevenLabsVoiceId)}`, {
-            method: 'POST',
-            headers: {
-                'xi-api-key': this.storyElevenLabsApiKey,
-                'Content-Type': 'application/json',
-                'Accept': 'audio/mpeg'
-            },
-            body: JSON.stringify({
-                text,
-                model_id: this.storyElevenLabsModelId,
-                voice_settings: {
-                    stability: 0.45,
-                    similarity_boost: 0.8,
-                    style: 0.2,
-                    use_speaker_boost: true
-                }
-            }),
-            signal: this._storyAudioAbortController?.signal
-        });
-
-        if (!response.ok) {
-            let errorMessage = `Direct ElevenLabs request failed (${response.status})`;
-            let allowDeviceFallback = true;
-            try {
-                const data = await response.json();
-                const status = data?.detail?.status || data?.detail?.code || '';
-                const message = data?.detail?.message || data?.detail?.message || data?.error || '';
-                if (status === 'payment_required' || status === 'paid_plan_required') {
-                    errorMessage = 'This ElevenLabs voice needs a paid plan for direct API use.';
-                } else if (status === 'detected_unusual_activity') {
-                    errorMessage = 'ElevenLabs blocked this browser-side request as unusual activity.';
-                } else {
-                    errorMessage = message || errorMessage;
-                }
-            } catch {
-                // keep generic message
-            }
-            const error = new Error(errorMessage);
-            error.allowDeviceFallback = allowDeviceFallback;
-            throw error;
-        }
-
-        return response.blob();
     }
 
     async _requestStorySpeechAudioViaGemini(text) {
@@ -4042,19 +3933,11 @@ class KidsMathsApp {
     }
 
     async _requestStorySpeechAudio(text) {
-        if (this.storyElevenLabsApiKey) {
-            this._storyAudioSource = 'elevenlabs-direct';
-            return this._requestStorySpeechAudioDirect(text);
-        }
         if (this.storyGeminiApiKey) {
             this._storyAudioSource = 'gemini-direct';
             return this._requestStorySpeechAudioViaGemini(text);
         }
-        if (this.storyTtsProxyUrl) {
-            this._storyAudioSource = 'elevenlabs-worker';
-            return this._requestStorySpeechAudioViaProxy(text);
-        }
-        throw new Error('No cloud voice path is configured yet.');
+        throw new Error('Gemini voice is not configured yet on this device.');
     }
 
     async _speakStorySelection() {
@@ -4069,17 +3952,13 @@ class KidsMathsApp {
         this._storyAudioStatusOverride = '';
         this._storyAudioSource = '';
         this._storyAudioAbortController = new AbortController();
-        if (this.storyElevenLabsApiKey) {
-            this._storyAudioStatusOverride = 'Trying ElevenLabs directly in this browser…';
-        } else if (this.storyGeminiApiKey) {
+        if (this.storyGeminiApiKey) {
             this._storyAudioStatusOverride = 'Trying Gemini voice directly in this browser…';
-        } else if (this.storyTtsProxyUrl) {
-            this._storyAudioStatusOverride = 'Trying ElevenLabs cloud voice via the Worker…';
         }
         this._renderStorySelectionControls();
 
         try {
-            if (!this.storyElevenLabsApiKey && !this.storyTtsProxyUrl) {
+            if (!this.storyGeminiApiKey) {
                 await this._playStorySelectionWithDeviceVoice(selection.text);
                 this._storyAudioStatusOverride = `Playing on this device: “${selection.text}”`;
                 return;
@@ -4092,8 +3971,6 @@ class KidsMathsApp {
                 this._stopStoryAudio({ preserveStatus: true });
                 if (this._storyAudioSource === 'gemini-direct') {
                     this._storyAudioStatusOverride = `Finished with Gemini voice: “${selection.text}”`;
-                } else if (this._storyAudioSource.startsWith('elevenlabs')) {
-                    this._storyAudioStatusOverride = `Finished with ElevenLabs cloud voice: “${selection.text}”`;
                 } else {
                     this._storyAudioStatusOverride = `Finished: “${selection.text}”`;
                 }
@@ -4102,8 +3979,6 @@ class KidsMathsApp {
             await this._storyAudioElement.play();
             if (this._storyAudioSource === 'gemini-direct') {
                 this._storyAudioStatusOverride = `Playing with Gemini voice: “${selection.text}”`;
-            } else if (this._storyAudioSource.startsWith('elevenlabs')) {
-                this._storyAudioStatusOverride = `Playing with ElevenLabs cloud voice: “${selection.text}”`;
             } else {
                 this._storyAudioStatusOverride = `Playing: “${selection.text}”`;
             }
@@ -4111,10 +3986,6 @@ class KidsMathsApp {
             console.error('Story TTS failed:', error);
             if (error?.allowDeviceFallback && 'speechSynthesis' in window) {
                 try {
-                    if (this._storyAudioSource === 'elevenlabs-worker') {
-                        this._storyAudioStatusOverride = 'Cloud voice via Worker is blocked right now. Falling back to this device…';
-                        this._renderStorySelectionControls();
-                    }
                     await this._playStorySelectionWithDeviceVoice(selection.text);
                     this._storyAudioStatusOverride = `Playing on this device: “${selection.text}”`;
                 } catch (fallbackError) {
