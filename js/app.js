@@ -3745,7 +3745,8 @@ class KidsMathsApp {
         const savedToggleBtn = document.getElementById('story-selection-saved-toggle-btn');
         const savedPanel = document.getElementById('story-selection-saved-panel');
         const status = document.getElementById('story-selection-status');
-        if (!controls || !speakBtn || !saveBtn || !clearBtn || !stopBtn || !savedToggleBtn || !savedPanel || !status) return;
+        const voiceBadge = document.getElementById('story-voice-source-badge');
+        if (!controls || !speakBtn || !saveBtn || !clearBtn || !stopBtn || !savedToggleBtn || !savedPanel || !status || !voiceBadge) return;
 
         const enabled = this._storySupportsCustomWordSelection();
         controls.classList.toggle('hidden', !enabled);
@@ -3766,6 +3767,7 @@ class KidsMathsApp {
         stopBtn.disabled = !this._storyAudioElement && !this._storyAudioLoading && !this._storyDeviceSpeechActive;
         savedToggleBtn.textContent = `Saved words (${savedWords.length})`;
         savedToggleBtn.setAttribute('aria-pressed', this._showStorySavedWords ? 'true' : 'false');
+        voiceBadge.textContent = this._getStoryVoiceSourceLabel();
 
         if (this._storyAudioLoading) {
             status.textContent = 'Generating narration for your word…';
@@ -3800,6 +3802,16 @@ class KidsMathsApp {
             savedPanel.classList.add('hidden');
             savedPanel.innerHTML = '';
         }
+    }
+
+    _getStoryVoiceSourceLabel() {
+        if (this._storyAudioSource === 'elevenlabs-direct') return 'Voice: ElevenLabs direct';
+        if (this._storyAudioSource === 'elevenlabs-worker') return 'Voice: ElevenLabs via Worker';
+        if (this._storyDeviceSpeechActive) return 'Voice: device fallback';
+        if (this.storyElevenLabsApiKey) return 'Voice: ElevenLabs direct ready';
+        if (this.storyTtsProxyUrl) return 'Voice: Worker path ready';
+        if ('speechSynthesis' in window) return 'Voice: device fallback ready';
+        return 'Voice: unavailable';
     }
 
     async _requestStorySpeechAudioViaProxy(text) {

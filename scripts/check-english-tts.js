@@ -32,9 +32,11 @@ assert(html.includes('story-selection-save-btn'), 'Expected custom Save button i
 assert(html.includes('story-selection-clear-btn'), 'Expected custom Clear button in index.html');
 assert(html.includes('story-selection-saved-toggle-btn'), 'Expected saved-words toggle in index.html');
 assert(html.includes('story-stop-audio-btn'), 'Expected stop-audio button in index.html');
+assert(html.includes('story-voice-source-badge'), 'Expected visible voice-source badge in index.html');
 assert(html.includes('kidsmaths-config.js'), 'Expected optional local KidsMaths config script in index.html');
 
 assert(css.includes('.story-selection-controls'), 'Expected story-selection controls styling in css');
+assert(css.includes('.story-voice-source-badge {'), 'Expected story voice-source badge styling in css');
 assert(css.includes('.story-word-button {'), 'Expected tappable English story word styling in css');
 assert(css.includes('.story-word-button.is-selected {'), 'Expected selected English word styling in css');
 assert(css.includes('#story-screen.story-custom-selection-mode #story-text {'), 'Expected native text selection to be disabled in custom-selection mode');
@@ -50,6 +52,10 @@ assert(app.includes('_requestStorySpeechAudioViaProxy'), 'Expected proxy speech 
 assert(app.includes('Playing with ElevenLabs cloud voice'), 'Expected explicit cloud-voice playback status');
 assert(app.includes('Trying ElevenLabs directly in this browser'), 'Expected explicit direct-browser ElevenLabs status');
 assert(app.includes('Cloud voice via Worker is blocked right now'), 'Expected explicit Worker-blocked status copy');
+assert(app.includes('_getStoryVoiceSourceLabel()'), 'Expected story voice-source label helper in app.js');
+assert(app.includes('Voice: ElevenLabs direct'), 'Expected explicit direct ElevenLabs badge label');
+assert(app.includes('Voice: ElevenLabs via Worker'), 'Expected explicit Worker ElevenLabs badge label');
+assert(app.includes('Voice: device fallback'), 'Expected explicit device fallback badge label');
 assert(app.includes('storyTtsProxyUrl'), 'Expected configurable TTS proxy URL state in app.js');
 assert(app.includes('speechSynthesis'), 'Expected browser speech synthesis fallback support in app.js');
 assert(!app.includes('_handleStoryTextSelection()'), 'Expected native selection-based English TTS handler to be removed');
