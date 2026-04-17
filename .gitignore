@@ -4,4 +4,5 @@ Thumbs.db
 *.log
 .hermes/
 elevenlabs.txt
+kidsmaths-config.js
 .claude/settings.local.json

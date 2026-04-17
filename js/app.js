@@ -17,6 +17,9 @@ class KidsMathsApp {
         this._storyFontScaleMax = 1.65;
         this._storyFontScaleStep = 0.1;
         this.storyTtsProxyUrl = window.KIDSMATHS_TTS_PROXY_URL || '';
+        this.storyElevenLabsApiKey = window.KIDSMATHS_ELEVENLABS_API_KEY || '';
+        this.storyElevenLabsVoiceId = window.KIDSMATHS_ELEVENLABS_VOICE_ID || 'JBFqnCBsd6RMkjVDRZzb';
+        this.storyElevenLabsModelId = window.KIDSMATHS_ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2';
         this._selectedStoryWord = null;
         this._showStorySavedWords = false;
         this._storyAudioElement = null;
@@ -24,6 +27,7 @@ class KidsMathsApp {
         this._storyAudioAbortController = null;
         this._storyAudioLoading = false;
         this._storyAudioStatusOverride = '';
+        this._storyAudioSource = '';
         this._storySpeechUtterance = null;
         this._storyDeviceSpeechActive = false;
 
@@ -3798,7 +3802,7 @@ class KidsMathsApp {
         }
     }
 
-    async _requestStorySpeechAudio(text) {
+    async _requestStorySpeechAudioViaProxy(text) {
         if (!this.storyTtsProxyUrl) {
             throw new Error('TTS proxy is not configured yet.');
         }
@@ -3833,7 +3837,7 @@ class KidsMathsApp {
                 const upstreamStatus = parsedDetails?.detail?.status || '';
                 const upstreamMessage = parsedDetails?.detail?.message || '';
                 if (upstreamStatus === 'detected_unusual_activity') {
-                    errorMessage = 'Cloud voice is temporarily unavailable on the current ElevenLabs plan.';
+                    errorMessage = 'Cloud voice via Worker is blocked right now.';
                     allowDeviceFallback = true;
                 } else {
                     errorMessage = upstreamMessage || data?.error || errorMessage;
@@ -3849,6 +3853,68 @@ class KidsMathsApp {
         return response.blob();
     }
 
+    async _requestStorySpeechAudioDirect(text) {
+        if (!this.storyElevenLabsApiKey) {
+            throw new Error('Client-side ElevenLabs key is not configured.');
+        }
+
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(this.storyElevenLabsVoiceId)}`, {
+            method: 'POST',
+            headers: {
+                'xi-api-key': this.storyElevenLabsApiKey,
+                'Content-Type': 'application/json',
+                'Accept': 'audio/mpeg'
+            },
+            body: JSON.stringify({
+                text,
+                model_id: this.storyElevenLabsModelId,
+                voice_settings: {
+                    stability: 0.45,
+                    similarity_boost: 0.8,
+                    style: 0.2,
+                    use_speaker_boost: true
+                }
+            }),
+            signal: this._storyAudioAbortController?.signal
+        });
+
+        if (!response.ok) {
+            let errorMessage = `Direct ElevenLabs request failed (${response.status})`;
+            let allowDeviceFallback = true;
+            try {
+                const data = await response.json();
+                const status = data?.detail?.status || data?.detail?.code || '';
+                const message = data?.detail?.message || data?.detail?.message || data?.error || '';
+                if (status === 'payment_required' || status === 'paid_plan_required') {
+                    errorMessage = 'This ElevenLabs voice needs a paid plan for direct API use.';
+                } else if (status === 'detected_unusual_activity') {
+                    errorMessage = 'ElevenLabs blocked this browser-side request as unusual activity.';
+                } else {
+                    errorMessage = message || errorMessage;
+                }
+            } catch {
+                // keep generic message
+            }
+            const error = new Error(errorMessage);
+            error.allowDeviceFallback = allowDeviceFallback;
+            throw error;
+        }
+
+        return response.blob();
+    }
+
+    async _requestStorySpeechAudio(text) {
+        if (this.storyElevenLabsApiKey) {
+            this._storyAudioSource = 'elevenlabs-direct';
+            return this._requestStorySpeechAudioDirect(text);
+        }
+        if (this.storyTtsProxyUrl) {
+            this._storyAudioSource = 'elevenlabs-worker';
+            return this._requestStorySpeechAudioViaProxy(text);
+        }
+        throw new Error('Neither direct ElevenLabs nor Worker TTS is configured yet.');
+    }
+
     async _speakStorySelection() {
         const selection = this._getSelectedStoryWord();
         if (!selection) {
@@ -3859,11 +3925,17 @@ class KidsMathsApp {
         this._stopStoryAudio({ preserveStatus: true });
         this._storyAudioLoading = true;
         this._storyAudioStatusOverride = '';
+        this._storyAudioSource = '';
         this._storyAudioAbortController = new AbortController();
+        if (this.storyElevenLabsApiKey) {
+            this._storyAudioStatusOverride = 'Trying ElevenLabs directly in this browser…';
+        } else if (this.storyTtsProxyUrl) {
+            this._storyAudioStatusOverride = 'Trying ElevenLabs cloud voice via the Worker…';
+        }
         this._renderStorySelectionControls();
 
         try {
-            if (!this.storyTtsProxyUrl) {
+            if (!this.storyElevenLabsApiKey && !this.storyTtsProxyUrl) {
                 await this._playStorySelectionWithDeviceVoice(selection.text);
                 this._storyAudioStatusOverride = `Playing on this device: “${selection.text}”`;
                 return;
@@ -3874,15 +3946,23 @@ class KidsMathsApp {
             this._storyAudioElement = new Audio(this._storyAudioObjectUrl);
             this._storyAudioElement.addEventListener('ended', () => {
                 this._stopStoryAudio({ preserveStatus: true });
-                this._storyAudioStatusOverride = `Finished: “${selection.text}”`;
+                this._storyAudioStatusOverride = this._storyAudioSource.startsWith('elevenlabs')
+                    ? `Finished with ElevenLabs cloud voice: “${selection.text}”`
+                    : `Finished: “${selection.text}”`;
                 this._renderStorySelectionControls();
             }, { once: true });
             await this._storyAudioElement.play();
-            this._storyAudioStatusOverride = `Playing: “${selection.text}”`;
+            this._storyAudioStatusOverride = this._storyAudioSource.startsWith('elevenlabs')
+                ? `Playing with ElevenLabs cloud voice: “${selection.text}”`
+                : `Playing: “${selection.text}”`;
         } catch (error) {
             console.error('Story TTS failed:', error);
             if (error?.allowDeviceFallback && 'speechSynthesis' in window) {
                 try {
+                    if (this._storyAudioSource === 'elevenlabs-worker') {
+                        this._storyAudioStatusOverride = 'Cloud voice via Worker is blocked right now. Falling back to this device…';
+                        this._renderStorySelectionControls();
+                    }
                     await this._playStorySelectionWithDeviceVoice(selection.text);
                     this._storyAudioStatusOverride = `Playing on this device: “${selection.text}”`;
                 } catch (fallbackError) {

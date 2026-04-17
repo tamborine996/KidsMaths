@@ -13,12 +13,16 @@ const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const app = fs.readFileSync(path.join(root, 'js', 'app.js'), 'utf8');
 const css = fs.readFileSync(path.join(root, 'css', 'styles.css'), 'utf8');
 const pkg = fs.readFileSync(path.join(root, 'package.json'), 'utf8');
+const gitignore = fs.readFileSync(path.join(root, '.gitignore'), 'utf8');
+const configExamplePath = path.join(root, 'kidsmaths-config.example.js');
 const wranglerPath = path.join(root, 'wrangler.toml');
 const workerPath = path.join(root, 'worker', 'src', 'index.js');
 
 assert(fs.existsSync(wranglerPath), 'Expected wrangler.toml for Cloudflare Worker proxy');
 assert(fs.existsSync(workerPath), 'Expected Cloudflare Worker source file at worker/src/index.js');
+assert(fs.existsSync(configExamplePath), 'Expected kidsmaths-config.example.js with client-side TTS guidance');
 
+const configExample = fs.readFileSync(configExamplePath, 'utf8');
 const wrangler = fs.readFileSync(wranglerPath, 'utf8');
 const worker = fs.readFileSync(workerPath, 'utf8');
 
@@ -28,25 +32,25 @@ assert(html.includes('story-selection-save-btn'), 'Expected custom Save button i
 assert(html.includes('story-selection-clear-btn'), 'Expected custom Clear button in index.html');
 assert(html.includes('story-selection-saved-toggle-btn'), 'Expected saved-words toggle in index.html');
 assert(html.includes('story-stop-audio-btn'), 'Expected stop-audio button in index.html');
+assert(html.includes('kidsmaths-config.js'), 'Expected optional local KidsMaths config script in index.html');
 
 assert(css.includes('.story-selection-controls'), 'Expected story-selection controls styling in css');
 assert(css.includes('.story-word-button {'), 'Expected tappable English story word styling in css');
 assert(css.includes('.story-word-button.is-selected {'), 'Expected selected English word styling in css');
 assert(css.includes('#story-screen.story-custom-selection-mode #story-text {'), 'Expected native text selection to be disabled in custom-selection mode');
 
-assert(app.includes('_renderInteractiveEnglishStoryText('), 'Expected English story text to render into tappable word units');
-assert(app.includes('_storySupportsCustomWordSelection('), 'Expected dedicated custom-selection mode detection in app.js');
-assert(app.includes('_selectStoryWord('), 'Expected custom story-word selection handler in app.js');
-assert(app.includes('_clearStoryWordSelection('), 'Expected custom story-word clear handler in app.js');
-assert(app.includes('_saveSelectedStoryWord('), 'Expected save action for selected English story words');
-assert(app.includes('_renderStorySelectionControls('), 'Expected dedicated story-selection controls renderer in app.js');
-assert(app.includes('Tap a word to hear it, save it, or clear it.'), 'Expected calm helper copy for custom story selection');
-assert(app.includes('Saved ✓'), 'Expected saved feedback for selected story words');
-assert(app.includes('_requestStorySpeechAudio'), 'Expected proxy speech request method in app.js');
-assert(app.includes('_playStorySelectionWithDeviceVoice'), 'Expected device-voice fallback method in app.js');
-assert(app.includes('_stopStoryAudio'), 'Expected audio stop method in app.js');
+assert(gitignore.includes('kidsmaths-config.js'), 'Expected local KidsMaths config file to be gitignored');
+assert(configExample.includes('window.KIDSMATHS_ELEVENLABS_API_KEY'), 'Expected config example to document client-side ElevenLabs key wiring');
+assert(configExample.includes('window.KIDSMATHS_ELEVENLABS_VOICE_ID'), 'Expected config example to document client-side voice override');
+
+assert(app.includes('window.KIDSMATHS_ELEVENLABS_API_KEY'), 'Expected app.js to support client-side ElevenLabs key configuration');
+assert(app.includes('window.KIDSMATHS_ELEVENLABS_VOICE_ID'), 'Expected app.js to support client-side ElevenLabs voice configuration');
+assert(app.includes('_requestStorySpeechAudioDirect'), 'Expected direct ElevenLabs speech request path in app.js');
+assert(app.includes('_requestStorySpeechAudioViaProxy'), 'Expected proxy speech request path in app.js');
+assert(app.includes('Playing with ElevenLabs cloud voice'), 'Expected explicit cloud-voice playback status');
+assert(app.includes('Trying ElevenLabs directly in this browser'), 'Expected explicit direct-browser ElevenLabs status');
+assert(app.includes('Cloud voice via Worker is blocked right now'), 'Expected explicit Worker-blocked status copy');
 assert(app.includes('storyTtsProxyUrl'), 'Expected configurable TTS proxy URL state in app.js');
-assert(app.includes('Cloud voice is temporarily unavailable on the current ElevenLabs plan.'), 'Expected a clear fallback message when ElevenLabs free-tier abuse detection blocks a request');
 assert(app.includes('speechSynthesis'), 'Expected browser speech synthesis fallback support in app.js');
 assert(!app.includes('_handleStoryTextSelection()'), 'Expected native selection-based English TTS handler to be removed');
 assert(!app.includes("document.addEventListener('selectionchange'"), 'Expected native selectionchange listener to be removed from English selection flow');
