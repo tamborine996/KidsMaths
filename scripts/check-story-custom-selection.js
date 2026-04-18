@@ -62,6 +62,9 @@ assert(app.includes('_selectStoryWord('), 'Expected single-press story word sele
 assert(app.includes('rect.left - 13'), 'Expected start handle to anchor to the left boundary of the selected text');
 assert(app.includes('rect.right - 13'), 'Expected end handle to anchor to the right boundary of the selected text');
 assert(app.includes('_getStoryWordSelectionNearPoint('), 'Expected nearest-word fallback for selection-handle dragging');
+assert(app.includes('setPointerCapture?.(pointerEvent.pointerId)'), 'Expected pointer capture on selection handles during drag');
+assert(app.includes('releasePointerCapture?.(pointerEvent.pointerId)'), 'Expected pointer capture release after handle drag');
+assert(!app.includes('if (distance > 56) return;'), 'Expected nearest-word fallback to avoid fragile hard cutoff distance');
 assert(app.includes('if (startedInText && this._getSelectedStoryWord()) return false;'), 'Expected page-turn swipe to yield when story text is already selected');
 assert(app.includes('_updateStorySelectionHandles('), 'Expected selection handles to reposition with the active range');
 assert(app.includes("from './story-selection-positioning.js'"), 'Expected app.js to import dedicated story selection positioning helper');

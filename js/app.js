@@ -10,6 +10,7 @@ import { ProblemGenerator } from './managers/ProblemGenerator.js';
 import { VisualObjects } from './components/VisualObjects.js';
 import { Celebration } from './components/Celebration.js';
 import { Timer } from './components/Timer.js';
+import { StorySelectionEngine } from './story-selection-engine.js';
 import { StorySelectionPositioner } from './story-selection-positioning.js';
 
 class KidsMathsApp {
@@ -32,6 +33,10 @@ class KidsMathsApp {
         this._storyAudioSource = '';
         this._storySelectionFeedback = '';
         this._storySelectionFeedbackTimer = null;
+        this._storySelectionEngine = new StorySelectionEngine({
+            getStoryText: () => document.getElementById('story-text'),
+            normalizeWord: (value) => this._normalizeStoryWordText(value)
+        });
         this._storySelectionPositioner = new StorySelectionPositioner();
         this._storySelectionPositionFrame = null;
         this._storyPinchState = null;
@@ -3799,50 +3804,12 @@ class KidsMathsApp {
     }
 
     _extractStoryWordSelectionData(button) {
-        if (!button) return null;
-        const word = this._normalizeStoryWordText(button.dataset.storyWordNormalized || button.dataset.storyWord || button.textContent || '');
-        const paragraphIndex = Number(button.dataset.paragraphIndex);
-        const occurrenceIndex = Number(button.dataset.occurrenceIndex);
-        const tokenIndex = Number(button.dataset.tokenIndex);
-        if (!word || Number.isNaN(paragraphIndex) || Number.isNaN(occurrenceIndex) || Number.isNaN(tokenIndex)) {
-            return null;
-        }
-        return { word, paragraphIndex, occurrenceIndex, tokenIndex };
+        return this._storySelectionEngine.buildSelectionFromButton(button);
     }
 
     _getStoryWordSelectionNearPoint(clientX, clientY, preferredParagraphIndex = null) {
-        const directHit = document.elementsFromPoint(clientX, clientY)
-            .find(el => el?.classList?.contains?.('story-word-button'));
-        const directSelection = this._extractStoryWordSelectionData(directHit);
-        if (directSelection) return directSelection;
-
-        const storyText = document.getElementById('story-text');
-        if (!storyText) return null;
-        const buttons = Array.from(storyText.querySelectorAll('.story-word-button'));
-        if (!buttons.length) return null;
-
-        let bestSelection = null;
-        let bestScore = Number.POSITIVE_INFINITY;
-        buttons.forEach((button) => {
-            const selection = this._extractStoryWordSelectionData(button);
-            if (!selection) return;
-            if (preferredParagraphIndex !== null && Number(selection.paragraphIndex) !== Number(preferredParagraphIndex)) return;
-            const rect = button.getBoundingClientRect();
-            const dx = clientX < rect.left ? rect.left - clientX : clientX > rect.right ? clientX - rect.right : 0;
-            const dy = clientY < rect.top ? rect.top - clientY : clientY > rect.bottom ? clientY - rect.bottom : 0;
-            const distance = Math.hypot(dx, dy);
-            if (distance > 56) return;
-            const centerX = rect.left + (rect.width / 2);
-            const centerY = rect.top + (rect.height / 2);
-            const score = distance + (Math.abs(centerX - clientX) * 0.02) + (Math.abs(centerY - clientY) * 0.02);
-            if (score >= bestScore) return;
-            bestScore = score;
-            bestSelection = selection;
-        });
-
-        return bestSelection;
+        return this._storySelectionEngine.getSelectionNearPoint(clientX, clientY, preferredParagraphIndex);
     }
-
     _beginStoryWordHoldSelection(button, pointerEvent) {
         if (!button || !pointerEvent) return;
         const anchor = this._extractStoryWordSelectionData(button);
@@ -3964,42 +3931,19 @@ class KidsMathsApp {
     }
 
     _buildStorySelectionTextFromRange(paragraphIndex, startTokenIndex, endTokenIndex) {
-        const storyText = document.getElementById('story-text');
-        if (!storyText) return '';
-        const buttons = Array.from(storyText.querySelectorAll(`.story-word-button[data-paragraph-index="${paragraphIndex}"]`));
-        const selectedButtons = buttons.filter((button) => {
-            const tokenIndex = Number(button.dataset.tokenIndex);
-            return tokenIndex >= Number(startTokenIndex) && tokenIndex <= Number(endTokenIndex);
-        });
-        return selectedButtons
-            .map(button => this._normalizeStoryWordText(button.dataset.storyWordNormalized || button.dataset.storyWord || button.textContent || ''))
-            .filter(Boolean)
-            .join(' ')
-            .trim();
+        return this._storySelectionEngine.buildTextFromRange(paragraphIndex, startTokenIndex, endTokenIndex);
     }
 
     _selectionIsSingleWord(selection = this._getSelectedStoryWord()) {
-        if (!selection) return false;
-        return Number(selection.startTokenIndex ?? selection.tokenIndex ?? -1) === Number(selection.endTokenIndex ?? selection.tokenIndex ?? -1);
+        return this._storySelectionEngine.isSingleWord(selection);
     }
 
     _getStorySelectionBoundarySelection(boundary = 'start', selection = this._getStorySelectionForHandles()) {
-        if (!selection) return null;
-        const useStart = boundary === 'start';
-        return {
-            word: useStart ? selection.word : selection.text,
-            paragraphIndex: Number(selection.paragraphIndex),
-            occurrenceIndex: Number(useStart ? selection.startOccurrenceIndex ?? selection.occurrenceIndex : selection.endOccurrenceIndex ?? selection.occurrenceIndex),
-            tokenIndex: Number(useStart ? selection.startTokenIndex ?? selection.tokenIndex : selection.endTokenIndex ?? selection.tokenIndex)
-        };
+        return this._storySelectionEngine.getBoundarySelection(boundary, selection);
     }
 
-    _getStorySelectionBoundaryButton(boundary = 'start') {
-        const boundarySelection = this._getStorySelectionBoundarySelection(boundary);
-        if (!boundarySelection) return null;
-        const storyText = document.getElementById('story-text');
-        if (!storyText) return null;
-        return storyText.querySelector(`.story-word-button[data-paragraph-index="${boundarySelection.paragraphIndex}"][data-token-index="${boundarySelection.tokenIndex}"]`);
+    _getStorySelectionBoundaryButton(boundary = 'start', selection = this._getStorySelectionForHandles()) {
+        return this._storySelectionEngine.getBoundaryButton(boundary, selection);
     }
 
     _updateStorySelectionHandles() {
@@ -4034,7 +3978,7 @@ class KidsMathsApp {
             handle.style.left = boundary === 'start'
                 ? `${Math.round(rect.left - 13)}px`
                 : `${Math.round(rect.right - 13)}px`;
-            handle.style.top = `${Math.round(rect.bottom + 4)}px`;
+            handle.style.top = `${Math.round(rect.bottom + 1)}px`;
         };
 
         positionHandle(startHandle, startButton, 'start');
@@ -4052,13 +3996,15 @@ class KidsMathsApp {
         if (!handleSelection) return;
         pointerEvent.preventDefault();
         pointerEvent.stopPropagation();
+        pointerEvent.currentTarget?.setPointerCapture?.(pointerEvent.pointerId);
         if (!this._getSelectedStoryWord()) {
             this._selectStoryWordRange(handleSelection, handleSelection);
         }
         this._cancelActiveStoryTextGestures({ clearSelection: false });
         this._storySelectionHandleDrag = {
             boundary,
-            pointerId: pointerEvent.pointerId ?? null
+            pointerId: pointerEvent.pointerId ?? null,
+            handleEl: pointerEvent.currentTarget || null
         };
         this._suppressStoryWordClick = true;
     }
@@ -4092,6 +4038,7 @@ class KidsMathsApp {
         if (this._storySelectionHandleDrag.pointerId !== null && pointerEvent.pointerId !== null && this._storySelectionHandleDrag.pointerId !== pointerEvent.pointerId) {
             return;
         }
+        this._storySelectionHandleDrag.handleEl?.releasePointerCapture?.(pointerEvent.pointerId);
         this._storySelectionHandleDrag = null;
         this._suppressStoryWordClick = false;
     }
@@ -4101,6 +4048,7 @@ class KidsMathsApp {
         if (this._storySelectionHandleDrag.pointerId !== null && pointerId !== null && this._storySelectionHandleDrag.pointerId !== pointerId) {
             return;
         }
+        this._storySelectionHandleDrag.handleEl?.releasePointerCapture?.(pointerId);
         this._storySelectionHandleDrag = null;
         this._suppressStoryWordClick = false;
     }
@@ -4268,73 +4216,55 @@ class KidsMathsApp {
             return;
         }
 
+        const nextSelection = this._storySelectionEngine.createSingleWordSelection(
+            {
+                word: cleanWord,
+                paragraphIndex: Number(paragraphIndex),
+                occurrenceIndex: Number(occurrenceIndex),
+                tokenIndex: Number.isNaN(Number(tokenIndex)) ? Number(occurrenceIndex) : Number(tokenIndex)
+            },
+            {
+                storyId: this.currentStory.id,
+                page: this.currentStoryPage
+            }
+        );
         const active = this._getSelectedStoryWord();
-        const resolvedTokenIndex = Number(tokenIndex);
         const isSameWord = active
+            && nextSelection
             && this._selectionIsSingleWord(active)
-            && active.word === cleanWord
-            && Number(active.paragraphIndex ?? -1) === Number(paragraphIndex)
-            && Number(active.occurrenceIndex ?? -1) === Number(occurrenceIndex)
-            && Number(active.startTokenIndex ?? -1) === resolvedTokenIndex;
+            && active.word === nextSelection.word
+            && Number(active.paragraphIndex ?? -1) === Number(nextSelection.paragraphIndex)
+            && Number(active.occurrenceIndex ?? -1) === Number(nextSelection.occurrenceIndex)
+            && Number(active.startTokenIndex ?? -1) === Number(nextSelection.startTokenIndex);
         if (isSameWord) {
             this._clearStoryWordSelection();
             return;
         }
 
         this._storySelectionActionsOpen = false;
-        this._selectStoryWordRange(
-            {
-                word: cleanWord,
-                paragraphIndex: Number(paragraphIndex),
-                occurrenceIndex: Number(occurrenceIndex),
-                tokenIndex: Number.isNaN(resolvedTokenIndex) ? Number(occurrenceIndex) : resolvedTokenIndex
-            },
-            {
-                word: cleanWord,
-                paragraphIndex: Number(paragraphIndex),
-                occurrenceIndex: Number(occurrenceIndex),
-                tokenIndex: Number.isNaN(resolvedTokenIndex) ? Number(occurrenceIndex) : resolvedTokenIndex
-            }
-        );
+        this._selectedStoryWord = nextSelection;
+        this._showStorySavedWords = false;
+        this._showStorySelectionExtras = false;
+        this._storyAudioStatusOverride = '';
+        this._cancelStorySelectionHandleDrag();
+        this._renderCurrentStoryText();
+        this._renderStorySelectionControls();
+        this._updateStorySelectionHandles();
     }
 
     _selectStoryWordRange(startSelection, endSelection = startSelection) {
-        if (!this.currentStory || !startSelection || !endSelection) {
-            this._clearStoryWordSelection();
-            return;
-        }
-        if (Number(startSelection.paragraphIndex) !== Number(endSelection.paragraphIndex)) {
-            endSelection = startSelection;
-        }
-
-        const startTokenIndex = Math.min(Number(startSelection.tokenIndex), Number(endSelection.tokenIndex));
-        const endTokenIndex = Math.max(Number(startSelection.tokenIndex), Number(endSelection.tokenIndex));
-        const startOccurrenceIndex = Number(startSelection.tokenIndex) <= Number(endSelection.tokenIndex)
-            ? Number(startSelection.occurrenceIndex)
-            : Number(endSelection.occurrenceIndex);
-        const endOccurrenceIndex = Number(startSelection.tokenIndex) <= Number(endSelection.tokenIndex)
-            ? Number(endSelection.occurrenceIndex)
-            : Number(startSelection.occurrenceIndex);
-        const text = this._buildStorySelectionTextFromRange(Number(startSelection.paragraphIndex), startTokenIndex, endTokenIndex)
-            || this._normalizeStoryWordText(startSelection.word)
-            || this._normalizeStoryWordText(endSelection.word);
-        if (!text) {
+        const nextSelection = this.currentStory
+            ? this._storySelectionEngine.createRangeSelection(startSelection, endSelection, {
+                storyId: this.currentStory.id,
+                page: this.currentStoryPage
+            })
+            : null;
+        if (!nextSelection) {
             this._clearStoryWordSelection();
             return;
         }
 
-        this._selectedStoryWord = {
-            text,
-            word: text,
-            paragraphIndex: Number(startSelection.paragraphIndex),
-            occurrenceIndex: startOccurrenceIndex,
-            startOccurrenceIndex,
-            endOccurrenceIndex,
-            startTokenIndex,
-            endTokenIndex,
-            storyId: this.currentStory.id,
-            page: this.currentStoryPage
-        };
+        this._selectedStoryWord = nextSelection;
         this._showStorySavedWords = false;
         this._showStorySelectionExtras = false;
         this._storyAudioStatusOverride = '';
