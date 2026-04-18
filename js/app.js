@@ -3627,6 +3627,7 @@ class KidsMathsApp {
     }
 
     _shouldTurnStoryPageFromTouch({ deltaX = 0, deltaY = 0, startedInText = false } = {}) {
+        if (startedInText && this._getSelectedStoryWord()) return false;
         const absX = Math.abs(Number(deltaX) || 0);
         const absY = Math.abs(Number(deltaY) || 0);
         const minDistance = startedInText ? this._storySwipeTextMinDistance : this._storySwipeMinDistance;
@@ -3995,14 +3996,16 @@ class KidsMathsApp {
             return;
         }
 
-        const positionHandle = (handle, button) => {
+        const positionHandle = (handle, button, boundary = 'start') => {
             const rect = button.getBoundingClientRect();
-            handle.style.left = `${Math.round(rect.left + (rect.width / 2) - 13)}px`;
+            handle.style.left = boundary === 'start'
+                ? `${Math.round(rect.left - 13)}px`
+                : `${Math.round(rect.right - 13)}px`;
             handle.style.top = `${Math.round(rect.bottom + 4)}px`;
         };
 
-        positionHandle(startHandle, startButton);
-        positionHandle(endHandle, endButton);
+        positionHandle(startHandle, startButton, 'start');
+        positionHandle(endHandle, endButton, 'end');
         const previewMode = !selectedWord && Boolean(previewSelection);
         adjusters.classList.toggle('is-preview', previewMode);
         startHandle.classList.toggle('is-preview', previewMode);
