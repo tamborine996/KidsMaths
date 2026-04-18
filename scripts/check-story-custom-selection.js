@@ -26,6 +26,7 @@ assert(html.includes('aria-label="Speak selected word"'), 'Expected speak icon b
 assert(html.includes('aria-label="Bookmark this reading spot"'), 'Expected bookmark icon button to keep an explicit aria-label');
 assert(html.includes('aria-label="Clear selected word"'), 'Expected clear icon button to keep an explicit aria-label');
 assert(html.includes('story-selection-btn-icon'), 'Expected icon-only popup buttons');
+assert(html.includes('aria-label="Selected word"'), 'Expected the top chip to expose clear selected-word meaning');
 assert(!html.includes('id="story-selection-save-btn"'), 'Expected Save to be removed from the tiny word popup');
 assert(!html.includes('id="story-selection-more-btn"'), 'Expected More to be removed from the tiny word popup');
 assert(!html.includes('id="story-selection-saved-toggle-btn"'), 'Expected saved-words toggle to move out of the tiny word popup');
@@ -66,7 +67,7 @@ assert(css.includes('.story-selection-controls {'), 'Expected styling for custom
 assert(css.includes('.story-word-button {'), 'Expected styling for selectable English story words');
 assert(css.includes('.story-word-button.is-selected {'), 'Expected visible selected-state styling for story words');
 assert(css.includes('.story-word-button.is-range-edge {'), 'Expected visible edge styling for phrase selection');
-assert(css.includes('.story-selection-context-label {'), 'Expected a small label inside the top chip explaining the selected word');
+assert(css.includes('.story-selection-context-value {'), 'Expected selected-word value styling inside the top chip');
 assert(css.includes('.story-selection-btn-icon {'), 'Expected dedicated icon styling for popup buttons');
 assert(css.includes('#story-screen.story-selection-sheet-open:not(.story-selection-popup-anchored) .story-content {'), 'Expected extra reading-space padding when the story sheet is open');
 assert(css.includes('.story-selection-controls.is-anchored {'), 'Expected anchored popup styling for story selection controls');

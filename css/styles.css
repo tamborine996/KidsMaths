@@ -3233,14 +3233,6 @@ td.mastery-mastered {
     text-overflow: ellipsis;
 }
 
-.story-selection-context-label {
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    opacity: 0.72;
-}
-
 .story-selection-context-value {
     overflow: hidden;
     text-overflow: ellipsis;
