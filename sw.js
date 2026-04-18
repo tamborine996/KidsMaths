@@ -1,9 +1,10 @@
-const CACHE_NAME = 'kidsmaths-v75';
-const BUILD_TIME = '2026-04-17 23:16';
+const CACHE_NAME = 'kidsmaths-v77';
+const BUILD_TIME = '2026-04-18 06:13';
 const ASSETS = [
     './',
     './index.html',
     './css/styles.css',
+    './kidsmaths-config.public.js',
     './js/app.js',
     './js/managers/StateManager.js',
     './js/managers/TimerManager.js',

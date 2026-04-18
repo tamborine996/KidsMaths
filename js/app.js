@@ -16,9 +16,11 @@ class KidsMathsApp {
         this._storyFontScaleMin = 0.85;
         this._storyFontScaleMax = 1.65;
         this._storyFontScaleStep = 0.1;
-        this.storyGeminiApiKey = window.KIDSMATHS_GEMINI_API_KEY || '';
-        this.storyGeminiTtsVoice = window.KIDSMATHS_GEMINI_TTS_VOICE || 'Zephyr';
-        this.storyGeminiTtsModel = window.KIDSMATHS_GEMINI_TTS_MODEL || 'gemini-3.1-flash-tts-preview';
+        this.storyAzureSpeechApiKey = window.KIDSMATHS_AZURE_SPEECH_API_KEY || '';
+        this.storyAzureTranslatorApiKey = window.KIDSMATHS_AZURE_TRANSLATOR_API_KEY || '';
+        this.storyAzureRegion = window.KIDSMATHS_AZURE_REGION || 'uksouth';
+        this.storyAzureUrduTtsVoice = window.KIDSMATHS_AZURE_URDU_TTS_VOICE || 'ur-PK-UzmaNeural';
+        this.storyAzureEnglishTtsVoice = window.KIDSMATHS_AZURE_ENGLISH_TTS_VOICE || 'en-GB-SoniaNeural';
         this._selectedStoryWord = null;
         this._showStorySavedWords = false;
         this._storyAudioElement = null;
@@ -4033,135 +4035,89 @@ class KidsMathsApp {
     }
 
     _getStoryVoiceSourceLabel() {
-        if (this._storyAudioSource === 'gemini-direct') return 'Voice: Gemini';
-        if (this.storyGeminiApiKey) return 'Voice: Gemini ready';
+        if (this._storyAudioSource === 'azure-direct') return 'Voice: Azure';
+        if (this.storyAzureSpeechApiKey || this.storyAzureTranslatorApiKey) return 'Voice: Azure ready';
         return 'Voice: unavailable';
     }
 
     _storyHasAnySpeechPath() {
-        return Boolean(this.storyGeminiApiKey);
+        return Boolean(this.storyAzureSpeechApiKey || this.storyAzureTranslatorApiKey);
     }
 
-    _decodeBase64ToUint8Array(base64Text) {
-        const cleaned = String(base64Text || '').replace(/\s+/g, '');
-        const binaryString = window.atob(cleaned);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let index = 0; index < binaryString.length; index += 1) {
-            bytes[index] = binaryString.charCodeAt(index);
+    _getStoryAzureVoiceName(story = this.currentStory) {
+        return story?.direction === 'rtl' ? this.storyAzureUrduTtsVoice : this.storyAzureEnglishTtsVoice;
+    }
+
+    _getStoryAzureLanguage(story = this.currentStory) {
+        return story?.direction === 'rtl' ? 'ur-PK' : 'en-GB';
+    }
+
+    _escapeSsmlText(text = '') {
+        return String(text || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&apos;');
+    }
+
+    async _requestStorySpeechAudioViaAzure(text) {
+        const apiKey = this.storyAzureSpeechApiKey || this.storyAzureTranslatorApiKey;
+        if (!apiKey) {
+            throw new Error('Client-side Azure speech key is not configured.');
         }
-        return bytes;
-    }
 
-    _convertRawAudioToWav(audioBytes, mimeType = '') {
-        const mime = String(mimeType || 'audio/L16;rate=24000');
-        const rateMatch = mime.match(/rate=(\d+)/i);
-        const bitsMatch = mime.match(/audio\/L(\d+)/i);
-        const sampleRate = Number.parseInt(rateMatch?.[1] || '24000', 10);
-        const bitsPerSample = Number.parseInt(bitsMatch?.[1] || '16', 10);
-        const numChannels = 1;
-        const dataSize = audioBytes.byteLength;
-        const bytesPerSample = bitsPerSample / 8;
-        const blockAlign = numChannels * bytesPerSample;
-        const byteRate = sampleRate * blockAlign;
-        const wavBuffer = new ArrayBuffer(44 + dataSize);
-        const view = new DataView(wavBuffer);
+        const voice = this._getStoryAzureVoiceName();
+        const language = this._getStoryAzureLanguage();
+        const endpoint = `https://${this.storyAzureRegion}.tts.speech.microsoft.com/cognitiveservices/v1`;
+        const ssml = `<speak version='1.0' xml:lang='${language}'><voice name='${voice}'><prosody rate='0.95' pitch='medium'>${this._escapeSsmlText(text)}</prosody></voice></speak>`;
 
-        const writeString = (offset, value) => {
-            for (let index = 0; index < value.length; index += 1) {
-                view.setUint8(offset + index, value.charCodeAt(index));
+        let response;
+        try {
+            response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Ocp-Apim-Subscription-Key': apiKey,
+                    'Content-Type': 'application/ssml+xml',
+                    'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3'
+                },
+                body: ssml,
+                signal: this._storyAudioAbortController?.signal
+            });
+        } catch (error) {
+            if (error?.name === 'AbortError') {
+                throw error;
             }
-        };
-
-        writeString(0, 'RIFF');
-        view.setUint32(4, 36 + dataSize, true);
-        writeString(8, 'WAVE');
-        writeString(12, 'fmt ');
-        view.setUint32(16, 16, true);
-        view.setUint16(20, 1, true);
-        view.setUint16(22, numChannels, true);
-        view.setUint32(24, sampleRate, true);
-        view.setUint32(28, byteRate, true);
-        view.setUint16(32, blockAlign, true);
-        view.setUint16(34, bitsPerSample, true);
-        writeString(36, 'data');
-        view.setUint32(40, dataSize, true);
-        new Uint8Array(wavBuffer, 44).set(audioBytes);
-
-        return new Blob([wavBuffer], { type: 'audio/wav' });
-    }
-
-    async _requestStorySpeechAudioViaGemini(text) {
-        if (!this.storyGeminiApiKey) {
-            throw new Error('Client-side Gemini key is not configured.');
+            const message = String(error?.message || '');
+            if (error instanceof TypeError || /failed to fetch/i.test(message)) {
+                throw new Error('CORS blocked the direct Azure speech request from this browser.');
+            }
+            throw error;
         }
-
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(this.storyGeminiTtsModel)}:generateContent?key=${encodeURIComponent(this.storyGeminiApiKey)}`;
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                contents: [
-                    {
-                        role: 'user',
-                        parts: [
-                            {
-                                text: `Read this aloud clearly for a child learner: ${text}`
-                            }
-                        ]
-                    }
-                ],
-                generationConfig: {
-                    responseModalities: ['AUDIO'],
-                    speechConfig: {
-                        voiceConfig: {
-                            prebuiltVoiceConfig: {
-                                voiceName: this.storyGeminiTtsVoice
-                            }
-                        }
-                    }
-                }
-            }),
-            signal: this._storyAudioAbortController?.signal
-        });
 
         if (!response.ok) {
-            let errorMessage = `Gemini speech request failed (${response.status})`;
+            let details = '';
             try {
-                const data = await response.json();
-                const message = data?.error?.message || data?.message || '';
-                errorMessage = message || errorMessage;
+                details = (await response.text()).trim();
             } catch {
-                // Keep generic message
+                details = '';
             }
-            throw new Error(errorMessage);
+            throw new Error(details || `Azure speech request failed (${response.status}).`);
         }
 
-        const data = await response.json();
-        const inlinePart = data?.candidates?.flatMap(candidate => candidate?.content?.parts || []).find(part => part?.inlineData?.data);
-        const audioData = inlinePart?.inlineData?.data || '';
-        const mimeType = inlinePart?.inlineData?.mimeType || 'audio/L16;rate=24000';
-        if (!audioData) {
-            throw new Error('Gemini returned no audio data.');
+        const audioBuffer = await response.arrayBuffer();
+        if (!audioBuffer.byteLength) {
+            throw new Error('Azure returned no audio data.');
         }
-
-        const audioBytes = this._decodeBase64ToUint8Array(audioData);
-        if (/^audio\/wav/i.test(mimeType)) {
-            return new Blob([audioBytes], { type: 'audio/wav' });
-        }
-        if (/^audio\//i.test(mimeType) && !/^audio\/l\d+/i.test(mimeType)) {
-            return new Blob([audioBytes], { type: mimeType });
-        }
-        return this._convertRawAudioToWav(audioBytes, mimeType);
+        return new Blob([audioBuffer], { type: 'audio/mpeg' });
     }
 
     async _requestStorySpeechAudio(text) {
-        if (this.storyGeminiApiKey) {
-            this._storyAudioSource = 'gemini-direct';
-            return this._requestStorySpeechAudioViaGemini(text);
+        if (this.storyAzureSpeechApiKey || this.storyAzureTranslatorApiKey) {
+            this._storyAudioSource = 'azure-direct';
+            return this._requestStorySpeechAudioViaAzure(text);
         }
-        throw new Error('Gemini 3.1 TTS is not configured yet on this device.');
+        throw new Error('Azure TTS is not configured yet on this device.');
     }
 
     async _speakStorySelection() {
@@ -4176,8 +4132,8 @@ class KidsMathsApp {
         this._storyAudioStatusOverride = '';
         this._storyAudioSource = '';
         this._storyAudioAbortController = new AbortController();
-        if (this.storyGeminiApiKey) {
-            this._storyAudioStatusOverride = 'Trying Gemini voice directly in this browser…';
+        if (this.storyAzureSpeechApiKey || this.storyAzureTranslatorApiKey) {
+            this._storyAudioStatusOverride = 'Trying Azure voice directly in this browser…';
         }
         this._renderStorySelectionControls();
 
@@ -4187,14 +4143,14 @@ class KidsMathsApp {
             this._storyAudioElement = new Audio(this._storyAudioObjectUrl);
             this._storyAudioElement.addEventListener('ended', () => {
                 this._stopStoryAudio({ preserveStatus: true });
-                this._storyAudioStatusOverride = `Finished with Gemini voice: “${selection.text}”`;
+                this._storyAudioStatusOverride = `Finished with Azure voice: “${selection.text}”`;
                 this._renderStorySelectionControls();
             }, { once: true });
             await this._storyAudioElement.play();
-            this._storyAudioStatusOverride = `Playing with Gemini voice: “${selection.text}”`;
+            this._storyAudioStatusOverride = `Playing with Azure voice: “${selection.text}”`;
         } catch (error) {
             console.error('Story TTS failed:', error);
-            this._storyAudioStatusOverride = error?.message || 'Gemini audio playback failed.';
+            this._storyAudioStatusOverride = error?.message || 'Azure audio playback failed.';
         } finally {
             this._storyAudioLoading = false;
             this._storyAudioAbortController = null;
