@@ -38,6 +38,7 @@ class KidsMathsApp {
         this._storyPinchResizeHint = 'Pinch to resize story text.';
         this._storyWordDragState = null;
         this._storyWordHoldState = null;
+        this._storyPreviewSelection = null;
         this._storyWordHoldDelayMs = 425;
         this._storyWordHoldMoveThreshold = 18;
         this._storySwipeMinDistance = 50;
@@ -3753,6 +3754,43 @@ class KidsMathsApp {
         return this._selectedStoryWord;
     }
 
+    _getStoryPreviewSelection() {
+        if (!this._storyPreviewSelection) return null;
+        if (this._storyPreviewSelection.storyId !== this.currentStory?.id) return null;
+        if (Number(this._storyPreviewSelection.page) !== Number(this.currentStoryPage)) return null;
+        return this._storyPreviewSelection;
+    }
+
+    _ensureStoryPreviewSelection(selection) {
+        const anchor = selection?.tokenIndex !== undefined
+            ? selection
+            : this._extractStoryWordSelectionData(selection);
+        if (!anchor || !this.currentStory) return null;
+        const word = this._normalizeStoryWordText(anchor.word);
+        this._storyPreviewSelection = {
+            text: word || '',
+            word: word || '',
+            paragraphIndex: Number(anchor.paragraphIndex),
+            occurrenceIndex: Number(anchor.occurrenceIndex),
+            startOccurrenceIndex: Number(anchor.occurrenceIndex),
+            endOccurrenceIndex: Number(anchor.occurrenceIndex),
+            startTokenIndex: Number(anchor.tokenIndex),
+            endTokenIndex: Number(anchor.tokenIndex),
+            storyId: this.currentStory.id,
+            page: this.currentStoryPage
+        };
+        this._updateStorySelectionHandles();
+        return this._storyPreviewSelection;
+    }
+
+    _clearStoryPreviewSelection() {
+        this._storyPreviewSelection = null;
+    }
+
+    _getStorySelectionForHandles() {
+        return this._getSelectedStoryWord() || this._getStoryPreviewSelection();
+    }
+
     _extractStoryWordSelectionData(button) {
         if (!button) return null;
         const word = this._normalizeStoryWordText(button.dataset.storyWordNormalized || button.dataset.storyWord || button.textContent || '');
@@ -3770,6 +3808,7 @@ class KidsMathsApp {
         const anchor = this._extractStoryWordSelectionData(button);
         if (!anchor) return;
         this._cancelStoryWordHoldSelection();
+        this._ensureStoryPreviewSelection(anchor);
         this._storyWordHoldState = {
             pointerId: pointerEvent.pointerId ?? null,
             button,
@@ -3792,6 +3831,7 @@ class KidsMathsApp {
         window.clearTimeout(this._storyWordHoldState.timer);
         this._storyWordHoldState.timer = null;
         this._storyWordHoldState.activated = true;
+        this._clearStoryPreviewSelection();
         this._suppressStoryWordClick = true;
         this._beginStoryWordDragSelection(this._storyWordHoldState.anchor, this._storyWordHoldState.pointerId);
         this._selectStoryWordRange(this._storyWordHoldState.anchor, this._storyWordHoldState.anchor);
@@ -3826,6 +3866,10 @@ class KidsMathsApp {
         }
         if (this._storyWordHoldState.timer) {
             window.clearTimeout(this._storyWordHoldState.timer);
+        }
+        if (!this._storyWordHoldState.activated) {
+            this._clearStoryPreviewSelection();
+            this._updateStorySelectionHandles();
         }
         this._storyWordHoldState = null;
         if (!keepSuppressClick) {
@@ -3894,7 +3938,7 @@ class KidsMathsApp {
         return Number(selection.startTokenIndex ?? selection.tokenIndex ?? -1) === Number(selection.endTokenIndex ?? selection.tokenIndex ?? -1);
     }
 
-    _getStorySelectionBoundarySelection(boundary = 'start', selection = this._getSelectedStoryWord()) {
+    _getStorySelectionBoundarySelection(boundary = 'start', selection = this._getStorySelectionForHandles()) {
         if (!selection) return null;
         const useStart = boundary === 'start';
         return {
@@ -3918,17 +3962,25 @@ class KidsMathsApp {
         const startHandle = document.getElementById('story-selection-start-handle');
         const endHandle = document.getElementById('story-selection-end-handle');
         const selectedWord = this._getSelectedStoryWord();
+        const previewSelection = this._getStoryPreviewSelection();
+        const handleSelection = selectedWord || previewSelection;
         if (!adjusters || !startHandle || !endHandle) return;
 
-        if (!selectedWord || !this._storySupportsCustomWordSelection() || this._storyAudioStatusOverride?.includes?.(this._storyPinchResizeHint)) {
+        if (!handleSelection || !this._storySupportsCustomWordSelection() || this._storyAudioStatusOverride?.includes?.(this._storyPinchResizeHint)) {
             adjusters.classList.add('hidden');
+            adjusters.classList.remove('is-preview');
+            startHandle.classList.remove('is-preview');
+            endHandle.classList.remove('is-preview');
             return;
         }
 
-        const startButton = this._getStorySelectionBoundaryButton('start');
-        const endButton = this._getStorySelectionBoundaryButton('end');
+        const startButton = this._getStorySelectionBoundaryButton('start', handleSelection);
+        const endButton = this._getStorySelectionBoundaryButton('end', handleSelection);
         if (!startButton || !endButton) {
             adjusters.classList.add('hidden');
+            adjusters.classList.remove('is-preview');
+            startHandle.classList.remove('is-preview');
+            endHandle.classList.remove('is-preview');
             return;
         }
 
@@ -3940,13 +3992,22 @@ class KidsMathsApp {
 
         positionHandle(startHandle, startButton);
         positionHandle(endHandle, endButton);
+        const previewMode = !selectedWord && Boolean(previewSelection);
+        adjusters.classList.toggle('is-preview', previewMode);
+        startHandle.classList.toggle('is-preview', previewMode);
+        endHandle.classList.toggle('is-preview', previewMode);
         adjusters.classList.remove('hidden');
     }
 
     _beginStorySelectionHandleDrag(boundary = 'start', pointerEvent) {
-        if (!pointerEvent || !this._getSelectedStoryWord()) return;
+        if (!pointerEvent) return;
+        const handleSelection = this._getStorySelectionForHandles();
+        if (!handleSelection) return;
         pointerEvent.preventDefault();
         pointerEvent.stopPropagation();
+        if (!this._getSelectedStoryWord()) {
+            this._selectStoryWordRange(handleSelection, handleSelection);
+        }
         this._cancelActiveStoryTextGestures({ clearSelection: false });
         this._storySelectionHandleDrag = {
             boundary,
@@ -3998,6 +4059,7 @@ class KidsMathsApp {
     _clearStoryWordSelection({ preserveStatus = false } = {}) {
         this._cancelStorySelectionHandleDrag();
         this._cancelStoryWordHoldSelection(null, { keepSuppressClick: false });
+        this._clearStoryPreviewSelection();
         this._selectedStoryWord = null;
         this._storyWordDragState = null;
         this._suppressStoryWordClick = false;

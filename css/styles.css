@@ -3115,6 +3115,23 @@ td.mastery-mastered {
     cursor: grabbing;
 }
 
+.story-selection-adjusters.is-preview .story-selection-adjuster {
+    opacity: 0.38;
+}
+
+.story-selection-adjuster.is-preview .story-selection-adjuster-stem {
+    height: 12px;
+    background: rgba(111, 141, 180, 0.82);
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.82);
+}
+
+.story-selection-adjuster.is-preview .story-selection-adjuster-dot {
+    width: 9px;
+    height: 9px;
+    background: rgba(111, 141, 180, 0.82);
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.82), 0 2px 6px rgba(32, 40, 58, 0.12);
+}
+
 .story-selection-adjuster-stem {
     width: 3px;
     height: 16px;

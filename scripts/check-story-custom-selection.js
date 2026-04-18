@@ -54,6 +54,8 @@ assert(app.includes('_bookmarkCurrentStoryFromSelection('), 'Expected bookmark a
 assert(app.includes('_handleStoryHeaderBookmark('), 'Expected visible story-header bookmark access handler');
 assert(app.includes('_beginStorySelectionHandleDrag('), 'Expected Kindle-style selection handle drag start handler');
 assert(app.includes('_updateStorySelectionHandleDrag('), 'Expected Kindle-style selection handle drag update handler');
+assert(app.includes('_getStoryPreviewSelection('), 'Expected subtle pre-hold preview selection helper for first-press handles');
+assert(app.includes('_ensureStoryPreviewSelection('), 'Expected first-press preview selection bootstrap for subtle handles');
 assert(app.includes('_updateStorySelectionHandles('), 'Expected selection handles to reposition with the active range');
 assert(app.includes("from './story-selection-positioning.js'"), 'Expected app.js to import dedicated story selection positioning helper');
 assert(app.includes('_updateStorySelectionPopupPosition('), 'Expected app.js to refresh anchored story popup positioning');
@@ -82,6 +84,7 @@ assert(css.includes('#story-screen.story-selection-sheet-open:not(.story-selecti
 assert(css.includes('.story-selection-controls.is-anchored {'), 'Expected anchored popup styling for story selection controls');
 assert(css.includes('.story-selection-adjusters {'), 'Expected Kindle-style selection handle container styling');
 assert(css.includes('.story-selection-adjuster {'), 'Expected visible handle styling for multi-word adjustment');
+assert(css.includes('.story-selection-adjusters.is-preview .story-selection-adjuster {'), 'Expected subtle first-press preview styling for range handles');
 assert(css.includes('#story-screen.story-custom-selection-mode #story-text {'), 'Expected native text selection to be disabled in custom-selection story mode');
 
 console.log('Custom story-selection checks passed.');
