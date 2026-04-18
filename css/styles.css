@@ -3104,11 +3104,20 @@ td.mastery-mastered {
     gap: 10px;
     width: min(100%, 760px);
     margin: 0 auto 12px;
-    padding: 12px 14px;
-    border-radius: var(--border-radius-xl);
-    background: rgba(255,255,255,0.88);
-    border: 1px solid rgba(118, 160, 215, 0.22);
-    box-shadow: 0 10px 24px rgba(118, 160, 215, 0.08);
+    padding: 10px 14px 14px;
+    border-radius: 22px;
+    background: rgba(255,255,255,0.96);
+    border: 1px solid rgba(118, 160, 215, 0.2);
+    box-shadow: 0 14px 34px rgba(74, 103, 143, 0.14);
+    align-self: center;
+}
+
+.story-selection-sheet-handle {
+    width: 54px;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(118, 160, 215, 0.3);
+    align-self: center;
 }
 
 .story-selection-status {
@@ -3120,9 +3129,24 @@ td.mastery-mastered {
 .story-selection-meta {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    gap: 10px;
+    gap: 12px;
+}
+
+.story-selection-meta-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1 1 220px;
+}
+
+.story-selection-kicker {
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6f86a5;
 }
 
 .story-selection-meta-right {

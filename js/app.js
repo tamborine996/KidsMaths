@@ -3976,8 +3976,8 @@ class KidsMathsApp {
         if (!controls || !speakBtn || !saveBtn || !clearBtn || !stopBtn || !savedToggleBtn || !savedPanel || !status || !voiceBadge || !voicePickerWrap || !voiceSelect) return;
 
         const enabled = this._storySupportsCustomWordSelection();
-        controls.classList.toggle('hidden', !enabled);
         if (!enabled) {
+            controls.classList.add('hidden');
             savedPanel.classList.add('hidden');
             savedPanel.innerHTML = '';
             return;
@@ -3988,6 +3988,16 @@ class KidsMathsApp {
         const isSingleWordSelection = this._selectionIsSingleWord(selectedWord);
         const wordAlreadySaved = this._isSelectedStoryWordSaved(savedWords);
         const canSpeak = Boolean(selectedWord && !this._storyAudioLoading && this._storyHasAnySpeechPath());
+        const hasNonPinchStatus = Boolean(this._storyAudioStatusOverride && !this._storyAudioStatusOverride.includes(this._storyPinchResizeHint));
+        const showSavedWordsPanel = Boolean(this._showStorySavedWords && savedWords.length);
+        const trayVisible = Boolean(selectedWord || showSavedWordsPanel || this._storyAudioLoading || this._storyAudioElement || hasNonPinchStatus);
+
+        controls.classList.toggle('hidden', !trayVisible);
+        if (!trayVisible) {
+            savedPanel.classList.add('hidden');
+            savedPanel.innerHTML = '';
+            return;
+        }
 
         speakBtn.disabled = !canSpeak;
         saveBtn.disabled = !selectedWord || !isSingleWordSelection || wordAlreadySaved;
