@@ -3125,6 +3125,14 @@ td.mastery-mastered {
     gap: 10px;
 }
 
+.story-selection-meta-right {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+}
+
 .story-voice-source-badge {
     padding: 6px 12px;
     border-radius: 999px;
@@ -3135,6 +3143,34 @@ td.mastery-mastered {
     font-weight: 700;
     line-height: 1.2;
     white-space: nowrap;
+}
+
+.story-voice-picker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(118, 160, 215, 0.22);
+}
+
+.story-voice-picker-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.story-voice-select {
+    min-height: 34px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(118, 160, 215, 0.28);
+    background: #fff;
+    color: var(--text-primary);
+    font-weight: 700;
 }
 
 .story-selection-actions {

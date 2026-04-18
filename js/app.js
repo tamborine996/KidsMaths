@@ -16,11 +16,10 @@ class KidsMathsApp {
         this._storyFontScaleMin = 0.85;
         this._storyFontScaleMax = 1.65;
         this._storyFontScaleStep = 0.1;
-        this.storyAzureSpeechApiKey = window.KIDSMATHS_AZURE_SPEECH_API_KEY || '';
-        this.storyAzureTranslatorApiKey = window.KIDSMATHS_AZURE_TRANSLATOR_API_KEY || '';
-        this.storyAzureRegion = window.KIDSMATHS_AZURE_REGION || 'uksouth';
-        this.storyAzureUrduTtsVoice = window.KIDSMATHS_AZURE_URDU_TTS_VOICE || 'ur-PK-UzmaNeural';
-        this.storyAzureEnglishTtsVoice = window.KIDSMATHS_AZURE_ENGLISH_TTS_VOICE || 'en-GB-SoniaNeural';
+        this.storyElevenLabsApiKey = window.KIDSMATHS_ELEVENLABS_API_KEY || '';
+        this.storyElevenLabsModelId = window.KIDSMATHS_ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2';
+        this.storyVoiceOptions = this._normalizeStoryVoiceOptions(window.KIDSMATHS_ELEVENLABS_VOICES);
+        this.storySelectedVoiceId = window.KIDSMATHS_ELEVENLABS_VOICE_ID || this.storyVoiceOptions[0]?.id || 'JBFqnCBsd6RMkjVDRZzb';
         this._selectedStoryWord = null;
         this._showStorySavedWords = false;
         this._storyAudioElement = null;
@@ -2414,6 +2413,7 @@ class KidsMathsApp {
             this._renderStorySelectionControls();
         });
         document.getElementById('story-stop-audio-btn').addEventListener('click', () => this._stopStoryAudio());
+        document.getElementById('story-voice-select').addEventListener('change', (e) => this._setStoryVoiceId(e.target.value));
         document.getElementById('story-selection-saved-panel').addEventListener('click', (e) => {
             const removeBtn = e.target.closest('[data-remove-story-word]');
             if (removeBtn) {
@@ -3971,7 +3971,9 @@ class KidsMathsApp {
         const savedPanel = document.getElementById('story-selection-saved-panel');
         const status = document.getElementById('story-selection-status');
         const voiceBadge = document.getElementById('story-voice-source-badge');
-        if (!controls || !speakBtn || !saveBtn || !clearBtn || !stopBtn || !savedToggleBtn || !savedPanel || !status || !voiceBadge) return;
+        const voicePickerWrap = document.getElementById('story-voice-picker-wrap');
+        const voiceSelect = document.getElementById('story-voice-select');
+        if (!controls || !speakBtn || !saveBtn || !clearBtn || !stopBtn || !savedToggleBtn || !savedPanel || !status || !voiceBadge || !voicePickerWrap || !voiceSelect) return;
 
         const enabled = this._storySupportsCustomWordSelection();
         controls.classList.toggle('hidden', !enabled);
@@ -3994,6 +3996,7 @@ class KidsMathsApp {
         savedToggleBtn.textContent = `Saved words (${savedWords.length})`;
         savedToggleBtn.setAttribute('aria-pressed', this._showStorySavedWords ? 'true' : 'false');
         voiceBadge.textContent = this._getStoryVoiceSourceLabel();
+        this._syncStoryVoicePicker(voicePickerWrap, voiceSelect);
 
         if (this._storyAudioLoading) {
             status.textContent = 'Generating narration for your selection…';
@@ -4035,89 +4038,125 @@ class KidsMathsApp {
     }
 
     _getStoryVoiceSourceLabel() {
-        if (this._storyAudioSource === 'azure-direct') return 'Voice: Azure';
-        if (this.storyAzureSpeechApiKey || this.storyAzureTranslatorApiKey) return 'Voice: Azure ready';
+        if (this._storyAudioSource === 'elevenlabs-direct') return `Voice: ${this._getActiveStoryVoiceLabel()}`;
+        if (this.storyElevenLabsApiKey) return 'Voice: ElevenLabs ready';
         return 'Voice: unavailable';
     }
 
     _storyHasAnySpeechPath() {
-        return Boolean(this.storyAzureSpeechApiKey || this.storyAzureTranslatorApiKey);
+        return Boolean(this.storyElevenLabsApiKey && this._getActiveStoryVoiceId());
     }
 
-    _getStoryAzureVoiceName(story = this.currentStory) {
-        return story?.direction === 'rtl' ? this.storyAzureUrduTtsVoice : this.storyAzureEnglishTtsVoice;
+    _normalizeStoryVoiceOptions(rawVoices) {
+        const fallbackVoices = [
+            { id: 'JBFqnCBsd6RMkjVDRZzb', label: 'George (male, British)' },
+            { id: 'Xb7hH8MSUJpSbSDYk0k2', label: 'Alice (female, British)' }
+        ];
+        if (!Array.isArray(rawVoices) || rawVoices.length === 0) {
+            return fallbackVoices;
+        }
+        const normalized = rawVoices
+            .map(voice => {
+                if (!voice || typeof voice !== 'object') return null;
+                const id = String(voice.id || voice.voice_id || '').trim();
+                const label = String(voice.label || voice.name || '').trim();
+                if (!id) return null;
+                return {
+                    id,
+                    label: label || id
+                };
+            })
+            .filter(Boolean);
+        return normalized.length ? normalized : fallbackVoices;
     }
 
-    _getStoryAzureLanguage(story = this.currentStory) {
-        return story?.direction === 'rtl' ? 'ur-PK' : 'en-GB';
+    _getActiveStoryVoiceId() {
+        return this.storySelectedVoiceId || this.storyVoiceOptions[0]?.id || '';
     }
 
-    _escapeSsmlText(text = '') {
-        return String(text || '')
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&apos;');
+    _getActiveStoryVoiceLabel() {
+        return this.storyVoiceOptions.find(voice => voice.id === this._getActiveStoryVoiceId())?.label || 'ElevenLabs';
     }
 
-    async _requestStorySpeechAudioViaAzure(text) {
-        const apiKey = this.storyAzureSpeechApiKey || this.storyAzureTranslatorApiKey;
-        if (!apiKey) {
-            throw new Error('Client-side Azure speech key is not configured.');
+    _setStoryVoiceId(voiceId = '') {
+        const requestedId = String(voiceId || '').trim();
+        if (!requestedId) return;
+        if (!this.storyVoiceOptions.some(voice => voice.id === requestedId)) return;
+        this.storySelectedVoiceId = requestedId;
+        this._storyAudioStatusOverride = `Voice changed to ${this._getActiveStoryVoiceLabel()}.`;
+        this._renderStorySelectionControls();
+    }
+
+    _syncStoryVoicePicker(voicePickerWrap, voiceSelect) {
+        const showPicker = this.storyVoiceOptions.length > 1;
+        voicePickerWrap.classList.toggle('hidden', !showPicker);
+        if (!showPicker) return;
+        const selectedId = this._getActiveStoryVoiceId();
+        const currentSignature = Array.from(voiceSelect.options).map(option => `${option.value}:${option.textContent}`).join('|');
+        const expectedSignature = this.storyVoiceOptions.map(voice => `${voice.id}:${voice.label}`).join('|');
+        if (currentSignature !== expectedSignature) {
+            voiceSelect.innerHTML = this.storyVoiceOptions.map(voice => `<option value="${this._escapeHtml(voice.id)}">${this._escapeHtml(voice.label)}</option>`).join('');
+        }
+        voiceSelect.value = selectedId;
+    }
+
+    async _requestStorySpeechAudioViaElevenLabs(text) {
+        if (!this.storyElevenLabsApiKey) {
+            throw new Error('Client-side ElevenLabs key is not configured.');
+        }
+        const voiceId = this._getActiveStoryVoiceId();
+        if (!voiceId) {
+            throw new Error('No ElevenLabs voice is selected.');
         }
 
-        const voice = this._getStoryAzureVoiceName();
-        const language = this._getStoryAzureLanguage();
-        const endpoint = `https://${this.storyAzureRegion}.tts.speech.microsoft.com/cognitiveservices/v1`;
-        const ssml = `<speak version='1.0' xml:lang='${language}'><voice name='${voice}'><prosody rate='0.95' pitch='medium'>${this._escapeSsmlText(text)}</prosody></voice></speak>`;
-
-        let response;
-        try {
-            response = await fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    'Ocp-Apim-Subscription-Key': apiKey,
-                    'Content-Type': 'application/ssml+xml',
-                    'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3'
-                },
-                body: ssml,
-                signal: this._storyAudioAbortController?.signal
-            });
-        } catch (error) {
-            if (error?.name === 'AbortError') {
-                throw error;
-            }
-            const message = String(error?.message || '');
-            if (error instanceof TypeError || /failed to fetch/i.test(message)) {
-                throw new Error('CORS blocked the direct Azure speech request from this browser.');
-            }
-            throw error;
-        }
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}`, {
+            method: 'POST',
+            headers: {
+                'xi-api-key': this.storyElevenLabsApiKey,
+                'Content-Type': 'application/json',
+                'Accept': 'audio/mpeg'
+            },
+            body: JSON.stringify({
+                text,
+                model_id: this.storyElevenLabsModelId,
+                voice_settings: {
+                    stability: 0.45,
+                    similarity_boost: 0.8,
+                    style: 0.2,
+                    use_speaker_boost: true
+                }
+            }),
+            signal: this._storyAudioAbortController?.signal
+        });
 
         if (!response.ok) {
-            let details = '';
+            let errorMessage = `Direct ElevenLabs request failed (${response.status})`;
             try {
-                details = (await response.text()).trim();
+                const data = await response.json();
+                const status = data?.detail?.status || data?.detail?.code || '';
+                const message = data?.detail?.message || data?.error || '';
+                if (status === 'payment_required' || status === 'paid_plan_required') {
+                    errorMessage = 'This ElevenLabs voice needs a paid plan for direct API use.';
+                } else if (status === 'detected_unusual_activity') {
+                    errorMessage = 'ElevenLabs blocked this browser-side request as unusual activity.';
+                } else {
+                    errorMessage = message || errorMessage;
+                }
             } catch {
-                details = '';
+                // keep generic message
             }
-            throw new Error(details || `Azure speech request failed (${response.status}).`);
+            throw new Error(errorMessage);
         }
 
-        const audioBuffer = await response.arrayBuffer();
-        if (!audioBuffer.byteLength) {
-            throw new Error('Azure returned no audio data.');
-        }
-        return new Blob([audioBuffer], { type: 'audio/mpeg' });
+        return response.blob();
     }
 
     async _requestStorySpeechAudio(text) {
-        if (this.storyAzureSpeechApiKey || this.storyAzureTranslatorApiKey) {
-            this._storyAudioSource = 'azure-direct';
-            return this._requestStorySpeechAudioViaAzure(text);
+        if (this.storyElevenLabsApiKey) {
+            this._storyAudioSource = 'elevenlabs-direct';
+            return this._requestStorySpeechAudioViaElevenLabs(text);
         }
-        throw new Error('Azure TTS is not configured yet on this device.');
+        throw new Error('ElevenLabs is not configured yet on this device.');
     }
 
     async _speakStorySelection() {
@@ -4132,8 +4171,8 @@ class KidsMathsApp {
         this._storyAudioStatusOverride = '';
         this._storyAudioSource = '';
         this._storyAudioAbortController = new AbortController();
-        if (this.storyAzureSpeechApiKey || this.storyAzureTranslatorApiKey) {
-            this._storyAudioStatusOverride = 'Trying Azure voice directly in this browser…';
+        if (this.storyElevenLabsApiKey) {
+            this._storyAudioStatusOverride = `Trying ElevenLabs directly in this browser with ${this._getActiveStoryVoiceLabel()}…`;
         }
         this._renderStorySelectionControls();
 
@@ -4143,14 +4182,14 @@ class KidsMathsApp {
             this._storyAudioElement = new Audio(this._storyAudioObjectUrl);
             this._storyAudioElement.addEventListener('ended', () => {
                 this._stopStoryAudio({ preserveStatus: true });
-                this._storyAudioStatusOverride = `Finished with Azure voice: “${selection.text}”`;
+                this._storyAudioStatusOverride = `Finished with ${this._getActiveStoryVoiceLabel()}: “${selection.text}”`;
                 this._renderStorySelectionControls();
             }, { once: true });
             await this._storyAudioElement.play();
-            this._storyAudioStatusOverride = `Playing with Azure voice: “${selection.text}”`;
+            this._storyAudioStatusOverride = `Playing with ${this._getActiveStoryVoiceLabel()}: “${selection.text}”`;
         } catch (error) {
             console.error('Story TTS failed:', error);
-            this._storyAudioStatusOverride = error?.message || 'Azure audio playback failed.';
+            this._storyAudioStatusOverride = error?.message || 'ElevenLabs audio playback failed.';
         } finally {
             this._storyAudioLoading = false;
             this._storyAudioAbortController = null;
