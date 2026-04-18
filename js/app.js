@@ -4076,13 +4076,14 @@ class KidsMathsApp {
         const clearBtn = document.getElementById('story-selection-clear-btn');
         const moreBtn = document.getElementById('story-selection-more-btn');
         const secondaryWrap = document.getElementById('story-selection-secondary');
+        const meta = controls.querySelector('.story-selection-meta');
         const savedToggleBtn = document.getElementById('story-selection-saved-toggle-btn');
         const savedPanel = document.getElementById('story-selection-saved-panel');
         const status = document.getElementById('story-selection-status');
         const voiceBadge = document.getElementById('story-voice-source-badge');
         const voicePickerWrap = document.getElementById('story-voice-picker-wrap');
         const voiceSelect = document.getElementById('story-voice-select');
-        if (!controls || !backdrop || !storyScreen || !speakBtn || !saveBtn || !bookmarkBtn || !clearBtn || !moreBtn || !secondaryWrap || !savedToggleBtn || !savedPanel || !status || !voiceBadge || !voicePickerWrap || !voiceSelect) return;
+        if (!controls || !backdrop || !storyScreen || !speakBtn || !saveBtn || !bookmarkBtn || !clearBtn || !moreBtn || !secondaryWrap || !meta || !savedToggleBtn || !savedPanel || !status || !voiceBadge || !voicePickerWrap || !voiceSelect) return;
 
         const enabled = this._storySupportsCustomWordSelection();
         if (!enabled) {
@@ -4103,6 +4104,7 @@ class KidsMathsApp {
         const canSpeak = Boolean(selectedWord && !this._storyAudioLoading && this._storyHasAnySpeechPath());
         const hasNonPinchStatus = Boolean(this._storyAudioStatusOverride && !this._storyAudioStatusOverride.includes(this._storyPinchResizeHint));
         const activeFeedback = this._storySelectionFeedback;
+        const compactMeta = Boolean(selectedWord && !this._showStorySavedWords && !hasNonPinchStatus);
         const hasExtrasAvailable = Boolean(this.storyVoiceOptions.length > 1 || savedWords.length);
         const shouldShowSecondary = Boolean(this._showStorySelectionExtras || this._showStorySavedWords);
         const showSavedWordsPanel = Boolean(this._showStorySavedWords && savedWords.length);
@@ -4130,6 +4132,7 @@ class KidsMathsApp {
         moreBtn.setAttribute('aria-expanded', shouldShowSecondary ? 'true' : 'false');
         moreBtn.textContent = shouldShowSecondary ? 'Less' : 'More';
         secondaryWrap.classList.toggle('hidden', !shouldShowSecondary);
+        meta.classList.toggle('is-compact', compactMeta);
         savedToggleBtn.textContent = `Saved words (${savedWords.length})`;
         savedToggleBtn.setAttribute('aria-pressed', this._showStorySavedWords ? 'true' : 'false');
         voiceBadge.textContent = this._getStoryVoiceSourceLabel();
@@ -4145,13 +4148,13 @@ class KidsMathsApp {
         this._syncStoryVoicePicker(voicePickerWrap, voiceSelect);
 
         if (this._storyAudioLoading) {
-            status.textContent = isSingleWordSelection && selectedWord ? `Selected word: “${selectedWord.word}”` : `Selected phrase: “${selectedWord?.text || ''}”`;
+            status.textContent = compactMeta ? '' : (isSingleWordSelection && selectedWord ? `Selected word: “${selectedWord.word}”` : `Selected phrase: “${selectedWord?.text || ''}”`);
         } else if (this._storyAudioStatusOverride) {
             status.textContent = this._storyAudioStatusOverride;
         } else if (selectedWord && !isSingleWordSelection) {
-            status.textContent = `Selected phrase: “${selectedWord.text}”`;
+            status.textContent = compactMeta ? '' : `Selected phrase: “${selectedWord.text}”`;
         } else if (selectedWord) {
-            status.textContent = `Selected word: “${selectedWord.word}”`;
+            status.textContent = compactMeta ? '' : `Selected word: “${selectedWord.word}”`;
         } else {
             status.textContent = `Tap a word or drag across a phrase to hear it, save it, bookmark it, or clear it. ${this._storyPinchResizeHint}`;
         }

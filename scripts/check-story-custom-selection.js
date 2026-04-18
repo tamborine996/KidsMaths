@@ -36,6 +36,7 @@ assert(app.includes('_saveSelectedStoryWord('), 'Expected save action for select
 assert(app.includes('_bookmarkCurrentStoryFromSelection('), 'Expected bookmark action sourced from the story word sheet');
 assert(app.includes('_renderStorySelectionControls('), 'Expected dedicated render path for story selection controls');
 assert(app.includes('_getStorySavedWords('), 'Expected saved-story-word accessor');
+assert(app.includes("meta.classList.toggle('is-compact'"), 'Expected compact word-sheet mode when a selection is active');
 assert(app.includes('Tap a word or drag across a phrase to hear it, save it, bookmark it, or clear it.'), 'Expected calm custom-selection helper copy with bookmark support');
 assert(app.includes('Selected phrase:'), 'Expected explicit phrase-selection status copy');
 assert(app.includes('Saved ✓'), 'Expected saved-state feedback for selected story words');
@@ -49,6 +50,8 @@ assert(css.includes('.story-selection-controls {'), 'Expected styling for custom
 assert(css.includes('.story-word-button {'), 'Expected styling for selectable English story words');
 assert(css.includes('.story-word-button.is-selected {'), 'Expected visible selected-state styling for story words');
 assert(css.includes('.story-word-button.is-range-edge {'), 'Expected visible edge styling for phrase selection');
+assert(css.includes('.story-selection-meta.is-compact {'), 'Expected compact story-sheet meta styling for active selections');
+assert(css.includes('#story-screen.story-selection-sheet-open .story-content {'), 'Expected extra reading-space padding when the story sheet is open');
 assert(css.includes('#story-screen.story-custom-selection-mode #story-text {'), 'Expected native text selection to be disabled in custom-selection story mode');
 
 console.log('Custom story-selection checks passed.');
