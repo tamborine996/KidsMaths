@@ -3810,6 +3810,39 @@ class KidsMathsApp {
         return { word, paragraphIndex, occurrenceIndex, tokenIndex };
     }
 
+    _getStoryWordSelectionNearPoint(clientX, clientY, preferredParagraphIndex = null) {
+        const directHit = document.elementsFromPoint(clientX, clientY)
+            .find(el => el?.classList?.contains?.('story-word-button'));
+        const directSelection = this._extractStoryWordSelectionData(directHit);
+        if (directSelection) return directSelection;
+
+        const storyText = document.getElementById('story-text');
+        if (!storyText) return null;
+        const buttons = Array.from(storyText.querySelectorAll('.story-word-button'));
+        if (!buttons.length) return null;
+
+        let bestSelection = null;
+        let bestScore = Number.POSITIVE_INFINITY;
+        buttons.forEach((button) => {
+            const selection = this._extractStoryWordSelectionData(button);
+            if (!selection) return;
+            if (preferredParagraphIndex !== null && Number(selection.paragraphIndex) !== Number(preferredParagraphIndex)) return;
+            const rect = button.getBoundingClientRect();
+            const dx = clientX < rect.left ? rect.left - clientX : clientX > rect.right ? clientX - rect.right : 0;
+            const dy = clientY < rect.top ? rect.top - clientY : clientY > rect.bottom ? clientY - rect.bottom : 0;
+            const distance = Math.hypot(dx, dy);
+            if (distance > 56) return;
+            const centerX = rect.left + (rect.width / 2);
+            const centerY = rect.top + (rect.height / 2);
+            const score = distance + (Math.abs(centerX - clientX) * 0.02) + (Math.abs(centerY - clientY) * 0.02);
+            if (score >= bestScore) return;
+            bestScore = score;
+            bestSelection = selection;
+        });
+
+        return bestSelection;
+    }
+
     _beginStoryWordHoldSelection(button, pointerEvent) {
         if (!button || !pointerEvent) return;
         const anchor = this._extractStoryWordSelectionData(button);
@@ -4035,10 +4068,12 @@ class KidsMathsApp {
         if (this._storySelectionHandleDrag.pointerId !== null && pointerEvent.pointerId !== null && this._storySelectionHandleDrag.pointerId !== pointerEvent.pointerId) {
             return;
         }
-        const hovered = document.elementsFromPoint(pointerEvent.clientX, pointerEvent.clientY)
-            .find(el => el?.classList?.contains?.('story-word-button'));
-        const nextSelection = this._extractStoryWordSelectionData(hovered);
         const selectedWord = this._getSelectedStoryWord();
+        const nextSelection = this._getStoryWordSelectionNearPoint(
+            pointerEvent.clientX,
+            pointerEvent.clientY,
+            selectedWord ? Number(selectedWord.paragraphIndex) : null
+        );
         if (!nextSelection || !selectedWord) return;
         if (Number(nextSelection.paragraphIndex) !== Number(selectedWord.paragraphIndex)) return;
 

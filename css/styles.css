@@ -3096,8 +3096,8 @@ td.mastery-mastered {
 
 .story-selection-adjuster {
     position: fixed;
-    width: 26px;
-    height: 34px;
+    width: 38px;
+    height: 46px;
     display: inline-flex;
     flex-direction: column;
     align-items: center;

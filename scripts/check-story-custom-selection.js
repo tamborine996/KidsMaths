@@ -61,6 +61,7 @@ assert(app.includes('_openStorySelectionActions('), 'Expected explicit long-hold
 assert(app.includes('_selectStoryWord('), 'Expected single-press story word selection path to remain available');
 assert(app.includes('rect.left - 13'), 'Expected start handle to anchor to the left boundary of the selected text');
 assert(app.includes('rect.right - 13'), 'Expected end handle to anchor to the right boundary of the selected text');
+assert(app.includes('_getStoryWordSelectionNearPoint('), 'Expected nearest-word fallback for selection-handle dragging');
 assert(app.includes('if (startedInText && this._getSelectedStoryWord()) return false;'), 'Expected page-turn swipe to yield when story text is already selected');
 assert(app.includes('_updateStorySelectionHandles('), 'Expected selection handles to reposition with the active range');
 assert(app.includes("from './story-selection-positioning.js'"), 'Expected app.js to import dedicated story selection positioning helper');
@@ -90,6 +91,7 @@ assert(css.includes('#story-screen.story-selection-sheet-open:not(.story-selecti
 assert(css.includes('.story-selection-controls.is-anchored {'), 'Expected anchored popup styling for story selection controls');
 assert(css.includes('.story-selection-adjusters {'), 'Expected Kindle-style selection handle container styling');
 assert(css.includes('.story-selection-adjuster {'), 'Expected visible handle styling for multi-word adjustment');
+assert(css.includes('width: 38px;'), 'Expected larger handle touch target width for easier backward dragging');
 assert(css.includes('.story-selection-adjusters.is-preview .story-selection-adjuster {'), 'Expected subtle first-press preview styling for range handles');
 assert(css.includes('#story-screen.story-custom-selection-mode #story-text {'), 'Expected native text selection to be disabled in custom-selection story mode');
 
