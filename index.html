@@ -34,10 +34,6 @@
                 <span id="timer-icon" class="timer-icon"></span>
                 <span id="timer-text">15:00</span>
             </div>
-            <div class="coin-display">
-                <span id="coin-icon" class="coin-icon"></span>
-                <span id="coin-count">0</span>
-            </div>
         </div>
 
         <!-- Home Screen -->
@@ -345,6 +341,7 @@
                 <div class="screen-header-actions">
                     <button class="back-btn" data-to="reading" aria-label="Go back">&larr;</button>
                     <button class="home-btn" data-to="home" aria-label="Go home">⌂</button>
+                    <button class="bookmark-btn" id="bookmark-btn" type="button" aria-label="Bookmark this page" title="Bookmark this page">🔖</button>
                 </div>
                 <div class="screen-header-copy">
                     <h2 id="story-title">Story</h2>
@@ -353,21 +350,20 @@
                 </div>
             </header>
             <div class="story-reader-meta">
-                <div class="story-progress">
-                    <span id="story-page-text">Page 1 of 4</span>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="story-progress-fill"></div>
-                    </div>
-                </div>
-                <div class="story-font-controls" aria-label="Story text size controls">
-                    <button class="secondary-btn story-font-btn" id="story-font-decrease-btn" type="button" aria-label="Make story text smaller">A−</button>
-                    <div class="story-font-label" id="story-font-label" aria-live="polite">Text size 100%</div>
-                    <button class="secondary-btn story-font-btn story-font-reset-btn" id="story-font-reset-btn" type="button">Reset</button>
-                    <button class="secondary-btn story-font-btn" id="story-font-increase-btn" type="button" aria-label="Make story text bigger">A+</button>
-                </div>
+                <div class="story-page-label" id="story-page-text">Page 1 of 4</div>
             </div>
             <div class="story-content" id="story-content">
                 <div id="story-text"></div>
+            </div>
+            <div class="story-selection-adjusters hidden" id="story-selection-adjusters" aria-hidden="true">
+                <button class="story-selection-adjuster is-start" id="story-selection-start-handle" type="button" aria-label="Adjust selection start">
+                    <span class="story-selection-adjuster-stem" aria-hidden="true"></span>
+                    <span class="story-selection-adjuster-dot" aria-hidden="true"></span>
+                </button>
+                <button class="story-selection-adjuster is-end" id="story-selection-end-handle" type="button" aria-label="Adjust selection end">
+                    <span class="story-selection-adjuster-stem" aria-hidden="true"></span>
+                    <span class="story-selection-adjuster-dot" aria-hidden="true"></span>
+                </button>
             </div>
             <div class="story-selection-backdrop hidden" id="story-selection-backdrop" aria-hidden="true"></div>
             <div class="story-selection-controls hidden" id="story-selection-controls" aria-label="Story word actions" aria-live="polite">

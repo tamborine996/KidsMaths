@@ -52,7 +52,9 @@ export class Timer {
      * Update coin display
      */
     updateCoins(count) {
-        this.coinCount.textContent = count;
+        if (this.coinCount) {
+            this.coinCount.textContent = count;
+        }
 
         // Also update store coin count if visible
         const storeCoinCount = document.getElementById('store-coin-count');
@@ -72,6 +74,7 @@ export class Timer {
      */
     flashCoinEarned() {
         const coinDisplay = this.timerBar.querySelector('.coin-display');
+        if (!coinDisplay) return;
         coinDisplay.animate([
             { transform: 'scale(1)' },
             { transform: 'scale(1.3)' },

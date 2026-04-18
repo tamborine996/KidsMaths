@@ -34,7 +34,10 @@ assert(!html.includes('id="story-selection-saved-panel"'), 'Expected saved-words
 assert(!html.includes('id="story-voice-source-badge"'), 'Expected voice badge to be removed from the tiny word popup');
 assert(!html.includes('id="story-voice-select"'), 'Expected voice picker to be removed from the tiny word popup');
 assert(!html.includes('id="story-stop-audio-btn"'), 'Expected stop-audio button to be removed from the story word sheet');
-assert(!html.includes('id="bookmark-btn"'), 'Expected standalone story-header bookmark button to be removed');
+assert(html.includes('id="bookmark-btn"'), 'Expected visible story-header bookmark button for quick bookmark access');
+assert(html.includes('id="story-selection-adjusters"'), 'Expected Kindle-style range-adjuster container for multi-word selection');
+assert(html.includes('id="story-selection-start-handle"'), 'Expected visible start handle for adjusting selected story text');
+assert(html.includes('id="story-selection-end-handle"'), 'Expected visible end handle for adjusting selected story text');
 
 assert(stateManager.includes('storySavedWords: []'), 'Expected persisted storySavedWords state');
 
@@ -48,6 +51,10 @@ assert(app.includes('_cancelStoryWordHoldSelection('), 'Expected long-hold cance
 assert(app.includes('_clearStoryWordSelection('), 'Expected custom English story word clearing handler');
 assert(app.includes('_saveSelectedStoryWord('), 'Expected save action for selected story words');
 assert(app.includes('_bookmarkCurrentStoryFromSelection('), 'Expected bookmark action sourced from the story word sheet');
+assert(app.includes('_handleStoryHeaderBookmark('), 'Expected visible story-header bookmark access handler');
+assert(app.includes('_beginStorySelectionHandleDrag('), 'Expected Kindle-style selection handle drag start handler');
+assert(app.includes('_updateStorySelectionHandleDrag('), 'Expected Kindle-style selection handle drag update handler');
+assert(app.includes('_updateStorySelectionHandles('), 'Expected selection handles to reposition with the active range');
 assert(app.includes("from './story-selection-positioning.js'"), 'Expected app.js to import dedicated story selection positioning helper');
 assert(app.includes('_updateStorySelectionPopupPosition('), 'Expected app.js to refresh anchored story popup positioning');
 assert(app.includes('_renderStorySelectionControls('), 'Expected dedicated render path for story selection controls');
@@ -73,6 +80,8 @@ assert(css.includes('.story-selection-context-value {'), 'Expected selected-word
 assert(css.includes('.story-selection-btn-icon {'), 'Expected dedicated icon styling for popup buttons');
 assert(css.includes('#story-screen.story-selection-sheet-open:not(.story-selection-popup-anchored) .story-content {'), 'Expected extra reading-space padding when the story sheet is open');
 assert(css.includes('.story-selection-controls.is-anchored {'), 'Expected anchored popup styling for story selection controls');
+assert(css.includes('.story-selection-adjusters {'), 'Expected Kindle-style selection handle container styling');
+assert(css.includes('.story-selection-adjuster {'), 'Expected visible handle styling for multi-word adjustment');
 assert(css.includes('#story-screen.story-custom-selection-mode #story-text {'), 'Expected native text selection to be disabled in custom-selection story mode');
 
 console.log('Custom story-selection checks passed.');

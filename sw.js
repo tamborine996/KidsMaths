@@ -1,5 +1,5 @@
-const CACHE_NAME = 'kidsmaths-v96';
-const BUILD_TIME = '2026-04-18 18:41';
+const CACHE_NAME = 'kidsmaths-v97';
+const BUILD_TIME = '2026-04-18 19:19';
 const ASSETS = [
     './',
     './index.html',

@@ -44,6 +44,7 @@ class KidsMathsApp {
         this._storySwipeTextMinDistance = 84;
         this._storySwipeDirectionRatio = 1.25;
         this._storySwipeTextDirectionRatio = 1.6;
+        this._storySelectionHandleDrag = null;
         this._suppressStoryWordClick = false;
         this._storySelectionSheetDrag = null;
 
@@ -2416,9 +2417,8 @@ class KidsMathsApp {
         // Story navigation
         document.getElementById('story-prev-btn').addEventListener('click', () => this._storyPrevPage());
         document.getElementById('story-next-btn').addEventListener('click', () => this._storyNextPage());
-        document.getElementById('story-font-decrease-btn').addEventListener('click', () => this._changeStoryFontScale(-this._storyFontScaleStep));
-        document.getElementById('story-font-increase-btn').addEventListener('click', () => this._changeStoryFontScale(this._storyFontScaleStep));
-        document.getElementById('story-font-reset-btn').addEventListener('click', () => this._resetStoryFontScale());
+        const storyHeaderBookmarkBtn = document.getElementById('bookmark-btn');
+        if (storyHeaderBookmarkBtn) storyHeaderBookmarkBtn.addEventListener('click', () => this._handleStoryHeaderBookmark());
         const storySpeakBtn = document.getElementById('story-selection-speak-btn');
         if (storySpeakBtn) storySpeakBtn.addEventListener('click', () => this._speakStorySelection());
         const storyBookmarkBtn = document.getElementById('story-selection-bookmark-btn');
@@ -2427,6 +2427,19 @@ class KidsMathsApp {
         if (storyClearBtn) storyClearBtn.addEventListener('click', () => this._clearStoryWordSelection());
         const storySelectionBackdrop = document.getElementById('story-selection-backdrop');
         if (storySelectionBackdrop) storySelectionBackdrop.addEventListener('click', () => this._dismissStorySelectionSheet());
+        const storySelectionStartHandle = document.getElementById('story-selection-start-handle');
+        if (storySelectionStartHandle) {
+            storySelectionStartHandle.addEventListener('pointerdown', (e) => this._beginStorySelectionHandleDrag('start', e));
+        }
+        const storySelectionEndHandle = document.getElementById('story-selection-end-handle');
+        if (storySelectionEndHandle) {
+            storySelectionEndHandle.addEventListener('pointerdown', (e) => this._beginStorySelectionHandleDrag('end', e));
+        }
+        const storyContentEl = document.getElementById('story-content');
+        if (storyContentEl) {
+            storyContentEl.addEventListener('scroll', () => this._updateStorySelectionHandles(), { passive: true });
+        }
+        window.addEventListener('resize', () => this._updateStorySelectionHandles());
         const storySavedPanel = document.getElementById('story-selection-saved-panel');
         if (storySavedPanel) {
             storySavedPanel.addEventListener('click', (e) => {
@@ -2505,6 +2518,7 @@ class KidsMathsApp {
         document.addEventListener('pointermove', (e) => {
             if (!this._storySupportsCustomWordSelection()) return;
             this._updateStoryWordHoldSelection(e);
+            this._updateStorySelectionHandleDrag(e);
             if (!this._storyWordDragState) return;
             this._updateStoryWordDragSelection(e.clientX, e.clientY, e.pointerId);
         });
@@ -2512,6 +2526,7 @@ class KidsMathsApp {
         document.addEventListener('pointerup', (e) => {
             if (!this._storySupportsCustomWordSelection()) return;
             this._endStoryWordHoldSelection(e);
+            this._endStorySelectionHandleDrag(e);
             if (!this._storyWordDragState) return;
             this._endStoryWordDragSelection(e.pointerId);
         });
@@ -2519,6 +2534,7 @@ class KidsMathsApp {
         document.addEventListener('pointercancel', (e) => {
             if (!this._storySupportsCustomWordSelection()) return;
             this._cancelStoryWordHoldSelection(e.pointerId);
+            this._cancelStorySelectionHandleDrag(e.pointerId);
             if (!this._storyWordDragState) return;
             this._endStoryWordDragSelection(e.pointerId, { cancelled: true });
         });
@@ -3546,10 +3562,9 @@ class KidsMathsApp {
         this._renderCurrentStoryText();
         document.getElementById('story-page-text').textContent =
             `Page ${this.currentStoryPage + 1} of ${story.pages.length}`;
-        document.getElementById('story-progress-fill').style.width =
-            `${((this.currentStoryPage + 1) / story.pages.length) * 100}%`;
         this._updateStoryFontControls();
         this._renderStorySelectionControls();
+        this._updateStorySelectionHandles();
 
         const storyContent = document.getElementById('story-content');
         storyScreen.classList.toggle('article-reader-mode', isUrduArticle);
@@ -3613,6 +3628,7 @@ class KidsMathsApp {
     }
 
     _cancelActiveStoryTextGestures({ clearSelection = false } = {}) {
+        this._cancelStorySelectionHandleDrag();
         this._cancelStoryWordHoldSelection(null, { keepSuppressClick: false });
         if (this._storyWordDragState) {
             this._endStoryWordDragSelection(null, { cancelled: !clearSelection });
@@ -3689,13 +3705,20 @@ class KidsMathsApp {
         const decreaseBtn = document.getElementById('story-font-decrease-btn');
         const increaseBtn = document.getElementById('story-font-increase-btn');
         const resetBtn = document.getElementById('story-font-reset-btn');
-        if (!storyFontLabel || !decreaseBtn || !increaseBtn || !resetBtn) return;
-
         const percent = Math.round(scale * 100);
-        storyFontLabel.textContent = `Text size ${percent}%`;
-        decreaseBtn.disabled = scale <= this._storyFontScaleMin + 0.001;
-        increaseBtn.disabled = scale >= this._storyFontScaleMax - 0.001;
-        resetBtn.disabled = Math.abs(scale - 1) < 0.001;
+
+        if (storyFontLabel) {
+            storyFontLabel.textContent = `Text size ${percent}%`;
+        }
+        if (decreaseBtn) {
+            decreaseBtn.disabled = scale <= this._storyFontScaleMin + 0.001;
+        }
+        if (increaseBtn) {
+            increaseBtn.disabled = scale >= this._storyFontScaleMax - 0.001;
+        }
+        if (resetBtn) {
+            resetBtn.disabled = Math.abs(scale - 1) < 0.001;
+        }
     }
 
     _storySupportsEnglishTts(story = this.currentStory) {
@@ -3871,7 +3894,109 @@ class KidsMathsApp {
         return Number(selection.startTokenIndex ?? selection.tokenIndex ?? -1) === Number(selection.endTokenIndex ?? selection.tokenIndex ?? -1);
     }
 
+    _getStorySelectionBoundarySelection(boundary = 'start', selection = this._getSelectedStoryWord()) {
+        if (!selection) return null;
+        const useStart = boundary === 'start';
+        return {
+            word: useStart ? selection.word : selection.text,
+            paragraphIndex: Number(selection.paragraphIndex),
+            occurrenceIndex: Number(useStart ? selection.startOccurrenceIndex ?? selection.occurrenceIndex : selection.endOccurrenceIndex ?? selection.occurrenceIndex),
+            tokenIndex: Number(useStart ? selection.startTokenIndex ?? selection.tokenIndex : selection.endTokenIndex ?? selection.tokenIndex)
+        };
+    }
+
+    _getStorySelectionBoundaryButton(boundary = 'start') {
+        const boundarySelection = this._getStorySelectionBoundarySelection(boundary);
+        if (!boundarySelection) return null;
+        const storyText = document.getElementById('story-text');
+        if (!storyText) return null;
+        return storyText.querySelector(`.story-word-button[data-paragraph-index="${boundarySelection.paragraphIndex}"][data-token-index="${boundarySelection.tokenIndex}"]`);
+    }
+
+    _updateStorySelectionHandles() {
+        const adjusters = document.getElementById('story-selection-adjusters');
+        const startHandle = document.getElementById('story-selection-start-handle');
+        const endHandle = document.getElementById('story-selection-end-handle');
+        const selectedWord = this._getSelectedStoryWord();
+        if (!adjusters || !startHandle || !endHandle) return;
+
+        if (!selectedWord || !this._storySupportsCustomWordSelection() || this._storyAudioStatusOverride?.includes?.(this._storyPinchResizeHint)) {
+            adjusters.classList.add('hidden');
+            return;
+        }
+
+        const startButton = this._getStorySelectionBoundaryButton('start');
+        const endButton = this._getStorySelectionBoundaryButton('end');
+        if (!startButton || !endButton) {
+            adjusters.classList.add('hidden');
+            return;
+        }
+
+        const positionHandle = (handle, button) => {
+            const rect = button.getBoundingClientRect();
+            handle.style.left = `${Math.round(rect.left + (rect.width / 2) - 13)}px`;
+            handle.style.top = `${Math.round(rect.bottom + 4)}px`;
+        };
+
+        positionHandle(startHandle, startButton);
+        positionHandle(endHandle, endButton);
+        adjusters.classList.remove('hidden');
+    }
+
+    _beginStorySelectionHandleDrag(boundary = 'start', pointerEvent) {
+        if (!pointerEvent || !this._getSelectedStoryWord()) return;
+        pointerEvent.preventDefault();
+        pointerEvent.stopPropagation();
+        this._cancelActiveStoryTextGestures({ clearSelection: false });
+        this._storySelectionHandleDrag = {
+            boundary,
+            pointerId: pointerEvent.pointerId ?? null
+        };
+        this._suppressStoryWordClick = true;
+    }
+
+    _updateStorySelectionHandleDrag(pointerEvent) {
+        if (!this._storySelectionHandleDrag || !pointerEvent) return;
+        if (this._storySelectionHandleDrag.pointerId !== null && pointerEvent.pointerId !== null && this._storySelectionHandleDrag.pointerId !== pointerEvent.pointerId) {
+            return;
+        }
+        const hovered = document.elementsFromPoint(pointerEvent.clientX, pointerEvent.clientY)
+            .find(el => el?.classList?.contains?.('story-word-button'));
+        const nextSelection = this._extractStoryWordSelectionData(hovered);
+        const selectedWord = this._getSelectedStoryWord();
+        if (!nextSelection || !selectedWord) return;
+        if (Number(nextSelection.paragraphIndex) !== Number(selectedWord.paragraphIndex)) return;
+
+        const startSelection = this._storySelectionHandleDrag.boundary === 'start'
+            ? nextSelection
+            : this._getStorySelectionBoundarySelection('start', selectedWord);
+        const endSelection = this._storySelectionHandleDrag.boundary === 'end'
+            ? nextSelection
+            : this._getStorySelectionBoundarySelection('end', selectedWord);
+
+        this._selectStoryWordRange(startSelection, endSelection);
+    }
+
+    _endStorySelectionHandleDrag(pointerEvent) {
+        if (!this._storySelectionHandleDrag || !pointerEvent) return;
+        if (this._storySelectionHandleDrag.pointerId !== null && pointerEvent.pointerId !== null && this._storySelectionHandleDrag.pointerId !== pointerEvent.pointerId) {
+            return;
+        }
+        this._storySelectionHandleDrag = null;
+        this._suppressStoryWordClick = false;
+    }
+
+    _cancelStorySelectionHandleDrag(pointerId = null) {
+        if (!this._storySelectionHandleDrag) return;
+        if (this._storySelectionHandleDrag.pointerId !== null && pointerId !== null && this._storySelectionHandleDrag.pointerId !== pointerId) {
+            return;
+        }
+        this._storySelectionHandleDrag = null;
+        this._suppressStoryWordClick = false;
+    }
+
     _clearStoryWordSelection({ preserveStatus = false } = {}) {
+        this._cancelStorySelectionHandleDrag();
         this._cancelStoryWordHoldSelection(null, { keepSuppressClick: false });
         this._selectedStoryWord = null;
         this._storyWordDragState = null;
@@ -3883,6 +4008,7 @@ class KidsMathsApp {
         }
         this._renderCurrentStoryText();
         this._renderStorySelectionControls();
+        this._updateStorySelectionHandles();
     }
 
     _dismissStorySelectionSheet() {
@@ -4098,8 +4224,10 @@ class KidsMathsApp {
         this._showStorySavedWords = false;
         this._showStorySelectionExtras = false;
         this._storyAudioStatusOverride = '';
+        this._cancelStorySelectionHandleDrag();
         this._renderCurrentStoryText();
         this._renderStorySelectionControls();
+        this._updateStorySelectionHandles();
     }
 
     _renderInteractiveEnglishStoryText(text = '') {
@@ -4189,6 +4317,37 @@ class KidsMathsApp {
         this._renderStorySelectionControls();
     }
 
+    _handleStoryHeaderBookmark() {
+        if (!this.currentStory) return;
+        const bookmarks = state.get('bookmarks') || {};
+        const bookmark = bookmarks[this.currentStory.id];
+
+        if (!bookmark) {
+            this._saveBookmark();
+            this._setStorySelectionFeedback('bookmarked', 1200);
+            this._renderStorySelectionControls();
+            return;
+        }
+
+        if (Number(bookmark.page) !== Number(this.currentStoryPage)) {
+            this._goToStoryBookmark();
+            return;
+        }
+
+        this._saveBookmark();
+        this._setStorySelectionFeedback('bookmarked', 1200);
+        this._renderStorySelectionControls();
+    }
+
+    _goToStoryBookmark() {
+        if (!this.currentStory) return;
+        const bookmarks = state.get('bookmarks') || {};
+        const bookmark = bookmarks[this.currentStory.id];
+        if (!bookmark) return;
+        this.currentStoryPage = Math.max(0, Math.min(Number(bookmark.page) || 0, (this.currentStory.pages?.length || 1) - 1));
+        this._renderStoryPage();
+    }
+
     _removeStorySavedWord(key) {
         state.set('storySavedWords', this._getStorySavedWords().filter(item => item.key !== key));
         this._renderStorySelectionControls();
@@ -4211,6 +4370,7 @@ class KidsMathsApp {
             storyScreen.classList.remove('story-selection-sheet-open');
             this._setStorySelectionSheetOffset(0);
             this._updateStorySelectionPopupPosition(false);
+            this._updateStorySelectionHandles();
             return;
         }
 
@@ -4234,6 +4394,7 @@ class KidsMathsApp {
             controls.classList.remove('is-bookmarked-feedback');
             this._setStorySelectionSheetOffset(0);
             this._updateStorySelectionPopupPosition(false);
+            this._updateStorySelectionHandles();
             return;
         }
 
@@ -4261,6 +4422,7 @@ class KidsMathsApp {
         }
 
         this._updateStorySelectionPopupPosition(Boolean(trayVisible && selectedWord));
+        this._updateStorySelectionHandles();
     }
 
     _getStoryVoiceSourceLabel() {
@@ -4500,6 +4662,7 @@ class KidsMathsApp {
 
         storyText.dir = story.direction || 'ltr';
         this._applyStoryFontScaleToCurrentStoryText();
+        this._updateStorySelectionHandles();
     }
 
     _splitUrduParagraphs(text = '') {
@@ -5139,18 +5302,29 @@ class KidsMathsApp {
         const btn = document.getElementById('bookmark-btn');
         if (!btn || !this.currentStory) return;
         const bookmarks = state.get('bookmarks') || {};
-        const hasBookmark = bookmarks[this.currentStory.id] !== undefined;
+        const bookmark = bookmarks[this.currentStory.id];
+        const hasBookmark = bookmark !== undefined;
+        const isOnBookmarkPage = hasBookmark && Number(bookmark.page) === Number(this.currentStoryPage);
+
         btn.classList.toggle('active', hasBookmark);
-        btn.title = hasBookmark ? 'Remove bookmark' : 'Bookmark this page';
+        btn.textContent = hasBookmark ? '🔖' : '📑';
+        if (!hasBookmark) {
+            btn.title = 'Bookmark this page';
+            btn.setAttribute('aria-label', 'Bookmark this page');
+            return;
+        }
+        if (isOnBookmarkPage) {
+            btn.title = `Bookmark saved on page ${bookmark.page + 1}`;
+            btn.setAttribute('aria-label', `Bookmark saved on page ${bookmark.page + 1}`);
+            return;
+        }
+        btn.title = `Go to bookmark on page ${bookmark.page + 1}`;
+        btn.setAttribute('aria-label', `Go to bookmark on page ${bookmark.page + 1}`);
     }
 
     _autoSaveBookmark() {
-        if (!this.currentStory) return;
-        const bookmarks = state.get('bookmarks') || {};
-        // Auto-save if bookmark exists OR story has 20+ pages (long stories)
-        if (bookmarks[this.currentStory.id] || this.currentStory.pages.length >= 20) {
-            this._saveBookmark();
-        }
+        // Bookmarking is explicit in the reader now.
+        // Do not overwrite the saved page just because the user turned another page.
     }
 
     // ===== HISTORY API - BACK BUTTON TRAPPING =====
