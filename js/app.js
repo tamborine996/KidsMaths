@@ -40,6 +40,10 @@ class KidsMathsApp {
         this._storyWordHoldState = null;
         this._storyWordHoldDelayMs = 425;
         this._storyWordHoldMoveThreshold = 18;
+        this._storySwipeMinDistance = 50;
+        this._storySwipeTextMinDistance = 84;
+        this._storySwipeDirectionRatio = 1.25;
+        this._storySwipeTextDirectionRatio = 1.6;
         this._suppressStoryWordClick = false;
         this._storySelectionSheetDrag = null;
 
@@ -2452,9 +2456,16 @@ class KidsMathsApp {
         }, { passive: true });
 
         storyContent.addEventListener('touchmove', (e) => {
-            if (!this.currentStory || !this._storyPinchState) return;
-            if (e.touches.length < 2) return;
-            this._updateStoryPinchResize(e.touches);
+            if (!this.currentStory) return;
+            if (e.touches.length >= 2) {
+                if (!this._storyPinchState) {
+                    this._beginStoryPinchResize(e.touches);
+                }
+                this._updateStoryPinchResize(e.touches);
+                return;
+            }
+            if (!this._storyPinchState) return;
+            this._endStoryPinchResize(e.touches);
         }, { passive: true });
 
         storyContent.addEventListener('touchend', (e) => {
@@ -2464,15 +2475,10 @@ class KidsMathsApp {
                 return;
             }
             if (e.changedTouches.length !== 1) return;
-            if (this._storyTouchStartedInText) return;
 
             const deltaX = e.changedTouches[0].clientX - this._storyTouchStartX;
             const deltaY = e.changedTouches[0].clientY - this._storyTouchStartY;
-            const absX = Math.abs(deltaX);
-            const absY = Math.abs(deltaY);
-
-            // Only trigger when the gesture is clearly horizontal
-            if (absX < 50 || absX <= absY * 1.25) return;
+            if (!this._shouldTurnStoryPageFromTouch({ deltaX, deltaY, startedInText: this._storyTouchStartedInText })) return;
 
             if (deltaX < 0) {
                 this._storyNextPage();
@@ -2482,6 +2488,7 @@ class KidsMathsApp {
         }, { passive: true });
 
         storyContent.addEventListener('touchcancel', () => {
+            this._cancelActiveStoryTextGestures({ clearSelection: false });
             if (this._storyPinchState) {
                 this._endStoryPinchResize([]);
             }
@@ -2489,7 +2496,7 @@ class KidsMathsApp {
 
         // Story navigation
         document.getElementById('story-text').addEventListener('pointerdown', (e) => {
-            if (!this.currentStory || !this._storySupportsCustomWordSelection()) return;
+            if (!this.currentStory || !this._storySupportsCustomWordSelection() || this._storyPinchState) return;
             const storyWordBtn = e.target.closest('.story-word-button');
             if (!storyWordBtn) return;
             this._beginStoryWordHoldSelection(storyWordBtn, e);
@@ -3591,15 +3598,34 @@ class KidsMathsApp {
 
     _getTouchDistance(touches = []) {
         if (!touches || touches.length < 2) return 0;
-        const [firstTouch, secondTouch] = touches;
-        const deltaX = Number(secondTouch.clientX) - Number(firstTouch.clientX);
-        const deltaY = Number(secondTouch.clientY) - Number(firstTouch.clientY);
-        return Math.hypot(deltaX, deltaY);
+        const [first, second] = touches;
+        const dx = (second.clientX || 0) - (first.clientX || 0);
+        const dy = (second.clientY || 0) - (first.clientY || 0);
+        return Math.hypot(dx, dy);
+    }
+
+    _shouldTurnStoryPageFromTouch({ deltaX = 0, deltaY = 0, startedInText = false } = {}) {
+        const absX = Math.abs(Number(deltaX) || 0);
+        const absY = Math.abs(Number(deltaY) || 0);
+        const minDistance = startedInText ? this._storySwipeTextMinDistance : this._storySwipeMinDistance;
+        const directionRatio = startedInText ? this._storySwipeTextDirectionRatio : this._storySwipeDirectionRatio;
+        return absX >= minDistance && absX > absY * directionRatio;
+    }
+
+    _cancelActiveStoryTextGestures({ clearSelection = false } = {}) {
+        this._cancelStoryWordHoldSelection(null, { keepSuppressClick: false });
+        if (this._storyWordDragState) {
+            this._endStoryWordDragSelection(null, { cancelled: !clearSelection });
+        }
+        if (clearSelection) {
+            this._clearStoryWordSelection({ preserveStatus: true });
+        }
     }
 
     _beginStoryPinchResize(touches = []) {
         const distance = this._getTouchDistance(touches);
         if (!distance) return;
+        this._cancelActiveStoryTextGestures({ clearSelection: false });
         this._storyPinchState = {
             initialDistance: distance,
             initialScale: this._getStoryFontScale()
