@@ -10,6 +10,7 @@ import { ProblemGenerator } from './managers/ProblemGenerator.js';
 import { VisualObjects } from './components/VisualObjects.js';
 import { Celebration } from './components/Celebration.js';
 import { Timer } from './components/Timer.js';
+import { StorySelectionPositioner } from './story-selection-positioning.js';
 
 class KidsMathsApp {
     constructor() {
@@ -31,6 +32,8 @@ class KidsMathsApp {
         this._storyAudioSource = '';
         this._storySelectionFeedback = '';
         this._storySelectionFeedbackTimer = null;
+        this._storySelectionPositioner = new StorySelectionPositioner();
+        this._storySelectionPositionFrame = null;
         this._storyPinchState = null;
         this._storyPinchResizeHint = 'Pinch to resize story text.';
         this._storyWordDragState = null;
@@ -3802,6 +3805,35 @@ class KidsMathsApp {
         controls.style.setProperty('--story-selection-sheet-offset', `${safeOffset}px`);
     }
 
+    _updateStorySelectionPopupPosition(trayVisible = false) {
+        if (this._storySelectionPositionFrame) {
+            cancelAnimationFrame(this._storySelectionPositionFrame);
+            this._storySelectionPositionFrame = null;
+        }
+
+        const controls = document.getElementById('story-selection-controls');
+        const storyScreen = document.getElementById('story-screen');
+        if (!controls || !storyScreen) return;
+
+        const selectedButtons = Array.from(document.querySelectorAll('#story-text .story-word-button.is-selected'));
+        if (!trayVisible || !selectedButtons.length) {
+            this._storySelectionPositioner.clear(controls, storyScreen);
+            return;
+        }
+
+        this._storySelectionPositionFrame = requestAnimationFrame(() => {
+            this._storySelectionPositionFrame = null;
+            this._storySelectionPositioner.update({
+                controls,
+                storyScreen,
+                selectedButtons,
+            }).catch((error) => {
+                console.warn('Story selection positioning failed:', error);
+                this._storySelectionPositioner.clear(controls, storyScreen);
+            });
+        });
+    }
+
     _setStorySelectionFeedback(feedback = '', durationMs = 0) {
         this._storySelectionFeedback = feedback || '';
         if (this._storySelectionFeedbackTimer) {
@@ -4094,6 +4126,7 @@ class KidsMathsApp {
             savedPanel.classList.add('hidden');
             savedPanel.innerHTML = '';
             this._setStorySelectionSheetOffset(0);
+            this._updateStorySelectionPopupPosition(false);
             return;
         }
 
@@ -4121,6 +4154,7 @@ class KidsMathsApp {
             savedPanel.classList.add('hidden');
             savedPanel.innerHTML = '';
             this._setStorySelectionSheetOffset(0);
+            this._updateStorySelectionPopupPosition(false);
             return;
         }
 
@@ -4184,6 +4218,8 @@ class KidsMathsApp {
             savedPanel.classList.add('hidden');
             savedPanel.innerHTML = '';
         }
+
+        this._updateStorySelectionPopupPosition(Boolean(trayVisible && selectedWord));
     }
 
     _getStoryVoiceSourceLabel() {

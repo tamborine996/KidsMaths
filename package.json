@@ -20,5 +20,8 @@
   "homepage": "https://github.com/tamborine996/KidsMaths#readme",
   "devDependencies": {
     "wrangler": "^4.83.0"
+  },
+  "dependencies": {
+    "@floating-ui/dom": "^1.7.6"
   }
 }
