@@ -20,11 +20,14 @@ const storySelectionPositioning = fs.existsSync(storySelectionPositioningPath)
 
 assert(html.includes('id="story-selection-controls"'), 'Expected dedicated custom story-selection controls in index.html');
 assert(html.includes('id="story-selection-speak-btn"'), 'Expected custom Speak button for selected story words');
-assert(html.includes('id="story-selection-save-btn"'), 'Expected custom Save button for selected story words');
 assert(html.includes('id="story-selection-bookmark-btn"'), 'Expected bookmark button inside the story word sheet');
 assert(html.includes('id="story-selection-clear-btn"'), 'Expected custom Clear button for selected story words');
-assert(html.includes('id="story-selection-saved-toggle-btn"'), 'Expected saved-words toggle for story reader');
-assert(html.includes('id="story-selection-saved-panel"'), 'Expected saved-words panel for story reader');
+assert(!html.includes('id="story-selection-save-btn"'), 'Expected Save to be removed from the tiny word popup');
+assert(!html.includes('id="story-selection-more-btn"'), 'Expected More to be removed from the tiny word popup');
+assert(!html.includes('id="story-selection-saved-toggle-btn"'), 'Expected saved-words toggle to move out of the tiny word popup');
+assert(!html.includes('id="story-selection-saved-panel"'), 'Expected saved-words panel to move out of the tiny word popup');
+assert(!html.includes('id="story-voice-source-badge"'), 'Expected voice badge to be removed from the tiny word popup');
+assert(!html.includes('id="story-voice-select"'), 'Expected voice picker to be removed from the tiny word popup');
 assert(!html.includes('id="story-stop-audio-btn"'), 'Expected stop-audio button to be removed from the story word sheet');
 assert(!html.includes('id="bookmark-btn"'), 'Expected standalone story-header bookmark button to be removed');
 
@@ -42,14 +45,13 @@ assert(app.includes("from './story-selection-positioning.js'"), 'Expected app.js
 assert(app.includes('_updateStorySelectionPopupPosition('), 'Expected app.js to refresh anchored story popup positioning');
 assert(app.includes('_renderStorySelectionControls('), 'Expected dedicated render path for story selection controls');
 assert(app.includes('_getStorySavedWords('), 'Expected saved-story-word accessor');
-assert(app.includes("meta.classList.toggle('is-compact'"), 'Expected compact word-sheet mode when a selection is active');
+assert(app.includes("status.textContent = `“${selectionLabel}”`"), 'Expected anchored word popup to keep a tiny selected-word label');
 assert(storySelectionPositioning.includes('floating-ui.dom.bundle.mjs'), 'Expected story selection positioning helper to use Floating UI');
 assert(storySelectionPositioning.includes('computePosition'), 'Expected Floating UI computePosition usage for story selection popup');
 assert(storySelectionPositioning.includes('getClientRects'), 'Expected story selection positioning helper to account for multi-rect selections');
 assert(storySelectionPositioning.includes('visualViewport'), 'Expected story selection positioning helper to respect the visual viewport');
-assert(app.includes('Tap a word or drag across a phrase to hear it, save it, bookmark it, or clear it.'), 'Expected calm custom-selection helper copy with bookmark support');
-assert(app.includes('Selected phrase:'), 'Expected explicit phrase-selection status copy');
-assert(app.includes('Saved ✓'), 'Expected saved-state feedback for selected story words');
+assert(app.includes('Tap a word to hear it, bookmark your place, or clear it.'), 'Expected calm tiny-popup helper copy without save/more clutter');
+assert(!app.includes('Tap a word or drag across a phrase to hear it, save it, bookmark it, or clear it.'), 'Expected old save-heavy helper copy to be removed');
 assert(app.includes('Bookmarked ✓'), 'Expected subtle bookmarked-state feedback for reading position');
 assert(app.includes('story-word-button'), 'Expected custom button class for selectable English story words');
 assert(app.includes('data-token-index'), 'Expected token index markers for phrase range selection');
@@ -60,7 +62,7 @@ assert(css.includes('.story-selection-controls {'), 'Expected styling for custom
 assert(css.includes('.story-word-button {'), 'Expected styling for selectable English story words');
 assert(css.includes('.story-word-button.is-selected {'), 'Expected visible selected-state styling for story words');
 assert(css.includes('.story-word-button.is-range-edge {'), 'Expected visible edge styling for phrase selection');
-assert(css.includes('.story-selection-meta.is-compact {'), 'Expected compact story-sheet meta styling for active selections');
+assert(css.includes('.story-selection-context {'), 'Expected tiny word-popup context styling');
 assert(css.includes('#story-screen.story-selection-sheet-open:not(.story-selection-popup-anchored) .story-content {'), 'Expected extra reading-space padding when the story sheet is open');
 assert(css.includes('.story-selection-controls.is-anchored {'), 'Expected anchored popup styling for story selection controls');
 assert(css.includes('#story-screen.story-custom-selection-mode #story-text {'), 'Expected native text selection to be disabled in custom-selection story mode');

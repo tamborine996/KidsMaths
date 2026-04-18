@@ -25,20 +25,21 @@ const publicConfig = fs.readFileSync(publicConfigPath, 'utf8');
 
 assert(html.includes('story-selection-controls'), 'Expected custom story-selection controls in index.html');
 assert(html.includes('story-selection-speak-btn'), 'Expected custom Speak button in index.html');
-assert(html.includes('story-selection-save-btn'), 'Expected custom Save button in index.html');
 assert(html.includes('story-selection-bookmark-btn'), 'Expected story bookmark button in index.html');
 assert(html.includes('story-selection-clear-btn'), 'Expected custom Clear button in index.html');
-assert(html.includes('story-selection-saved-toggle-btn'), 'Expected saved-words toggle in index.html');
+assert(!html.includes('story-selection-save-btn'), 'Expected Save button to be removed from the tiny word popup');
+assert(!html.includes('story-selection-saved-toggle-btn'), 'Expected saved-words toggle to be removed from the tiny word popup');
 assert(!html.includes('story-stop-audio-btn'), 'Expected stop-audio button to stay removed from index.html');
-assert(html.includes('story-voice-source-badge'), 'Expected visible voice-source badge in index.html');
-assert(html.includes('story-voice-select'), 'Expected visible story voice select in index.html');
+assert(!html.includes('story-voice-source-badge'), 'Expected voice-source badge to be removed from the tiny word popup');
+assert(!html.includes('story-voice-select'), 'Expected story voice select to be removed from the tiny word popup');
 assert(html.includes('kidsmaths-config.js'), 'Expected optional local KidsMaths config script in index.html');
 assert(!html.includes('KIDSMATHS_TTS_PROXY_URL'), 'Expected legacy Worker proxy config to be removed from index.html');
 
 assert(css.includes('.story-selection-controls'), 'Expected story-selection controls styling in css');
-assert(css.includes('.story-voice-source-badge {'), 'Expected story voice-source badge styling in css');
-assert(css.includes('.story-voice-picker {'), 'Expected story voice-picker styling in css');
-assert(css.includes('.story-voice-select {'), 'Expected story voice-select styling in css');
+assert(css.includes('.story-selection-context {'), 'Expected tiny selected-word context styling in css');
+assert(!css.includes('.story-voice-source-badge {'), 'Expected story voice-source badge styling to be removed from css');
+assert(!css.includes('.story-voice-picker {'), 'Expected story voice-picker styling to be removed from css');
+assert(!css.includes('.story-voice-select {'), 'Expected story voice-select styling to be removed from css');
 assert(css.includes('.story-word-button {'), 'Expected tappable English story word styling in css');
 assert(css.includes('.story-word-button.is-selected {'), 'Expected selected English word styling in css');
 assert(css.includes('#story-screen.story-custom-selection-mode #story-text {'), 'Expected native text selection to be disabled in custom-selection mode');

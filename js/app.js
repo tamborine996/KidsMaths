@@ -2412,26 +2412,23 @@ class KidsMathsApp {
         document.getElementById('story-font-decrease-btn').addEventListener('click', () => this._changeStoryFontScale(-this._storyFontScaleStep));
         document.getElementById('story-font-increase-btn').addEventListener('click', () => this._changeStoryFontScale(this._storyFontScaleStep));
         document.getElementById('story-font-reset-btn').addEventListener('click', () => this._resetStoryFontScale());
-        document.getElementById('story-selection-speak-btn').addEventListener('click', () => this._speakStorySelection());
-        document.getElementById('story-selection-save-btn').addEventListener('click', () => this._saveSelectedStoryWord());
-        document.getElementById('story-selection-bookmark-btn').addEventListener('click', () => this._bookmarkCurrentStoryFromSelection());
-        document.getElementById('story-selection-clear-btn').addEventListener('click', () => this._clearStoryWordSelection());
-        document.getElementById('story-selection-more-btn').addEventListener('click', () => {
-            this._showStorySelectionExtras = !this._showStorySelectionExtras;
-            this._renderStorySelectionControls();
-        });
-        document.getElementById('story-selection-backdrop').addEventListener('click', () => this._dismissStorySelectionSheet());
-        document.getElementById('story-selection-saved-toggle-btn').addEventListener('click', () => {
-            this._showStorySavedWords = !this._showStorySavedWords;
-            this._renderStorySelectionControls();
-        });
-        document.getElementById('story-voice-select').addEventListener('change', (e) => this._setStoryVoiceId(e.target.value));
-        document.getElementById('story-selection-saved-panel').addEventListener('click', (e) => {
-            const removeBtn = e.target.closest('[data-remove-story-word]');
-            if (removeBtn) {
-                this._removeStorySavedWord(removeBtn.dataset.removeStoryWord);
-            }
-        });
+        const storySpeakBtn = document.getElementById('story-selection-speak-btn');
+        if (storySpeakBtn) storySpeakBtn.addEventListener('click', () => this._speakStorySelection());
+        const storyBookmarkBtn = document.getElementById('story-selection-bookmark-btn');
+        if (storyBookmarkBtn) storyBookmarkBtn.addEventListener('click', () => this._bookmarkCurrentStoryFromSelection());
+        const storyClearBtn = document.getElementById('story-selection-clear-btn');
+        if (storyClearBtn) storyClearBtn.addEventListener('click', () => this._clearStoryWordSelection());
+        const storySelectionBackdrop = document.getElementById('story-selection-backdrop');
+        if (storySelectionBackdrop) storySelectionBackdrop.addEventListener('click', () => this._dismissStorySelectionSheet());
+        const storySavedPanel = document.getElementById('story-selection-saved-panel');
+        if (storySavedPanel) {
+            storySavedPanel.addEventListener('click', (e) => {
+                const removeBtn = e.target.closest('[data-remove-story-word]');
+                if (removeBtn) {
+                    this._removeStorySavedWord(removeBtn.dataset.removeStoryWord);
+                }
+            });
+        }
 
         this._bindStorySelectionSheetDismiss();
 
@@ -4103,45 +4100,30 @@ class KidsMathsApp {
         const backdrop = document.getElementById('story-selection-backdrop');
         const storyScreen = document.getElementById('story-screen');
         const speakBtn = document.getElementById('story-selection-speak-btn');
-        const saveBtn = document.getElementById('story-selection-save-btn');
         const bookmarkBtn = document.getElementById('story-selection-bookmark-btn');
         const clearBtn = document.getElementById('story-selection-clear-btn');
-        const moreBtn = document.getElementById('story-selection-more-btn');
-        const secondaryWrap = document.getElementById('story-selection-secondary');
-        const meta = controls.querySelector('.story-selection-meta');
-        const savedToggleBtn = document.getElementById('story-selection-saved-toggle-btn');
-        const savedPanel = document.getElementById('story-selection-saved-panel');
         const status = document.getElementById('story-selection-status');
-        const voiceBadge = document.getElementById('story-voice-source-badge');
-        const voicePickerWrap = document.getElementById('story-voice-picker-wrap');
-        const voiceSelect = document.getElementById('story-voice-select');
-        if (!controls || !backdrop || !storyScreen || !speakBtn || !saveBtn || !bookmarkBtn || !clearBtn || !moreBtn || !secondaryWrap || !meta || !savedToggleBtn || !savedPanel || !status || !voiceBadge || !voicePickerWrap || !voiceSelect) return;
+        if (!controls || !backdrop || !storyScreen || !speakBtn || !bookmarkBtn || !clearBtn || !status) return;
 
         const enabled = this._storySupportsCustomWordSelection();
         if (!enabled) {
             controls.classList.add('hidden');
             backdrop.classList.add('hidden');
             storyScreen.classList.remove('story-selection-sheet-open');
-            secondaryWrap.classList.add('hidden');
-            savedPanel.classList.add('hidden');
-            savedPanel.innerHTML = '';
             this._setStorySelectionSheetOffset(0);
             this._updateStorySelectionPopupPosition(false);
             return;
         }
 
         const selectedWord = this._getSelectedStoryWord();
-        const savedWords = this._getStorySavedWords();
         const isSingleWordSelection = this._selectionIsSingleWord(selectedWord);
-        const wordAlreadySaved = this._isSelectedStoryWordSaved(savedWords);
         const canSpeak = Boolean(selectedWord && !this._storyAudioLoading && this._storyHasAnySpeechPath());
         const hasNonPinchStatus = Boolean(this._storyAudioStatusOverride && !this._storyAudioStatusOverride.includes(this._storyPinchResizeHint));
         const activeFeedback = this._storySelectionFeedback;
-        const compactMeta = Boolean(selectedWord && !this._showStorySavedWords && !hasNonPinchStatus);
-        const hasExtrasAvailable = Boolean(this.storyVoiceOptions.length > 1 || savedWords.length);
-        const shouldShowSecondary = Boolean(this._showStorySelectionExtras || this._showStorySavedWords);
-        const showSavedWordsPanel = Boolean(this._showStorySavedWords && savedWords.length);
-        const trayVisible = Boolean(selectedWord || showSavedWordsPanel || hasNonPinchStatus);
+        const trayVisible = Boolean(selectedWord || hasNonPinchStatus);
+        const selectionLabel = selectedWord
+            ? (isSingleWordSelection ? selectedWord.word : selectedWord.text)
+            : '';
 
         controls.classList.toggle('hidden', !trayVisible);
         backdrop.classList.toggle('hidden', !trayVisible);
@@ -4150,73 +4132,28 @@ class KidsMathsApp {
             controls.classList.remove('is-dragging');
             controls.classList.remove('is-speaking');
             controls.classList.remove('is-saved-feedback');
-            secondaryWrap.classList.add('hidden');
-            savedPanel.classList.add('hidden');
-            savedPanel.innerHTML = '';
+            controls.classList.remove('is-bookmarked-feedback');
             this._setStorySelectionSheetOffset(0);
             this._updateStorySelectionPopupPosition(false);
             return;
         }
 
         speakBtn.disabled = !canSpeak;
-        saveBtn.disabled = !selectedWord || !isSingleWordSelection || wordAlreadySaved;
         bookmarkBtn.disabled = !selectedWord || !this.currentStory;
         clearBtn.disabled = !selectedWord;
-        moreBtn.classList.toggle('hidden', !hasExtrasAvailable);
-        moreBtn.setAttribute('aria-expanded', shouldShowSecondary ? 'true' : 'false');
-        moreBtn.textContent = shouldShowSecondary ? 'Less' : 'More';
-        secondaryWrap.classList.toggle('hidden', !shouldShowSecondary);
-        meta.classList.toggle('is-compact', compactMeta);
-        savedToggleBtn.textContent = `Saved words (${savedWords.length})`;
-        savedToggleBtn.setAttribute('aria-pressed', this._showStorySavedWords ? 'true' : 'false');
-        voiceBadge.textContent = this._getStoryVoiceSourceLabel();
-        voicePickerWrap.classList.toggle('hidden', !(shouldShowSecondary && this.storyVoiceOptions.length > 1));
         controls.classList.toggle('is-speaking', this._storyAudioLoading || Boolean(this._storyAudioElement));
         controls.classList.toggle('is-saved-feedback', activeFeedback === 'saved');
         controls.classList.toggle('is-bookmarked-feedback', activeFeedback === 'bookmarked');
         speakBtn.classList.toggle('is-subtle-busy', this._storyAudioLoading || Boolean(this._storyAudioElement));
-        saveBtn.classList.toggle('is-subtle-busy', activeFeedback === 'saved');
         bookmarkBtn.classList.toggle('is-subtle-busy', activeFeedback === 'bookmarked');
-        saveBtn.title = activeFeedback === 'saved' ? 'Saved ✓' : 'Save selected word';
         bookmarkBtn.title = activeFeedback === 'bookmarked' ? 'Bookmarked ✓' : 'Bookmark this reading spot';
-        this._syncStoryVoicePicker(voicePickerWrap, voiceSelect);
 
-        if (this._storyAudioLoading) {
-            status.textContent = compactMeta ? '' : (isSingleWordSelection && selectedWord ? `Selected word: “${selectedWord.word}”` : `Selected phrase: “${selectedWord?.text || ''}”`);
+        if (selectionLabel) {
+            status.textContent = `“${selectionLabel}”`;
         } else if (this._storyAudioStatusOverride) {
             status.textContent = this._storyAudioStatusOverride;
-        } else if (selectedWord && !isSingleWordSelection) {
-            status.textContent = compactMeta ? '' : `Selected phrase: “${selectedWord.text}”`;
-        } else if (selectedWord) {
-            status.textContent = compactMeta ? '' : `Selected word: “${selectedWord.word}”`;
         } else {
-            status.textContent = `Tap a word or drag across a phrase to hear it, save it, bookmark it, or clear it. ${this._storyPinchResizeHint}`;
-        }
-
-        if (selectedWord && isSingleWordSelection) {
-            saveBtn.textContent = 'Save';
-        } else if (selectedWord) {
-            saveBtn.textContent = 'Save word only';
-        } else {
-            saveBtn.textContent = 'Save';
-        }
-
-        if (this._showStorySavedWords) {
-            savedPanel.classList.remove('hidden');
-            savedPanel.innerHTML = savedWords.length
-                ? `<div class="story-selection-saved-panel-label">Saved words</div>${savedWords.map(item => `
-                    <div class="story-saved-word-row">
-                        <div>
-                            <div class="story-saved-word-text">${this._escapeHtml(item.word)}</div>
-                            <div class="story-saved-word-story">${this._escapeHtml(item.storyTitle)}</div>
-                        </div>
-                        <button class="secondary-btn" type="button" data-remove-story-word="${this._escapeHtml(item.key)}">Remove</button>
-                    </div>
-                `).join('')}`
-                : '<div class="story-selection-saved-panel-label">Saved words</div><div class="story-empty-state">Save a few words from a story and they will appear here.</div>';
-        } else {
-            savedPanel.classList.add('hidden');
-            savedPanel.innerHTML = '';
+            status.textContent = 'Tap a word to hear it, bookmark your place, or clear it.';
         }
 
         this._updateStorySelectionPopupPosition(Boolean(trayVisible && selectedWord));

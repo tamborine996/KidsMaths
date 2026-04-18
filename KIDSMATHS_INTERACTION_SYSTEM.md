@@ -82,7 +82,8 @@ Current product rules for the KidsMaths reader:
 - The temporary word popup must never cover the selected text.
 - The popup should stay word-specific, not become a mini control center.
 - The popup should be as compact, calm, and elegant as possible on phone.
-- Reader-level controls should live elsewhere when possible.
+- Default word-popup actions are Speak, Bookmark, and Clear.
+- Reader-level controls like voice choice or saved-word management should live elsewhere when possible.
 - When the selected text is near the bottom, the popup must reposition intelligently instead of hiding the selection.
 
 ## QA rules for interaction work
