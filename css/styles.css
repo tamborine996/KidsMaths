@@ -3160,12 +3160,17 @@ td.mastery-mastered {
 }
 
 .story-selection-controls.is-anchored {
+    left: auto;
+    right: auto;
+    bottom: auto;
     width: min(calc(100vw - 20px), 288px);
     max-height: min(38vh, 220px);
     border-radius: 18px;
     padding: 8px 10px 10px;
     overflow-y: auto;
     overscroll-behavior: contain;
+    transform: translateY(var(--story-selection-sheet-offset));
+    transition: top 0.18s ease, left 0.18s ease, transform 0.22s ease, box-shadow 0.22s ease;
 }
 
 .story-selection-controls.is-anchored .story-selection-sheet-handle {

@@ -59,6 +59,8 @@ export class StorySelectionPositioner {
             controls.style.top = '';
             controls.style.bottom = '';
             controls.style.right = '';
+            controls.dataset.storySelectionPlacement = '';
+            controls.dataset.storySelectionAnchor = '';
         }
         storyScreen?.classList.remove('story-selection-popup-anchored');
     }
@@ -85,7 +87,7 @@ export class StorySelectionPositioner {
         const viewportHeight = viewport?.height ?? window.innerHeight;
         const viewportPadding = 8;
 
-        const { x, y } = await computePosition(reference, controls, {
+        const { x, y, placement } = await computePosition(reference, controls, {
             strategy: 'fixed',
             placement: 'top',
             middleware: [
@@ -101,9 +103,19 @@ export class StorySelectionPositioner {
         const maxTop = viewportTop + viewportHeight - popupRect.height - viewportPadding;
         const clampedLeft = clamp(x, viewportLeft + viewportPadding, Math.max(viewportLeft + viewportPadding, maxLeft));
         const clampedTop = clamp(y, viewportTop + viewportPadding, Math.max(viewportTop + viewportPadding, maxTop));
+        const anchorRect = reference.getBoundingClientRect();
 
         controls.style.left = `${Math.round(clampedLeft)}px`;
         controls.style.top = `${Math.round(clampedTop)}px`;
+        controls.dataset.storySelectionPlacement = placement;
+        controls.dataset.storySelectionAnchor = JSON.stringify({
+            left: Math.round(anchorRect.left),
+            top: Math.round(anchorRect.top),
+            right: Math.round(anchorRect.right),
+            bottom: Math.round(anchorRect.bottom),
+            width: Math.round(anchorRect.width),
+            height: Math.round(anchorRect.height),
+        });
         storyScreen.classList.add('story-selection-popup-anchored');
         return true;
     }
