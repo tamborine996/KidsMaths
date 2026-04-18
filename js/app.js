@@ -29,6 +29,8 @@ class KidsMathsApp {
         this._storyAudioLoading = false;
         this._storyAudioStatusOverride = '';
         this._storyAudioSource = '';
+        this._storySelectionFeedback = '';
+        this._storySelectionFeedbackTimer = null;
         this._storyPinchState = null;
         this._storyPinchResizeHint = 'Pinch to resize story text.';
         this._storyWordDragState = null;
@@ -3810,13 +3812,26 @@ class KidsMathsApp {
         controls.style.setProperty('--story-selection-sheet-offset', `${safeOffset}px`);
     }
 
+    _setStorySelectionFeedback(feedback = '', durationMs = 0) {
+        this._storySelectionFeedback = feedback || '';
+        if (this._storySelectionFeedbackTimer) {
+            clearTimeout(this._storySelectionFeedbackTimer);
+            this._storySelectionFeedbackTimer = null;
+        }
+        if (durationMs > 0 && this._storySelectionFeedback) {
+            this._storySelectionFeedbackTimer = setTimeout(() => {
+                this._storySelectionFeedback = '';
+                this._storySelectionFeedbackTimer = null;
+                this._renderStorySelectionControls();
+            }, durationMs);
+        }
+    }
+
     _bindStorySelectionSheetDismiss() {
         const handle = document.getElementById('story-selection-sheet-handle');
         const controls = document.getElementById('story-selection-controls');
-        const dragMeta = controls?.querySelector('.story-selection-meta');
         if (!handle || !controls) return;
 
-        const dragTargets = [handle, dragMeta].filter(Boolean);
         const interactiveSelector = 'button, a, input, select, textarea, label, [role="button"]';
 
         const startDrag = (clientY) => {
@@ -3847,11 +3862,14 @@ class KidsMathsApp {
             }
         };
 
-        const shouldIgnoreTarget = (target, zone) => zone !== handle && Boolean(target?.closest?.(interactiveSelector));
+        const shouldIgnoreTarget = (target) => {
+            if (target === handle || target?.closest?.('#story-selection-sheet-handle')) return false;
+            return Boolean(target?.closest?.(interactiveSelector));
+        };
 
-        dragTargets.forEach((zone) => {
+        [controls].forEach((zone) => {
             zone.addEventListener('pointerdown', (e) => {
-                if (shouldIgnoreTarget(e.target, zone)) return;
+                if (shouldIgnoreTarget(e.target)) return;
                 e.preventDefault();
                 zone.setPointerCapture?.(e.pointerId);
                 startDrag(e.clientY);
@@ -3871,7 +3889,7 @@ class KidsMathsApp {
             zone.addEventListener('pointercancel', releaseDrag);
 
             zone.addEventListener('touchstart', (e) => {
-                if (!e.touches.length || shouldIgnoreTarget(e.target, zone)) return;
+                if (!e.touches.length || shouldIgnoreTarget(e.target)) return;
                 startDrag(e.touches[0].clientY);
             }, { passive: true });
 
@@ -4028,8 +4046,7 @@ class KidsMathsApp {
         const existing = this._getStorySavedWords();
         const key = `${selectedWord.word.toLowerCase()}::${this.currentStory.id}`;
         if (existing.some(item => item.key === key)) {
-            this._showStorySavedWords = true;
-            this._showStorySelectionExtras = true;
+            this._setStorySelectionFeedback('saved', 1200);
             this._renderStorySelectionControls();
             return;
         }
@@ -4043,8 +4060,7 @@ class KidsMathsApp {
             },
             ...existing
         ].slice(0, 80));
-        this._showStorySavedWords = true;
-        this._showStorySelectionExtras = true;
+        this._setStorySelectionFeedback('saved', 1200);
         this._renderStorySelectionControls();
     }
 
@@ -4090,6 +4106,7 @@ class KidsMathsApp {
         const canSpeak = Boolean(selectedWord && !this._storyAudioLoading && this._storyHasAnySpeechPath());
         const hasNonPinchStatus = Boolean(this._storyAudioStatusOverride && !this._storyAudioStatusOverride.includes(this._storyPinchResizeHint));
         const hasAudioControls = Boolean(this._storyAudioElement || this._storyAudioLoading);
+        const activeFeedback = this._storySelectionFeedback;
         const hasExtrasAvailable = Boolean(this.storyVoiceOptions.length > 1 || savedWords.length || hasAudioControls);
         const shouldShowSecondary = Boolean(this._showStorySelectionExtras || this._showStorySavedWords || hasAudioControls);
         const showSavedWordsPanel = Boolean(this._showStorySavedWords && savedWords.length);
@@ -4100,6 +4117,8 @@ class KidsMathsApp {
         storyScreen.classList.toggle('story-selection-sheet-open', trayVisible);
         if (!trayVisible) {
             controls.classList.remove('is-dragging');
+            controls.classList.remove('is-speaking');
+            controls.classList.remove('is-saved-feedback');
             secondaryWrap.classList.add('hidden');
             savedPanel.classList.add('hidden');
             savedPanel.innerHTML = '';
@@ -4120,10 +4139,14 @@ class KidsMathsApp {
         savedToggleBtn.setAttribute('aria-pressed', this._showStorySavedWords ? 'true' : 'false');
         voiceBadge.textContent = this._getStoryVoiceSourceLabel();
         voicePickerWrap.classList.toggle('hidden', !(shouldShowSecondary && this.storyVoiceOptions.length > 1));
+        controls.classList.toggle('is-speaking', this._storyAudioLoading || Boolean(this._storyAudioElement));
+        controls.classList.toggle('is-saved-feedback', activeFeedback === 'saved');
+        speakBtn.classList.toggle('is-subtle-busy', this._storyAudioLoading || Boolean(this._storyAudioElement));
+        saveBtn.classList.toggle('is-subtle-busy', activeFeedback === 'saved');
         this._syncStoryVoicePicker(voicePickerWrap, voiceSelect);
 
         if (this._storyAudioLoading) {
-            status.textContent = 'Generating narration for your selection…';
+            status.textContent = isSingleWordSelection && selectedWord ? `Selected word: “${selectedWord.word}”` : `Selected phrase: “${selectedWord?.text || ''}”`;
         } else if (this._storyAudioStatusOverride) {
             status.textContent = this._storyAudioStatusOverride;
         } else if (selectedWord && !isSingleWordSelection) {
@@ -4135,7 +4158,7 @@ class KidsMathsApp {
         }
 
         if (selectedWord && isSingleWordSelection) {
-            saveBtn.textContent = wordAlreadySaved ? 'Saved ✓' : 'Save';
+            saveBtn.textContent = 'Save';
         } else if (selectedWord) {
             saveBtn.textContent = 'Save word only';
         } else {
@@ -4292,10 +4315,11 @@ class KidsMathsApp {
         this._stopStoryAudio({ preserveStatus: true });
         this._storyAudioLoading = true;
         this._storyAudioStatusOverride = '';
+        this._setStorySelectionFeedback('speaking');
         this._storyAudioSource = '';
         this._storyAudioAbortController = new AbortController();
         if (this.storyElevenLabsApiKey) {
-            this._storyAudioStatusOverride = `Trying ElevenLabs directly in this browser with ${this._getActiveStoryVoiceLabel()}…`;
+            this._storyAudioStatusOverride = '';
         }
         this._renderStorySelectionControls();
 
@@ -4305,13 +4329,15 @@ class KidsMathsApp {
             this._storyAudioElement = new Audio(this._storyAudioObjectUrl);
             this._storyAudioElement.addEventListener('ended', () => {
                 this._stopStoryAudio({ preserveStatus: true });
-                this._storyAudioStatusOverride = `Finished with ${this._getActiveStoryVoiceLabel()}: “${selection.text}”`;
+                this._storyAudioStatusOverride = '';
+                this._setStorySelectionFeedback('', 0);
                 this._renderStorySelectionControls();
             }, { once: true });
             await this._storyAudioElement.play();
-            this._storyAudioStatusOverride = `Playing with ${this._getActiveStoryVoiceLabel()}: “${selection.text}”`;
+            this._storyAudioStatusOverride = '';
         } catch (error) {
             console.error('Story TTS failed:', error);
+            this._setStorySelectionFeedback('', 0);
             this._storyAudioStatusOverride = error?.message || 'ElevenLabs audio playback failed.';
         } finally {
             this._storyAudioLoading = false;

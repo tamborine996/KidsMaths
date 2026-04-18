@@ -3159,6 +3159,11 @@ td.mastery-mastered {
     transition: none;
 }
 
+.story-selection-controls.is-speaking .story-selection-sheet-handle,
+.story-selection-controls.is-saved-feedback .story-selection-sheet-handle {
+    background: rgba(118, 160, 215, 0.42);
+}
+
 .story-selection-sheet-handle {
     width: 54px;
     height: 6px;
@@ -3178,6 +3183,7 @@ td.mastery-mastered {
     color: var(--text-secondary);
     font-size: 0.98rem;
     line-height: 1.45;
+    min-height: 1.45em;
 }
 
 .story-selection-meta {
@@ -3279,10 +3285,38 @@ td.mastery-mastered {
 .story-selection-btn {
     min-height: 42px;
     flex: 1 1 120px;
+    position: relative;
 }
 
 .story-selection-primary-btn {
     flex: 1 1 160px;
+}
+
+.story-selection-btn.is-subtle-busy {
+    box-shadow: inset 0 0 0 1px rgba(118, 160, 215, 0.22), 0 0 0 2px rgba(118, 160, 215, 0.08);
+}
+
+.story-selection-btn.is-subtle-busy::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: rgba(118, 160, 215, 0.68);
+    animation: story-sheet-subtle-pulse 1.05s ease-in-out infinite;
+}
+
+@keyframes story-sheet-subtle-pulse {
+    0%, 100% {
+        transform: scale(0.82);
+        opacity: 0.4;
+    }
+    50% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 .story-selection-quiet-btn {
