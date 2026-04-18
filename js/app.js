@@ -4141,6 +4141,11 @@ class KidsMathsApp {
         speakBtn.disabled = !canSpeak;
         bookmarkBtn.disabled = !selectedWord || !this.currentStory;
         clearBtn.disabled = !selectedWord;
+        speakBtn.setAttribute('aria-label', selectionLabel ? `Speak ${selectionLabel}` : 'Speak selected word');
+        speakBtn.title = selectionLabel ? `Speak ${selectionLabel}` : 'Speak selected word';
+        bookmarkBtn.setAttribute('aria-label', selectionLabel ? `Bookmark ${selectionLabel}` : 'Bookmark this reading spot');
+        clearBtn.setAttribute('aria-label', selectionLabel ? `Clear ${selectionLabel}` : 'Clear selected word');
+        clearBtn.title = selectionLabel ? `Clear ${selectionLabel}` : 'Clear selected word';
         controls.classList.toggle('is-speaking', this._storyAudioLoading || Boolean(this._storyAudioElement));
         controls.classList.toggle('is-saved-feedback', activeFeedback === 'saved');
         controls.classList.toggle('is-bookmarked-feedback', activeFeedback === 'bookmarked');
@@ -4149,11 +4154,11 @@ class KidsMathsApp {
         bookmarkBtn.title = activeFeedback === 'bookmarked' ? 'Bookmarked ✓' : 'Bookmark this reading spot';
 
         if (selectionLabel) {
-            status.textContent = `“${selectionLabel}”`;
+            status.textContent = selectionLabel;
         } else if (this._storyAudioStatusOverride) {
             status.textContent = this._storyAudioStatusOverride;
         } else {
-            status.textContent = 'Tap a word to hear it, bookmark your place, or clear it.';
+            status.textContent = 'tap one';
         }
 
         this._updateStorySelectionPopupPosition(Boolean(trayVisible && selectedWord));
