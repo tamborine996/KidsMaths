@@ -3160,7 +3160,8 @@ td.mastery-mastered {
 }
 
 .story-selection-controls.is-speaking .story-selection-sheet-handle,
-.story-selection-controls.is-saved-feedback .story-selection-sheet-handle {
+.story-selection-controls.is-saved-feedback .story-selection-sheet-handle,
+.story-selection-controls.is-bookmarked-feedback .story-selection-sheet-handle {
     background: rgba(118, 160, 215, 0.42);
 }
 
