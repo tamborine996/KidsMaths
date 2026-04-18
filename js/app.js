@@ -32,6 +32,7 @@ class KidsMathsApp {
         this._storyPinchResizeHint = 'Pinch to resize story text.';
         this._storyWordDragState = null;
         this._suppressStoryWordClick = false;
+        this._storySelectionSheetDrag = null;
 
         // Managers
         this.coinManager = new CoinManager();
@@ -2408,6 +2409,7 @@ class KidsMathsApp {
         document.getElementById('story-selection-speak-btn').addEventListener('click', () => this._speakStorySelection());
         document.getElementById('story-selection-save-btn').addEventListener('click', () => this._saveSelectedStoryWord());
         document.getElementById('story-selection-clear-btn').addEventListener('click', () => this._clearStoryWordSelection());
+        document.getElementById('story-selection-backdrop').addEventListener('click', () => this._dismissStorySelectionSheet());
         document.getElementById('story-selection-saved-toggle-btn').addEventListener('click', () => {
             this._showStorySavedWords = !this._showStorySavedWords;
             this._renderStorySelectionControls();
@@ -2420,6 +2422,8 @@ class KidsMathsApp {
                 this._removeStorySavedWord(removeBtn.dataset.removeStoryWord);
             }
         });
+
+        this._bindStorySelectionSheetDismiss();
 
         // Story swipe navigation (storybook-style page turns)
         const storyContent = document.getElementById('story-content');
@@ -3798,6 +3802,88 @@ class KidsMathsApp {
         this._renderStorySelectionControls();
     }
 
+    _dismissStorySelectionSheet() {
+        this._showStorySavedWords = false;
+        this._storySelectionSheetDrag = null;
+        this._setStorySelectionSheetOffset(0);
+        this._stopStoryAudio({ preserveStatus: false });
+        this._clearStoryWordSelection();
+    }
+
+    _setStorySelectionSheetOffset(offset = 0) {
+        const controls = document.getElementById('story-selection-controls');
+        if (!controls) return;
+        const safeOffset = Math.max(0, Number(offset) || 0);
+        controls.style.setProperty('--story-selection-sheet-offset', `${safeOffset}px`);
+    }
+
+    _bindStorySelectionSheetDismiss() {
+        const handle = document.getElementById('story-selection-sheet-handle');
+        const controls = document.getElementById('story-selection-controls');
+        if (!handle || !controls) return;
+
+        const startDrag = (clientY) => {
+            this._storySelectionSheetDrag = {
+                startY: Number(clientY) || 0,
+                currentOffset: 0
+            };
+            controls.classList.add('is-dragging');
+            this._setStorySelectionSheetOffset(0);
+        };
+
+        const updateDrag = (clientY) => {
+            if (!this._storySelectionSheetDrag) return;
+            const nextOffset = Math.max(0, Number(clientY) - this._storySelectionSheetDrag.startY);
+            this._storySelectionSheetDrag.currentOffset = nextOffset;
+            this._setStorySelectionSheetOffset(nextOffset);
+        };
+
+        const endDrag = () => {
+            if (!this._storySelectionSheetDrag) return;
+            const dragDistance = this._storySelectionSheetDrag.currentOffset;
+            const shouldDismiss = dragDistance > 72 || dragDistance < 8;
+            controls.classList.remove('is-dragging');
+            this._storySelectionSheetDrag = null;
+            this._setStorySelectionSheetOffset(0);
+            if (shouldDismiss) {
+                this._dismissStorySelectionSheet();
+            }
+        };
+
+        handle.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            handle.setPointerCapture?.(e.pointerId);
+            startDrag(e.clientY);
+        });
+
+        handle.addEventListener('pointermove', (e) => {
+            if (!this._storySelectionSheetDrag) return;
+            updateDrag(e.clientY);
+        });
+
+        const releaseDrag = (e) => {
+            handle.releasePointerCapture?.(e.pointerId);
+            endDrag();
+        };
+
+        handle.addEventListener('pointerup', releaseDrag);
+        handle.addEventListener('pointercancel', releaseDrag);
+
+        handle.addEventListener('touchstart', (e) => {
+            if (!e.touches.length) return;
+            startDrag(e.touches[0].clientY);
+        }, { passive: true });
+
+        handle.addEventListener('touchmove', (e) => {
+            if (!this._storySelectionSheetDrag || !e.touches.length) return;
+            updateDrag(e.touches[0].clientY);
+        }, { passive: true });
+
+        handle.addEventListener('touchend', () => {
+            endDrag();
+        });
+    }
+
     _selectStoryWord(word, paragraphIndex = -1, occurrenceIndex = -1, tokenIndex = occurrenceIndex) {
         const cleanWord = this._normalizeStoryWordText(word);
         if (!cleanWord || !this.currentStory) {
@@ -3963,6 +4049,8 @@ class KidsMathsApp {
 
     _renderStorySelectionControls() {
         const controls = document.getElementById('story-selection-controls');
+        const backdrop = document.getElementById('story-selection-backdrop');
+        const storyScreen = document.getElementById('story-screen');
         const speakBtn = document.getElementById('story-selection-speak-btn');
         const saveBtn = document.getElementById('story-selection-save-btn');
         const clearBtn = document.getElementById('story-selection-clear-btn');
@@ -3973,13 +4061,16 @@ class KidsMathsApp {
         const voiceBadge = document.getElementById('story-voice-source-badge');
         const voicePickerWrap = document.getElementById('story-voice-picker-wrap');
         const voiceSelect = document.getElementById('story-voice-select');
-        if (!controls || !speakBtn || !saveBtn || !clearBtn || !stopBtn || !savedToggleBtn || !savedPanel || !status || !voiceBadge || !voicePickerWrap || !voiceSelect) return;
+        if (!controls || !backdrop || !storyScreen || !speakBtn || !saveBtn || !clearBtn || !stopBtn || !savedToggleBtn || !savedPanel || !status || !voiceBadge || !voicePickerWrap || !voiceSelect) return;
 
         const enabled = this._storySupportsCustomWordSelection();
         if (!enabled) {
             controls.classList.add('hidden');
+            backdrop.classList.add('hidden');
+            storyScreen.classList.remove('story-selection-sheet-open');
             savedPanel.classList.add('hidden');
             savedPanel.innerHTML = '';
+            this._setStorySelectionSheetOffset(0);
             return;
         }
 
@@ -3993,9 +4084,13 @@ class KidsMathsApp {
         const trayVisible = Boolean(selectedWord || showSavedWordsPanel || this._storyAudioLoading || this._storyAudioElement || hasNonPinchStatus);
 
         controls.classList.toggle('hidden', !trayVisible);
+        backdrop.classList.toggle('hidden', !trayVisible);
+        storyScreen.classList.toggle('story-selection-sheet-open', trayVisible);
         if (!trayVisible) {
+            controls.classList.remove('is-dragging');
             savedPanel.classList.add('hidden');
             savedPanel.innerHTML = '';
+            this._setStorySelectionSheetOffset(0);
             return;
         }
 
