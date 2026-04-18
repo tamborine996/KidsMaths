@@ -56,6 +56,9 @@ assert(app.includes('_beginStorySelectionHandleDrag('), 'Expected Kindle-style s
 assert(app.includes('_updateStorySelectionHandleDrag('), 'Expected Kindle-style selection handle drag update handler');
 assert(app.includes('_getStoryPreviewSelection('), 'Expected subtle pre-hold preview selection helper for first-press handles');
 assert(app.includes('_ensureStoryPreviewSelection('), 'Expected first-press preview selection bootstrap for subtle handles');
+assert(app.includes('_storySelectionActionsOpen'), 'Expected story reader to track popup/actions separately from selection');
+assert(app.includes('_openStorySelectionActions('), 'Expected explicit long-hold popup opener for selected story text');
+assert(app.includes('_selectStoryWord('), 'Expected single-press story word selection path to remain available');
 assert(app.includes('_updateStorySelectionHandles('), 'Expected selection handles to reposition with the active range');
 assert(app.includes("from './story-selection-positioning.js'"), 'Expected app.js to import dedicated story selection positioning helper');
 assert(app.includes('_updateStorySelectionPopupPosition('), 'Expected app.js to refresh anchored story popup positioning');

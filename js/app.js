@@ -39,6 +39,7 @@ class KidsMathsApp {
         this._storyWordDragState = null;
         this._storyWordHoldState = null;
         this._storyPreviewSelection = null;
+        this._storySelectionActionsOpen = false;
         this._storyWordHoldDelayMs = 425;
         this._storyWordHoldMoveThreshold = 18;
         this._storySwipeMinDistance = 50;
@@ -2547,6 +2548,11 @@ class KidsMathsApp {
             if (storyWordBtn && this._storySupportsCustomWordSelection()) {
                 if (this._suppressStoryWordClick) {
                     this._suppressStoryWordClick = false;
+                    return;
+                }
+                const selection = this._extractStoryWordSelectionData(storyWordBtn);
+                if (selection) {
+                    this._selectStoryWord(selection.word, selection.paragraphIndex, selection.occurrenceIndex, selection.tokenIndex);
                 }
                 return;
             }
@@ -3807,6 +3813,12 @@ class KidsMathsApp {
         if (!button || !pointerEvent) return;
         const anchor = this._extractStoryWordSelectionData(button);
         if (!anchor) return;
+        const selectedWord = this._getSelectedStoryWord();
+        const matchesCurrentSelection = selectedWord
+            && Number(selectedWord.paragraphIndex ?? -1) === Number(anchor.paragraphIndex)
+            && Number(selectedWord.startTokenIndex ?? -1) <= Number(anchor.tokenIndex)
+            && Number(selectedWord.endTokenIndex ?? -1) >= Number(anchor.tokenIndex);
+        if (!matchesCurrentSelection) return;
         this._cancelStoryWordHoldSelection();
         this._ensureStoryPreviewSelection(anchor);
         this._storyWordHoldState = {
@@ -3833,8 +3845,7 @@ class KidsMathsApp {
         this._storyWordHoldState.activated = true;
         this._clearStoryPreviewSelection();
         this._suppressStoryWordClick = true;
-        this._beginStoryWordDragSelection(this._storyWordHoldState.anchor, this._storyWordHoldState.pointerId);
-        this._selectStoryWordRange(this._storyWordHoldState.anchor, this._storyWordHoldState.anchor);
+        this._openStorySelectionActions(this._storyWordHoldState.anchor);
     }
 
     _updateStoryWordHoldSelection(pointerEvent) {
@@ -4060,6 +4071,7 @@ class KidsMathsApp {
         this._cancelStorySelectionHandleDrag();
         this._cancelStoryWordHoldSelection(null, { keepSuppressClick: false });
         this._clearStoryPreviewSelection();
+        this._storySelectionActionsOpen = false;
         this._selectedStoryWord = null;
         this._storyWordDragState = null;
         this._suppressStoryWordClick = false;
@@ -4074,6 +4086,7 @@ class KidsMathsApp {
     }
 
     _dismissStorySelectionSheet() {
+        this._storySelectionActionsOpen = false;
         this._showStorySavedWords = false;
         this._showStorySelectionExtras = false;
         this._storySelectionSheetDrag = null;
@@ -4230,6 +4243,7 @@ class KidsMathsApp {
             return;
         }
 
+        this._storySelectionActionsOpen = false;
         this._selectStoryWordRange(
             {
                 word: cleanWord,
@@ -4290,6 +4304,18 @@ class KidsMathsApp {
         this._renderCurrentStoryText();
         this._renderStorySelectionControls();
         this._updateStorySelectionHandles();
+    }
+
+    _openStorySelectionActions(selection = this._getSelectedStoryWord()) {
+        const targetSelection = selection?.tokenIndex !== undefined
+            ? selection
+            : this._getSelectedStoryWord();
+        if (!targetSelection) return;
+        if (!this._getSelectedStoryWord()) {
+            this._selectStoryWordRange(targetSelection, targetSelection);
+        }
+        this._storySelectionActionsOpen = true;
+        this._renderStorySelectionControls();
     }
 
     _renderInteractiveEnglishStoryText(text = '') {
@@ -4441,7 +4467,7 @@ class KidsMathsApp {
         const canSpeak = Boolean(selectedWord && !this._storyAudioLoading && this._storyHasAnySpeechPath());
         const hasNonPinchStatus = Boolean(this._storyAudioStatusOverride && !this._storyAudioStatusOverride.includes(this._storyPinchResizeHint));
         const activeFeedback = this._storySelectionFeedback;
-        const trayVisible = Boolean(selectedWord || hasNonPinchStatus);
+        const trayVisible = Boolean((this._storySelectionActionsOpen && selectedWord) || hasNonPinchStatus);
         const selectionLabel = selectedWord
             ? (isSingleWordSelection ? selectedWord.word : selectedWord.text)
             : '';
