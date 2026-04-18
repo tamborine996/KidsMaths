@@ -41,8 +41,10 @@ assert(stateManager.includes('storySavedWords: []'), 'Expected persisted storySa
 assert(app.includes('_renderInteractiveEnglishStoryText('), 'Expected English reader text to render into app-owned selectable word units');
 assert(app.includes('_selectStoryWord('), 'Expected custom English story word selection handler');
 assert(app.includes('_selectStoryWordRange('), 'Expected phrase-range selection handler for story reader');
-assert(app.includes('_beginStoryWordDragSelection('), 'Expected drag selection start handler for story reader');
-assert(app.includes('_updateStoryWordDragSelection('), 'Expected drag selection update handler for story reader');
+assert(app.includes('_beginStoryWordHoldSelection('), 'Expected long-hold selection start handler for story reader');
+assert(app.includes('_activateStoryWordHoldSelection('), 'Expected long-hold activation handler for story reader');
+assert(app.includes('_updateStoryWordHoldSelection('), 'Expected long-hold selection update handler for story reader');
+assert(app.includes('_cancelStoryWordHoldSelection('), 'Expected long-hold cancellation handler for story reader');
 assert(app.includes('_clearStoryWordSelection('), 'Expected custom English story word clearing handler');
 assert(app.includes('_saveSelectedStoryWord('), 'Expected save action for selected story words');
 assert(app.includes('_bookmarkCurrentStoryFromSelection('), 'Expected bookmark action sourced from the story word sheet');
@@ -55,7 +57,7 @@ assert(storySelectionPositioning.includes('floating-ui.dom.bundle.mjs'), 'Expect
 assert(storySelectionPositioning.includes('computePosition'), 'Expected Floating UI computePosition usage for story selection popup');
 assert(storySelectionPositioning.includes('getClientRects'), 'Expected story selection positioning helper to account for multi-rect selections');
 assert(storySelectionPositioning.includes('visualViewport'), 'Expected story selection positioning helper to respect the visual viewport');
-assert(app.includes("status.textContent = 'tap one';"), 'Expected calm top-chip fallback copy for the icon popup');
+assert(app.includes("status.textContent = 'hold one';"), 'Expected calm top-chip fallback copy for the long-hold icon popup');
 assert(!app.includes('Tap a word or drag across a phrase to hear it, save it, bookmark it, or clear it.'), 'Expected old save-heavy helper copy to be removed');
 assert(app.includes('Bookmarked ✓'), 'Expected subtle bookmarked-state feedback for reading position');
 assert(app.includes('story-word-button'), 'Expected custom button class for selectable English story words');

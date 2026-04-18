@@ -37,6 +37,9 @@ class KidsMathsApp {
         this._storyPinchState = null;
         this._storyPinchResizeHint = 'Pinch to resize story text.';
         this._storyWordDragState = null;
+        this._storyWordHoldState = null;
+        this._storyWordHoldDelayMs = 425;
+        this._storyWordHoldMoveThreshold = 18;
         this._suppressStoryWordClick = false;
         this._storySelectionSheetDrag = null;
 
@@ -2489,20 +2492,26 @@ class KidsMathsApp {
             if (!this.currentStory || !this._storySupportsCustomWordSelection()) return;
             const storyWordBtn = e.target.closest('.story-word-button');
             if (!storyWordBtn) return;
-            this._beginStoryWordDragSelection(storyWordBtn, e.pointerId);
+            this._beginStoryWordHoldSelection(storyWordBtn, e);
         });
 
         document.addEventListener('pointermove', (e) => {
-            if (!this._storyWordDragState || !this._storySupportsCustomWordSelection()) return;
+            if (!this._storySupportsCustomWordSelection()) return;
+            this._updateStoryWordHoldSelection(e);
+            if (!this._storyWordDragState) return;
             this._updateStoryWordDragSelection(e.clientX, e.clientY, e.pointerId);
         });
 
         document.addEventListener('pointerup', (e) => {
+            if (!this._storySupportsCustomWordSelection()) return;
+            this._endStoryWordHoldSelection(e);
             if (!this._storyWordDragState) return;
             this._endStoryWordDragSelection(e.pointerId);
         });
 
         document.addEventListener('pointercancel', (e) => {
+            if (!this._storySupportsCustomWordSelection()) return;
+            this._cancelStoryWordHoldSelection(e.pointerId);
             if (!this._storyWordDragState) return;
             this._endStoryWordDragSelection(e.pointerId, { cancelled: true });
         });
@@ -2514,14 +2523,7 @@ class KidsMathsApp {
             if (storyWordBtn && this._storySupportsCustomWordSelection()) {
                 if (this._suppressStoryWordClick) {
                     this._suppressStoryWordClick = false;
-                    return;
                 }
-                this._selectStoryWord(
-                    storyWordBtn.dataset.storyWordNormalized || storyWordBtn.dataset.storyWord,
-                    Number(storyWordBtn.dataset.paragraphIndex),
-                    Number(storyWordBtn.dataset.occurrenceIndex),
-                    Number(storyWordBtn.dataset.tokenIndex)
-                );
                 return;
             }
 
@@ -3714,8 +3716,78 @@ class KidsMathsApp {
         return { word, paragraphIndex, occurrenceIndex, tokenIndex };
     }
 
-    _beginStoryWordDragSelection(button, pointerId = null) {
+    _beginStoryWordHoldSelection(button, pointerEvent) {
+        if (!button || !pointerEvent) return;
         const anchor = this._extractStoryWordSelectionData(button);
+        if (!anchor) return;
+        this._cancelStoryWordHoldSelection();
+        this._storyWordHoldState = {
+            pointerId: pointerEvent.pointerId ?? null,
+            button,
+            anchor,
+            startX: Number(pointerEvent.clientX ?? 0),
+            startY: Number(pointerEvent.clientY ?? 0),
+            activated: false,
+            timer: window.setTimeout(() => {
+                this._activateStoryWordHoldSelection(pointerEvent.pointerId ?? null);
+            }, this._storyWordHoldDelayMs)
+        };
+        this._suppressStoryWordClick = false;
+    }
+
+    _activateStoryWordHoldSelection(pointerId = null) {
+        if (!this._storyWordHoldState) return;
+        if (this._storyWordHoldState.pointerId !== null && pointerId !== null && this._storyWordHoldState.pointerId !== pointerId) {
+            return;
+        }
+        window.clearTimeout(this._storyWordHoldState.timer);
+        this._storyWordHoldState.timer = null;
+        this._storyWordHoldState.activated = true;
+        this._suppressStoryWordClick = true;
+        this._beginStoryWordDragSelection(this._storyWordHoldState.anchor, this._storyWordHoldState.pointerId);
+        this._selectStoryWordRange(this._storyWordHoldState.anchor, this._storyWordHoldState.anchor);
+    }
+
+    _updateStoryWordHoldSelection(pointerEvent) {
+        if (!this._storyWordHoldState || !pointerEvent) return;
+        if (this._storyWordHoldState.pointerId !== null && pointerEvent.pointerId !== null && this._storyWordHoldState.pointerId !== pointerEvent.pointerId) {
+            return;
+        }
+        if (this._storyWordHoldState.activated) return;
+        const deltaX = Number(pointerEvent.clientX ?? 0) - this._storyWordHoldState.startX;
+        const deltaY = Number(pointerEvent.clientY ?? 0) - this._storyWordHoldState.startY;
+        const moveDistance = Math.hypot(deltaX, deltaY);
+        if (moveDistance < this._storyWordHoldMoveThreshold) return;
+        this._cancelStoryWordHoldSelection(pointerEvent.pointerId ?? null);
+    }
+
+    _endStoryWordHoldSelection(pointerEvent) {
+        if (!this._storyWordHoldState || !pointerEvent) return;
+        if (this._storyWordHoldState.pointerId !== null && pointerEvent.pointerId !== null && this._storyWordHoldState.pointerId !== pointerEvent.pointerId) {
+            return;
+        }
+        const wasActivated = this._storyWordHoldState.activated;
+        this._cancelStoryWordHoldSelection(pointerEvent.pointerId ?? null, { keepSuppressClick: wasActivated });
+    }
+
+    _cancelStoryWordHoldSelection(pointerId = null, { keepSuppressClick = false } = {}) {
+        if (!this._storyWordHoldState) return;
+        if (this._storyWordHoldState.pointerId !== null && pointerId !== null && this._storyWordHoldState.pointerId !== pointerId) {
+            return;
+        }
+        if (this._storyWordHoldState.timer) {
+            window.clearTimeout(this._storyWordHoldState.timer);
+        }
+        this._storyWordHoldState = null;
+        if (!keepSuppressClick) {
+            this._suppressStoryWordClick = false;
+        }
+    }
+
+    _beginStoryWordDragSelection(selection, pointerId = null) {
+        const anchor = selection?.tokenIndex !== undefined
+            ? selection
+            : this._extractStoryWordSelectionData(selection);
         if (!anchor) return;
         this._storyWordDragState = {
             pointerId,
@@ -3723,7 +3795,7 @@ class KidsMathsApp {
             lastTokenIndex: anchor.tokenIndex,
             hasDragged: false
         };
-        this._suppressStoryWordClick = false;
+        this._suppressStoryWordClick = true;
     }
 
     _updateStoryWordDragSelection(clientX, clientY, pointerId = null) {
@@ -3774,6 +3846,7 @@ class KidsMathsApp {
     }
 
     _clearStoryWordSelection({ preserveStatus = false } = {}) {
+        this._cancelStoryWordHoldSelection(null, { keepSuppressClick: false });
         this._selectedStoryWord = null;
         this._storyWordDragState = null;
         this._suppressStoryWordClick = false;
@@ -4158,7 +4231,7 @@ class KidsMathsApp {
         } else if (this._storyAudioStatusOverride) {
             status.textContent = this._storyAudioStatusOverride;
         } else {
-            status.textContent = 'tap one';
+            status.textContent = 'hold one';
         }
 
         this._updateStorySelectionPopupPosition(Boolean(trayVisible && selectedWord));
