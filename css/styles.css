@@ -1062,25 +1062,29 @@ body {
 }
 
 #story-screen .screen-header {
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 16px;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
 #story-screen .screen-header-copy {
-    padding-top: 2px;
+    padding-top: 0;
+    min-width: 0;
 }
 
 #story-screen .screen-header h2 {
-    font-size: clamp(1.58rem, 5vw, 2.16rem);
-    line-height: 1.28;
+    font-size: clamp(1.08rem, 3.3vw, 1.42rem);
+    line-height: 1.18;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #story-screen .back-btn,
 #story-screen .home-btn,
 #story-screen .bookmark-btn {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
 }
 
 #story-screen .bookmark-btn {
@@ -3059,43 +3063,65 @@ td.mastery-mastered {
    Reading - Story View
    ============================================ */
 .story-progress {
-    margin-bottom: var(--spacing-lg);
-    text-align: center;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: left;
     font-weight: 700;
     color: var(--text-secondary);
     width: 100%;
-    max-width: 560px;
-    align-self: center;
+    max-width: none;
+    align-self: stretch;
+}
+
+.story-reader-meta {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 10px;
+}
+
+.story-progress .progress-bar {
+    margin-top: 0;
+    flex: 1 1 auto;
 }
 
 .story-font-controls {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin: 0 auto 12px;
+    justify-content: flex-end;
+    gap: 6px;
+    margin: 0;
 }
 
 .story-font-btn {
-    min-width: 52px;
-    min-height: 42px;
-    padding: 8px 12px;
+    min-width: 40px;
+    min-height: 36px;
+    padding: 6px 10px;
 }
 
 .story-font-reset-btn {
-    min-width: 78px;
+    min-width: 64px;
+}
+
+.story-font-reset-btn:disabled {
+    display: none;
 }
 
 .story-font-label {
-    min-width: 118px;
-    padding: 8px 12px;
+    display: none;
+    min-width: 98px;
+    padding: 6px 10px;
     border-radius: 999px;
     background: rgba(255,255,255,0.8);
     border: 1px solid rgba(140, 106, 158, 0.18);
     color: var(--text-secondary);
     font-weight: 700;
     text-align: center;
+    font-size: 0.88rem;
 }
 
 .story-selection-backdrop {
@@ -3160,6 +3186,7 @@ td.mastery-mastered {
     align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
+    touch-action: pan-y;
 }
 
 .story-selection-meta-copy {
@@ -3952,13 +3979,54 @@ td.mastery-mastered {
         font-size: 0.82rem;
     }
 
+    #story-screen {
+        padding: 12px;
+        padding-top: calc(12px + 62px);
+    }
+
     #story-screen .screen-header {
-        gap: 10px;
-        margin-bottom: 12px;
+        gap: 8px;
+        margin-bottom: 8px;
     }
 
     #story-screen .screen-header h2 {
-        font-size: 1.52rem;
+        font-size: 1rem;
+    }
+
+    #story-screen .back-btn,
+    #story-screen .home-btn,
+    #story-screen .bookmark-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .screen-header-actions {
+        gap: 8px;
+    }
+
+    .story-reader-meta {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .story-font-controls {
+        gap: 4px;
+    }
+
+    .story-font-btn {
+        min-width: 34px;
+        min-height: 32px;
+        padding: 4px 8px;
+        font-size: 0.92rem;
+    }
+
+    .story-font-label {
+        display: none;
+    }
+
+    .story-font-reset-btn:disabled {
+        display: none;
     }
 
     .story-title-subtitle {
@@ -3973,7 +4041,7 @@ td.mastery-mastered {
     }
 
     .story-content {
-        padding: 12px;
+        padding: 10px;
     }
 
     .story-content.urdu-story-layout #story-text {
@@ -3983,7 +4051,8 @@ td.mastery-mastered {
     }
 
     #story-page-text {
-        font-size: 1.06rem;
+        font-size: 0.88rem;
+        line-height: 1.2;
     }
 
     .urdu-paragraph-row {
@@ -4065,8 +4134,17 @@ td.mastery-mastered {
         font-size: 1.05rem;
     }
 
+    #story-screen {
+        padding: 10px;
+        padding-top: calc(10px + 62px);
+    }
+
     #story-screen .screen-header h2 {
-        font-size: 1.42rem;
+        font-size: 0.94rem;
+    }
+
+    .story-reader-meta {
+        gap: 6px;
     }
 
     .story-title-subtitle {
@@ -4074,7 +4152,7 @@ td.mastery-mastered {
     }
 
     .story-content {
-        padding: 10px;
+        padding: 8px;
     }
 
     .story-content.urdu-story-layout #story-text {
@@ -4083,7 +4161,7 @@ td.mastery-mastered {
     }
 
     #story-page-text {
-        font-size: 1rem;
+        font-size: 0.82rem;
     }
 
     .urdu-paragraph-translate-btn {

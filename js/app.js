@@ -3813,7 +3813,11 @@ class KidsMathsApp {
     _bindStorySelectionSheetDismiss() {
         const handle = document.getElementById('story-selection-sheet-handle');
         const controls = document.getElementById('story-selection-controls');
+        const dragMeta = controls?.querySelector('.story-selection-meta');
         if (!handle || !controls) return;
+
+        const dragTargets = [handle, dragMeta].filter(Boolean);
+        const interactiveSelector = 'button, a, input, select, textarea, label, [role="button"]';
 
         const startDrag = (clientY) => {
             this._storySelectionSheetDrag = {
@@ -3834,7 +3838,7 @@ class KidsMathsApp {
         const endDrag = () => {
             if (!this._storySelectionSheetDrag) return;
             const dragDistance = this._storySelectionSheetDrag.currentOffset;
-            const shouldDismiss = dragDistance > 72 || dragDistance < 8;
+            const shouldDismiss = dragDistance > 44;
             controls.classList.remove('is-dragging');
             this._storySelectionSheetDrag = null;
             this._setStorySelectionSheetOffset(0);
@@ -3843,37 +3847,42 @@ class KidsMathsApp {
             }
         };
 
-        handle.addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            handle.setPointerCapture?.(e.pointerId);
-            startDrag(e.clientY);
-        });
+        const shouldIgnoreTarget = (target, zone) => zone !== handle && Boolean(target?.closest?.(interactiveSelector));
 
-        handle.addEventListener('pointermove', (e) => {
-            if (!this._storySelectionSheetDrag) return;
-            updateDrag(e.clientY);
-        });
+        dragTargets.forEach((zone) => {
+            zone.addEventListener('pointerdown', (e) => {
+                if (shouldIgnoreTarget(e.target, zone)) return;
+                e.preventDefault();
+                zone.setPointerCapture?.(e.pointerId);
+                startDrag(e.clientY);
+            });
 
-        const releaseDrag = (e) => {
-            handle.releasePointerCapture?.(e.pointerId);
-            endDrag();
-        };
+            zone.addEventListener('pointermove', (e) => {
+                if (!this._storySelectionSheetDrag) return;
+                updateDrag(e.clientY);
+            });
 
-        handle.addEventListener('pointerup', releaseDrag);
-        handle.addEventListener('pointercancel', releaseDrag);
+            const releaseDrag = (e) => {
+                zone.releasePointerCapture?.(e.pointerId);
+                endDrag();
+            };
 
-        handle.addEventListener('touchstart', (e) => {
-            if (!e.touches.length) return;
-            startDrag(e.touches[0].clientY);
-        }, { passive: true });
+            zone.addEventListener('pointerup', releaseDrag);
+            zone.addEventListener('pointercancel', releaseDrag);
 
-        handle.addEventListener('touchmove', (e) => {
-            if (!this._storySelectionSheetDrag || !e.touches.length) return;
-            updateDrag(e.touches[0].clientY);
-        }, { passive: true });
+            zone.addEventListener('touchstart', (e) => {
+                if (!e.touches.length || shouldIgnoreTarget(e.target, zone)) return;
+                startDrag(e.touches[0].clientY);
+            }, { passive: true });
 
-        handle.addEventListener('touchend', () => {
-            endDrag();
+            zone.addEventListener('touchmove', (e) => {
+                if (!this._storySelectionSheetDrag || !e.touches.length) return;
+                updateDrag(e.touches[0].clientY);
+            }, { passive: true });
+
+            zone.addEventListener('touchend', () => {
+                endDrag();
+            });
         });
     }
 
