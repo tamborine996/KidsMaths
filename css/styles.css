@@ -96,7 +96,7 @@
     --font-body: 'Inter', sans-serif;
     --story-font-size-base: 1.5rem;
     --story-font-size-urdu: clamp(2.4rem, 6.6vw, 2.95rem);
-    --story-font-size-article: clamp(2.5rem, 6.8vw, 3.05rem);
+    --story-font-size-article: clamp(2.2rem, 6vw, 2.75rem);
     --story-font-scale: 1;
 
     /* Warm accent for dark mode */
@@ -4663,7 +4663,7 @@ td.mastery-mastered {
     }
 
     .story-content.urdu-article-reader-layout #story-text {
-        font-size: calc(2.28rem * var(--story-font-scale));
+        font-size: calc(2rem * var(--story-font-scale));
         line-height: 1.88;
         gap: 18px;
         padding-bottom: clamp(80px, 14vh, 120px);
@@ -4777,7 +4777,7 @@ td.mastery-mastered {
     }
 
     .story-content.urdu-article-reader-layout #story-text {
-        font-size: calc(2.08rem * var(--story-font-scale));
+        font-size: calc(1.85rem * var(--story-font-scale));
         line-height: 1.84;
         gap: 16px;
         padding-bottom: clamp(74px, 13vh, 112px);
