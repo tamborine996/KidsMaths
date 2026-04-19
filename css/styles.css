@@ -92,8 +92,8 @@
     --spacing-xl: 32px;
 
     /* Typography */
-    --font-display: 'Comic Neue', cursive;
-    --font-body: 'Comic Neue', cursive;
+    --font-display: 'Fraunces', serif;
+    --font-body: 'Inter', sans-serif;
     --story-font-size-base: 1.5rem;
     --story-font-size-urdu: clamp(2.55rem, 7vw, 3.15rem);
     --story-font-size-article: clamp(2.95rem, 8vw, 3.6rem);
@@ -984,6 +984,20 @@ body {
     display: grid;
     grid-template-columns: 1fr;
     gap: 12px;
+}
+
+.settings-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.settings-toggle-row input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
 }
 
 .footer-btn {
@@ -2704,6 +2718,22 @@ td.mastery-mastered {
     min-width: 72px;
     min-height: 96px;
     font-size: 1.3rem;
+}
+
+.story-cover-alice {
+    background: linear-gradient(160deg, #6c8fd7 0%, #98baf0 100%);
+    border-color: rgba(76, 110, 170, 0.28);
+    color: #ffffff;
+}
+
+.story-cover-carol {
+    background: linear-gradient(160deg, #4f8f6c 0%, #8db59a 100%);
+    border-color: rgba(58, 104, 77, 0.28);
+    color: #ffffff;
+}
+
+.story-cover-default {
+    background: linear-gradient(180deg, #fffdf8 0%, #dff2fb 100%);
 }
 
 .our-stories-book-main {

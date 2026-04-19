@@ -181,15 +181,17 @@ class KidsMathsApp {
             const storyMatch = this._findStoryById(route.storyId);
             if (!storyMatch?.story) return false;
             const isUrdu = storyMatch.story.direction === 'rtl';
-            state.set('readingTab', isUrdu ? 'urdu' : 'library');
+            state.set('readingTab', isUrdu ? 'urdu' : 'ours');
             const pageIndex = route.page !== null ? Math.max(0, route.page - 1) : undefined;
             this._startStory(route.storyId, pageIndex);
             return true;
         }
 
         if (route.screen === 'reading') {
-            if (route.tab === 'urdu' || route.tab === 'library') {
-                state.set('readingTab', route.tab);
+            if (route.tab === 'urdu') {
+                state.set('readingTab', 'urdu');
+            } else if (route.tab === 'library' || route.tab === 'ours' || route.tab === 'english') {
+                state.set('readingTab', 'ours');
             }
             this._showScreen('reading');
             return true;
@@ -220,9 +222,9 @@ class KidsMathsApp {
 
         if (screenName === 'reading') {
             url.searchParams.set('screen', 'reading');
-            const tab = state.get('readingTab') || 'library';
-            if (tab !== 'library') {
-                url.searchParams.set('tab', tab);
+            const tab = state.get('readingTab') || 'ours';
+            if (tab === 'urdu') {
+                url.searchParams.set('tab', 'urdu');
             }
             return `${url.pathname}${url.search}`;
         }
@@ -290,7 +292,7 @@ class KidsMathsApp {
         addLevel(this.urduLevels, 'urdu');
     }
 
-    _getReadingSourceConfig(tab = state.get('readingTab') || 'library') {
+    _getReadingSourceConfig(tab = state.get('readingTab') || 'ours') {
         if (tab === 'urdu') {
             return {
                 levels: this.urduLevels,
@@ -315,7 +317,7 @@ class KidsMathsApp {
     }
 
     _getOurStoriesBookshelf() {
-        const keepIds = new Set(['r5-04', 'r5-05', 'r5-01', 'r5-02', 'r5-03', 'r4-02', 'r4-03']);
+        const keepIds = new Set(['r5-04', 'r5-05']);
         const allStories = this.storyLevels.flatMap(level =>
             level.stories.map(story => ({
                 ...story,
@@ -497,6 +499,14 @@ class KidsMathsApp {
                 alert('PIN must be exactly 4 digits.');
             }
         });
+
+        const homeMathsToggle = document.getElementById('home-maths-visible-toggle');
+        if (homeMathsToggle) {
+            homeMathsToggle.addEventListener('change', (e) => {
+                state.set('homeMathsVisible', !!e.target.checked);
+                this._renderHomeScreen();
+            });
+        }
     }
 
     _bindStoreEvents() {
@@ -1237,14 +1247,27 @@ class KidsMathsApp {
     _renderHomeNextUp() {
         const container = document.getElementById('home-next-up');
         const nextItem = this._getPrimaryNextUp();
+        const showMaths = !!state.get('homeMathsVisible');
 
         if (!nextItem) {
             container.innerHTML = `
-                <button class="next-up-card" data-kind="screen" data-screen="maths">
-                    <div class="next-up-label">Today’s next step</div>
-                    <div class="next-up-title">Start today’s maths mission</div>
-                    <div class="next-up-meta">A quick, confident first step into Number Adventure.</div>
-                    <div class="next-up-cta next-up-cta-primary">Start maths mission</div>
+                <button class="next-up-card" data-kind="screen" data-screen="reading">
+                    <div class="next-up-label">Last Read</div>
+                    <div class="next-up-title">Open your reading shelf</div>
+                    <div class="next-up-meta">Choose English or Urdu and go straight into your books.</div>
+                    <div class="next-up-cta next-up-cta-primary">Open reading</div>
+                </button>
+            `;
+            return;
+        }
+
+        if (!showMaths && nextItem.type !== 'story') {
+            container.innerHTML = `
+                <button class="next-up-card" data-kind="screen" data-screen="reading">
+                    <div class="next-up-label">Last Read</div>
+                    <div class="next-up-title">Open your reading shelf</div>
+                    <div class="next-up-meta">Choose English or Urdu and go straight into your books.</div>
+                    <div class="next-up-cta next-up-cta-primary">Open reading</div>
                 </button>
             `;
             return;
@@ -1262,7 +1285,7 @@ class KidsMathsApp {
                 ? `${nextItem.levelName || 'Mission ready'}${nextItem.progressLabel ? ' · ' + nextItem.progressLabel : ''}`
                 : `${nextItem.levelName || 'Ready to continue'}${nextItem.modeLabel ? ' · ' + nextItem.modeLabel : ''}`;
         const kicker = nextItem.type === 'story'
-            ? 'Story time'
+            ? 'Last Read'
             : nextItem.type === 'math-mission'
                 ? 'Maths mission'
                 : 'Maths practice';
@@ -1288,7 +1311,9 @@ class KidsMathsApp {
         const heading = section?.querySelector('.section-heading h3');
         const helper = section?.querySelector('.section-heading p');
         const primaryKey = this._getPrimaryNextUp()?.key;
+        const showMaths = !!state.get('homeMathsVisible');
         const items = this._getResumeItems()
+            .filter(item => showMaths || item.type === 'story')
             .filter(item => item.key !== primaryKey)
             .slice(0, 2);
 
@@ -1302,7 +1327,9 @@ class KidsMathsApp {
 
         section.classList.remove('hidden');
         if (heading) heading.textContent = 'Pick up again';
-        if (helper) helper.textContent = 'Favourite stories and missions stay close by.';
+        if (helper) helper.textContent = showMaths
+            ? 'Favourite stories and missions stay close by.'
+            : 'Your recent reading places stay close by.';
 
         container.innerHTML = items.map(item => {
             if (item.type === 'story') {
@@ -1351,6 +1378,7 @@ class KidsMathsApp {
         const mathsHub = document.getElementById('home-maths-hub');
         const readingHub = document.getElementById('home-reading-hub');
         const urduHub = document.getElementById('home-urdu-hub');
+        const showMaths = !!state.get('homeMathsVisible');
         const bookmarks = Object.values(state.get('bookmarks') || {});
         const readStories = state.get('readStories') || [];
         const totalTime = this.progressManager.getTotalPracticeTime();
@@ -1364,17 +1392,17 @@ class KidsMathsApp {
             ? `${totalTime} min practised · ${streak} day${streak !== 1 ? 's' : ''} streak`
             : 'Ready for your first quick mission';
         const readingCopy = bookmarks.length > 0 || readStories.length > 0
-            ? 'Cozy reads, bookmarks, and longer adventures.'
-            : 'Cosy stories with big type, gentle pacing, and easy returns.';
+            ? 'Public-domain books, last-place return, and longer-form reading.'
+            : 'Public-domain books with calm reading and easy returns.';
         const readingStats = bookmarks.length > 0 || readStories.length > 0
             ? `${bookmarks.length} bookmarked · ${readStories.length} finished`
-            : 'Pick your first cosy story';
+            : 'Open your English shelf';
         const urduCopy = urduBookmarks > 0
             ? 'A gentle place for Urdu stories, bookmarks, and practice.'
             : 'A calm Urdu corner for short stories and parent-guided practice.';
         const urduStats = urduBookmarks > 0
             ? `${urduBookmarks} bookmarked · ${this.urduLevels.length} level${this.urduLevels.length !== 1 ? 's' : ''}`
-            : 'Start with one gentle Urdu page';
+            : 'Open your Urdu shelf';
 
         mathsHub.innerHTML = `
             <div class="learning-area-top">
@@ -1386,16 +1414,17 @@ class KidsMathsApp {
             <div class="learning-area-stats">${this._escapeHtml(mathsStats)}</div>
             <div class="learning-area-foot">${recentMaths ? 'Continue maths' : 'Start maths'}</div>
         `;
+        mathsHub.classList.toggle('hidden', !showMaths);
 
         readingHub.innerHTML = `
             <div class="learning-area-top">
                 <span class="learning-area-icon">📚</span>
-                <span class="learning-area-badge">Reading</span>
+                <span class="learning-area-badge">English</span>
             </div>
-            <div class="learning-area-title">Stories</div>
+            <div class="learning-area-title">English</div>
             <div class="learning-area-copy">${this._escapeHtml(readingCopy)}</div>
             <div class="learning-area-stats">${this._escapeHtml(readingStats)}</div>
-            <div class="learning-area-foot">Open stories</div>
+            <div class="learning-area-foot">Open English</div>
         `;
 
         urduHub.innerHTML = `
@@ -1403,7 +1432,7 @@ class KidsMathsApp {
                 <span class="learning-area-icon">اُ</span>
                 <span class="learning-area-badge">Urdu</span>
             </div>
-            <div class="learning-area-title">Urdu reading</div>
+            <div class="learning-area-title">Urdu</div>
             <div class="learning-area-copy">${this._escapeHtml(urduCopy)}</div>
             <div class="learning-area-stats">${this._escapeHtml(urduStats)}</div>
             <div class="learning-area-foot">Open Urdu</div>
@@ -1451,6 +1480,10 @@ class KidsMathsApp {
     }
 
     _getPrimaryNextUp() {
+        const showMaths = !!state.get('homeMathsVisible');
+        if (!showMaths) {
+            return this._getRecentStoryItem() || this._getRecentUrduItem() || this._getResumeItems().find(item => item.type === 'story') || null;
+        }
         const activeMission = this._getCurrentMathMissionSession();
         if (activeMission) {
             return this._buildMathMissionResumeItem(activeMission.missionId, activeMission.updatedAt);
@@ -1644,6 +1677,9 @@ class KidsMathsApp {
         }
 
         if (kind === 'screen' && target.dataset.screen) {
+            if (target.dataset.screen === 'reading') {
+                state.set('readingTab', 'ours');
+            }
             this._showScreen(target.dataset.screen);
         }
     }
@@ -2306,6 +2342,10 @@ class KidsMathsApp {
         this._renderProgressTab();
         this._renderSessionsTab();
         this._updateCoinDisplay();
+        const homeMathsToggle = document.getElementById('home-maths-visible-toggle');
+        if (homeMathsToggle) {
+            homeMathsToggle.checked = !!state.get('homeMathsVisible');
+        }
     }
 
     _renderProgressTab() {
@@ -3174,7 +3214,7 @@ class KidsMathsApp {
 
     _renderReadingScreen() {
         // Set active tab
-        const tab = state.get('readingTab') || 'library';
+        const tab = state.get('readingTab') || 'ours';
         document.querySelectorAll('.reading-tab').forEach(t => {
             t.classList.toggle('active', t.dataset.readingTab === tab);
         });
@@ -3222,7 +3262,7 @@ class KidsMathsApp {
         }
     }
 
-    _syncReadingSearchUi(tab = state.get('readingTab') || 'library') {
+    _syncReadingSearchUi(tab = state.get('readingTab') || 'ours') {
         const searchSection = document.getElementById('reading-search-section');
         const searchToggle = document.getElementById('reading-search-toggle');
         const searchToggleLabel = document.getElementById('reading-search-toggle-label');
@@ -3253,7 +3293,7 @@ class KidsMathsApp {
     }
 
     _populateLevelSelector() {
-        const tab = state.get('readingTab') || 'library';
+        const tab = state.get('readingTab') || 'ours';
         const { levels, stateKey, attribution } = this._getReadingSourceConfig(tab);
 
         const select = document.getElementById('reading-level-select');
@@ -3494,7 +3534,7 @@ class KidsMathsApp {
     }
 
     _renderStoryList() {
-        const tab = state.get('readingTab') || 'library';
+        const tab = state.get('readingTab') || 'ours';
         const { stateKey, levels } = this._getReadingSourceConfig(tab);
         const levelId = state.get(stateKey);
         const level = levels.find(l => l.id === levelId);
@@ -3567,8 +3607,8 @@ class KidsMathsApp {
                 <div class="reading-library-header our-stories-collection-header">
                     <div>
                         <div class="reading-library-kicker">Your collection</div>
-                        <h3 class="reading-library-title">Books on this shelf</h3>
-                        <p class="reading-library-copy">Scroll through your books the way you would on Kindle.</p>
+                        <h3 class="reading-library-title">English books</h3>
+                        <p class="reading-library-copy">Only true public-domain books live here.</p>
                     </div>
                     <div class="our-stories-collection-count">${entries.length} books</div>
                 </div>
@@ -3582,7 +3622,7 @@ class KidsMathsApp {
     _getOurStoriesBookshelfEntries(activeStories = []) {
         const readStories = state.get('readStories') || [];
         const bookmarks = state.get('bookmarks') || {};
-        const rankMap = new Map(['r5-04', 'r5-05', 'r5-01', 'r5-02', 'r5-03', 'r4-02', 'r4-03'].map((id, index) => [id, index]));
+        const rankMap = new Map(['r5-04', 'r5-05'].map((id, index) => [id, index]));
         return activeStories
             .map((story, index) => ({
                 story,
@@ -3649,13 +3689,13 @@ class KidsMathsApp {
         const summary = entry.bookmark
             ? 'Come straight back to the saved place without hunting through the shelf.'
             : entry.isRead
-                ? 'Reopen this finished book from the top whenever you want to read it again.'
-                : 'This becomes the calm top-card entry until a newer reading session takes its place.';
+                ? 'Reopen this public-domain book from the top whenever you want to read it again.'
+                : 'A true public-domain book ready to start from page 1.';
 
         return `
             <section class="reading-shelf our-stories-last-read" data-story-id="${entry.story.id}" data-open-page="0" ${entry.bookmark ? `data-resume-page="${entry.bookmark.page}"` : ''}>
                 <div class="our-stories-last-read-card">
-                    <div class="our-stories-last-read-cover">${this._buildStoryCoverBadge(entry.story, entry.hasImage)}</div>
+                    <div class="our-stories-last-read-cover ${this._getStoryCoverClass(entry.story)}">${this._buildStoryCoverBadge(entry.story, entry.hasImage)}</div>
                     <div class="our-stories-last-read-copy">
                         <div class="reading-library-kicker">Last Read</div>
                         <div class="our-stories-last-read-title" dir="${entry.story.direction || 'ltr'}">${this._escapeHtml(entry.story.title)}</div>
@@ -3690,7 +3730,7 @@ class KidsMathsApp {
 
         return `
             <div class="our-stories-book-row" data-story-id="${entry.story.id}" data-open-page="0" ${entry.bookmark ? `data-resume-page="${entry.bookmark.page}"` : ''}>
-                <div class="our-stories-book-cover" aria-hidden="true">${this._buildStoryCoverBadge(entry.story, entry.hasImage)}</div>
+                <div class="our-stories-book-cover ${this._getStoryCoverClass(entry.story)}" aria-hidden="true">${this._buildStoryCoverBadge(entry.story, entry.hasImage)}</div>
                 <div class="our-stories-book-main">
                     <div class="our-stories-book-title" dir="${entry.story.direction || 'ltr'}">${this._escapeHtml(entry.story.title)}</div>
                     ${entry.story.author ? `<div class="our-stories-book-byline">${this._escapeHtml(entry.story.author)}</div>` : ''}
@@ -3800,6 +3840,17 @@ class KidsMathsApp {
         if (hasImage) return '🖼️';
         const label = String(story.titleEnglish || story.title || 'B').trim().charAt(0).toUpperCase();
         return this._escapeHtml(label || 'B');
+    }
+
+    _getStoryCoverClass(story) {
+        switch (story?.id) {
+            case 'r5-04':
+                return 'story-cover-alice';
+            case 'r5-05':
+                return 'story-cover-carol';
+            default:
+                return 'story-cover-default';
+        }
     }
 
     _startStory(storyId, resumePage) {

@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="assets/icon-192.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -41,7 +41,7 @@
             <header class="home-header">
                 <div class="home-kicker">Ready for today?</div>
                 <h1>KidMaths</h1>
-                <p class="subtitle">One calm next step into maths, stories, or Urdu.</p>
+                <p class="subtitle">Choose English or Urdu and go straight back to reading.</p>
             </header>
             <div id="home-next-up" class="home-next-up">
                 <!-- Next up card injected by JS -->
@@ -49,8 +49,8 @@
             <div id="home-dashboard" class="home-dashboard">
                 <section class="home-section home-section-areas">
                     <div class="section-heading">
-                        <h3>Choose your next adventure</h3>
-                        <p>Pick one calm place to begin: maths, stories, or Urdu.</p>
+                        <h3>Choose your reading language</h3>
+                        <p>Two reading areas live here: English and Urdu.</p>
                     </div>
                     <div class="learning-area-grid">
                         <button id="home-maths-hub" class="learning-area-card learning-area-maths">
@@ -304,8 +304,7 @@
                 <h2>Reading</h2>
             </header>
             <div class="reading-tabs">
-                <button class="reading-tab active" data-reading-tab="library">Story Library</button>
-                <button class="reading-tab" data-reading-tab="ours">Our Stories</button>
+                <button class="reading-tab active" data-reading-tab="ours">English</button>
                 <button class="reading-tab" data-reading-tab="urdu">Urdu</button>
             </div>
             <div class="reading-toolbar">
@@ -475,6 +474,13 @@
                         <div class="settings-section">
                             <h4>PIN Settings</h4>
                             <button class="secondary-btn" id="change-pin-btn">Change PIN</button>
+                        </div>
+                        <div class="settings-section">
+                            <h4>Home screen</h4>
+                            <label class="settings-toggle-row" for="home-maths-visible-toggle">
+                                <span>Show maths on home</span>
+                                <input type="checkbox" id="home-maths-visible-toggle">
+                            </label>
                         </div>
                         <div class="settings-section">
                             <h4>App Updates</h4>

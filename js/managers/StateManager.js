@@ -97,6 +97,7 @@ export class StateManager {
             lastMathMissionId: null,
             mathMissionProgress: { completed: [], sessions: {} },
             mathGardenCount: 0,
+            homeMathsVisible: false,
             // Home shortcuts / recent activity
             recentItems: [],
             // Parent PIN (default: 1234)
