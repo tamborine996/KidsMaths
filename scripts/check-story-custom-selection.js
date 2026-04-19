@@ -26,6 +26,7 @@ assert(html.includes('aria-label="Speak selected word"'), 'Expected speak icon b
 assert(html.includes('aria-label="Bookmark selected word"'), 'Expected bookmark icon button to keep an explicit word-bookmark aria-label');
 assert(html.includes('id="story-selection-bookmark-meta"'), 'Expected visible word-bookmark clarification text in the story word sheet');
 assert(html.includes('story-selection-btn-label'), 'Expected visible action labels under story selection icons');
+assert(html.includes('>Bookmark<'), 'Expected the selection popup to expose an explicit visible bookmark action label');
 assert(html.includes('aria-label="Clear selected word"'), 'Expected clear icon button to keep an explicit aria-label');
 assert(html.includes('story-selection-btn-icon'), 'Expected icon-only popup buttons');
 assert(html.includes('aria-label="Selected word"'), 'Expected the top chip to expose clear selected-word meaning');
