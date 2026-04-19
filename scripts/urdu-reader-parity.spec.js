@@ -57,6 +57,37 @@ test('Urdu article title can be fully read in-story without forced header ellips
   expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1);
 });
 
+test('Urdu reader stops selection growth once the drag leaves the reading surface above the first line', async ({ page }) => {
+  await openUrduArticle(page);
+
+  const anchorWord = page.locator('.story-word-button[data-paragraph-index="0"][data-token-index="4"]').first();
+  await anchorWord.scrollIntoViewIfNeeded();
+  await anchorWord.click();
+
+  const startHandle = page.locator('#story-selection-start-handle');
+  await expect(startHandle).toBeVisible();
+
+  const beforeTokens = await page.locator('#story-text .story-word-button.is-selected').evaluateAll((nodes) =>
+    nodes.map((node) => Number(node.dataset.tokenIndex))
+  );
+  expect(beforeTokens).toEqual([4]);
+
+  const startBox = await startHandle.boundingBox();
+  const storyTextBox = await page.locator('#story-text').boundingBox();
+  expect(startBox).toBeTruthy();
+  expect(storyTextBox).toBeTruthy();
+
+  await page.mouse.move(startBox.x + startBox.width / 2, startBox.y + 8);
+  await page.mouse.down();
+  await page.mouse.move(storyTextBox.x + 30, storyTextBox.y - 56, { steps: 12 });
+  await page.mouse.up();
+
+  const afterTokens = await page.locator('#story-text .story-word-button.is-selected').evaluateAll((nodes) =>
+    nodes.map((node) => Number(node.dataset.tokenIndex))
+  );
+  expect(afterTokens).toEqual([4]);
+});
+
 test('Paragraph EN translation stays visible after maximum pinch-style zoom', async ({ page }) => {
   await openUrduArticle(page, { storyFontScale: 1.65 });
 

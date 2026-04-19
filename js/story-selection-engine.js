@@ -108,6 +108,22 @@ export class StorySelectionEngine {
 
         const storyText = this._storyText();
         if (!storyText) return null;
+
+        const storyBounds = storyText.getBoundingClientRect?.();
+        if (storyBounds && Number.isFinite(storyBounds.top) && Number.isFinite(storyBounds.bottom)
+            && Number.isFinite(storyBounds.left) && Number.isFinite(storyBounds.right)) {
+            const horizontalSlack = 44;
+            const topSlack = 12;
+            const bottomSlack = 64;
+            const withinStorySurface = clientX >= storyBounds.left - horizontalSlack
+                && clientX <= storyBounds.right + horizontalSlack
+                && clientY >= storyBounds.top - topSlack
+                && clientY <= storyBounds.bottom + bottomSlack;
+            if (!withinStorySurface) {
+                return null;
+            }
+        }
+
         const buttons = Array.from(storyText.querySelectorAll('.story-word-button'));
         if (!buttons.length) return null;
 

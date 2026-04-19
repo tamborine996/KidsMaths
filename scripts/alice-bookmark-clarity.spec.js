@@ -45,7 +45,7 @@ test('Alice selected word can be bookmarked and stays softly pink after clearing
   const selectedUnit = page.locator('.story-selection-unit.is-bookmarked-word').filter({ has: page.locator('.story-word-button[data-token-index="102"]') });
   await expect(selectedUnit).toHaveCount(1);
 
-  await page.locator('#story-selection-clear-btn').click();
+  await page.locator('#story-selection-backdrop').click({ force: true });
   await expect(controls).toBeHidden();
   await expect(selectedUnit).toHaveCount(1);
 

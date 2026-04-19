@@ -55,7 +55,7 @@ test('Urdu shelf is article-focused and reader uses popup + inline paragraph tra
   await expect(page.locator('#story-selection-bookmark-meta')).not.toHaveText(/^\s*$/);
   await page.screenshot({ path: path.join(outputDir, '02-urdu-word-popup.png'), fullPage: false });
 
-  await page.locator('#story-selection-clear-btn').click();
+  await page.locator('#story-selection-backdrop').click({ force: true });
   await expect(popup).toBeHidden();
 
   const paragraphTranslate = page.locator('[data-paragraph-translate="1"]').first();

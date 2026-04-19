@@ -2526,21 +2526,17 @@ class KidsMathsApp {
         if (storyHeaderBookmarkBtn) storyHeaderBookmarkBtn.addEventListener('click', () => this._handleStoryHeaderBookmark());
         const storySpeakBtn = document.getElementById('story-selection-speak-btn');
         if (storySpeakBtn) storySpeakBtn.addEventListener('click', () => this._speakStorySelection());
-        const storyBookmarkBtn = document.getElementById('story-selection-bookmark-btn');
-        if (storyBookmarkBtn) storyBookmarkBtn.addEventListener('click', () => {
+        const storySaveBtn = document.getElementById('story-selection-save-btn');
+        if (storySaveBtn) storySaveBtn.addEventListener('click', () => {
             if (this._storySupportsUrduTools()) {
                 this._saveSelectedUrduWord();
                 return;
             }
             this._saveSelectedStoryWord();
         });
-        const storyClearBtn = document.getElementById('story-selection-clear-btn');
-        if (storyClearBtn) storyClearBtn.addEventListener('click', () => {
-            if (this._storySupportsUrduTools()) {
-                this._clearSelectedUrduWord();
-                return;
-            }
-            this._clearStoryWordSelection();
+        const storyBookmarkBtn = document.getElementById('story-selection-bookmark-btn');
+        if (storyBookmarkBtn) storyBookmarkBtn.addEventListener('click', () => {
+            this._bookmarkCurrentStoryFromSelection();
         });
         const storySelectionBackdrop = document.getElementById('story-selection-backdrop');
         if (storySelectionBackdrop) storySelectionBackdrop.addEventListener('click', () => this._dismissStorySelectionSheet());
@@ -4225,9 +4221,9 @@ class KidsMathsApp {
         const positionHandle = (handle, button, boundary = 'start') => {
             const rect = button.getBoundingClientRect();
             handle.style.left = boundary === 'start'
-                ? `${Math.round(rect.left - 13)}px`
-                : `${Math.round(rect.right - 13)}px`;
-            handle.style.top = `${Math.round(rect.bottom + 1)}px`;
+                ? `${Math.round(rect.left - 28)}px`
+                : `${Math.round(rect.right)}px`;
+            handle.style.top = `${Math.round(rect.bottom - 1)}px`;
         };
 
         positionHandle(startHandle, startButton, 'start');
@@ -4746,8 +4742,72 @@ class KidsMathsApp {
         this._renderStorySelectionControls();
     }
 
-    _bookmarkCurrentStoryFromSelection() {
-        this._saveSelectedStoryWord();
+    _bookmarkCurrentStoryFromSelection(selection = this._getActiveReaderSelection()) {
+        if (!this.currentStory) return;
+        this._saveBookmark(selection);
+        this._setStorySelectionFeedback('bookmarked', 1200);
+        this._renderStorySelectionControls();
+    }
+
+    _buildStoryBookmarkAnchor(selection = this._getActiveReaderSelection()) {
+        if (!selection || !this.currentStory) return null;
+        const startTokenIndex = Number(selection.startTokenIndex ?? selection.tokenIndex ?? -1);
+        const endTokenIndex = Number(selection.endTokenIndex ?? selection.tokenIndex ?? -1);
+        const paragraphIndex = Number(selection.paragraphIndex ?? -1);
+        if (!Number.isFinite(startTokenIndex) || !Number.isFinite(endTokenIndex) || !Number.isFinite(paragraphIndex)) {
+            return null;
+        }
+        return {
+            storyId: this.currentStory.id,
+            page: Number(this.currentStoryPage),
+            paragraphIndex,
+            startTokenIndex,
+            endTokenIndex,
+            startOccurrenceIndex: Number(selection.startOccurrenceIndex ?? selection.occurrenceIndex ?? -1),
+            endOccurrenceIndex: Number(selection.endOccurrenceIndex ?? selection.occurrenceIndex ?? -1),
+            text: String(selection.text || selection.word || '').trim(),
+            word: String(selection.word || selection.text || '').trim()
+        };
+    }
+
+    _selectionFromBookmarkAnchor(anchor) {
+        if (!anchor || !this.currentStory) return null;
+        const paragraphIndex = Number(anchor.paragraphIndex);
+        const startTokenIndex = Number(anchor.startTokenIndex);
+        const endTokenIndex = Number(anchor.endTokenIndex);
+        if (!Number.isFinite(paragraphIndex) || !Number.isFinite(startTokenIndex) || !Number.isFinite(endTokenIndex)) {
+            return null;
+        }
+
+        const startSelection = {
+            word: this._normalizeStoryWordText(anchor.word || anchor.text || ''),
+            paragraphIndex,
+            occurrenceIndex: Number(anchor.startOccurrenceIndex ?? anchor.occurrenceIndex ?? 0),
+            tokenIndex: startTokenIndex
+        };
+        const endSelection = {
+            word: this._normalizeStoryWordText(anchor.word || anchor.text || ''),
+            paragraphIndex,
+            occurrenceIndex: Number(anchor.endOccurrenceIndex ?? anchor.occurrenceIndex ?? anchor.startOccurrenceIndex ?? 0),
+            tokenIndex: endTokenIndex
+        };
+        return this._storySelectionEngine.createRangeSelection(startSelection, endSelection, {
+            storyId: this.currentStory.id,
+            page: Number(anchor.page ?? this.currentStoryPage)
+        });
+    }
+
+    _restoreStoryBookmarkAnchor(bookmark) {
+        const anchor = bookmark?.anchor;
+        if (!anchor || String(anchor.storyId || this.currentStory?.id) !== String(this.currentStory?.id)) return;
+        const selection = this._selectionFromBookmarkAnchor(anchor);
+        if (!selection) return;
+        this._storySelectionActionsOpen = false;
+        const startSelection = this._storySelectionEngine.getBoundarySelection('start', selection);
+        const endSelection = this._storySelectionEngine.getBoundarySelection('end', selection);
+        this._selectStoryWordRange(startSelection, endSelection);
+        const boundaryButton = this._storySelectionEngine.getBoundaryButton('start', this._getSelectedStoryWord());
+        boundaryButton?.scrollIntoView?.({ block: 'center', inline: 'nearest' });
     }
 
     _handleStoryHeaderBookmark() {
@@ -4779,6 +4839,7 @@ class KidsMathsApp {
         if (!bookmark) return;
         this.currentStoryPage = Math.max(0, Math.min(Number(bookmark.page) || 0, (this.currentStory.pages?.length || 1) - 1));
         this._renderStoryPage();
+        this._restoreStoryBookmarkAnchor(bookmark);
     }
 
     _removeStorySavedWord(key) {
@@ -4791,11 +4852,11 @@ class KidsMathsApp {
         const backdrop = document.getElementById('story-selection-backdrop');
         const storyScreen = document.getElementById('story-screen');
         const speakBtn = document.getElementById('story-selection-speak-btn');
+        const saveBtn = document.getElementById('story-selection-save-btn');
         const bookmarkBtn = document.getElementById('story-selection-bookmark-btn');
-        const clearBtn = document.getElementById('story-selection-clear-btn');
         const status = document.getElementById('story-selection-status');
         const bookmarkMeta = document.getElementById('story-selection-bookmark-meta');
-        if (!controls || !backdrop || !storyScreen || !speakBtn || !bookmarkBtn || !clearBtn || !status || !bookmarkMeta) return;
+        if (!controls || !backdrop || !storyScreen || !speakBtn || !saveBtn || !bookmarkBtn || !status || !bookmarkMeta) return;
 
         const enabled = this._storyUsesSelectionPopup();
         if (!enabled) {
@@ -4813,7 +4874,7 @@ class KidsMathsApp {
         const canSpeak = Boolean(selectedWord && !this._storyAudioLoading && this._storyHasAnySpeechPath());
         const hasNonPinchStatus = Boolean(this._storyAudioStatusOverride && !this._storyAudioStatusOverride.includes(this._storyPinchResizeHint));
         const activeFeedback = this._storySelectionFeedback;
-        const wordAlreadyBookmarked = this._storySupportsUrduTools()
+        const wordAlreadySaved = this._storySupportsUrduTools()
             ? this._isSelectedUrduWordSaved()
             : this._isSelectedStoryWordSaved();
         const trayVisible = Boolean((this._storySelectionActionsOpen && selectedWord) || hasNonPinchStatus);
@@ -4822,13 +4883,10 @@ class KidsMathsApp {
             : '';
         const isUrduSelection = Boolean(selectedWord?.isUrduSelection);
         const meaningText = isUrduSelection ? this._getReaderSelectionMeaning(selectedWord) : '';
-        const wordActionVerb = isUrduSelection ? 'Save' : 'Bookmark';
-        const wordActionPast = isUrduSelection ? 'Saved' : 'Bookmarked';
-        const bookmarkMetaLabel = isUrduSelection
-            ? [String(meaningText || '').trim(), activeFeedback === 'saved' || wordAlreadyBookmarked ? `${wordActionPast} word` : `${wordActionVerb} word`].filter(Boolean).join(' • ')
-            : (activeFeedback === 'saved' || wordAlreadyBookmarked
-                ? `${wordActionPast} word`
-                : `${wordActionVerb} word`);
+        const saveMetaLabel = [
+            String(meaningText || '').trim(),
+            activeFeedback === 'saved' || wordAlreadySaved ? 'Saved word' : 'Save word'
+        ].filter(Boolean).join(' • ');
 
         controls.classList.toggle('hidden', !trayVisible);
         backdrop.classList.toggle('hidden', !trayVisible);
@@ -4845,22 +4903,21 @@ class KidsMathsApp {
         }
 
         speakBtn.disabled = !canSpeak;
-        bookmarkBtn.disabled = !selectedWord || !this.currentStory || !isSingleWordSelection;
-        clearBtn.disabled = !selectedWord;
+        saveBtn.disabled = !selectedWord || !this.currentStory || !isSingleWordSelection;
+        bookmarkBtn.disabled = !selectedWord || !this.currentStory;
         speakBtn.setAttribute('aria-label', selectionLabel ? `Speak ${selectionLabel}` : 'Speak selected word');
         speakBtn.title = selectionLabel ? `Speak ${selectionLabel}` : 'Speak selected word';
-        bookmarkBtn.setAttribute('aria-label', selectionLabel ? ((wordAlreadyBookmarked || activeFeedback === 'saved') ? `${wordActionPast} word ${selectionLabel}` : `${wordActionVerb} word ${selectionLabel}`) : `${wordActionVerb} selected word`);
-        clearBtn.setAttribute('aria-label', selectionLabel ? `Clear ${selectionLabel}` : 'Clear selected word');
-        clearBtn.title = selectionLabel ? `Clear ${selectionLabel}` : 'Clear selected word';
+        saveBtn.setAttribute('aria-label', selectionLabel ? ((wordAlreadySaved || activeFeedback === 'saved') ? `Saved word ${selectionLabel}` : `Save word ${selectionLabel}`) : 'Save selected word');
+        saveBtn.title = selectionLabel ? ((wordAlreadySaved || activeFeedback === 'saved') ? `Saved word ${selectionLabel}` : `Save word ${selectionLabel}`) : 'Save selected word';
+        bookmarkBtn.setAttribute('aria-label', selectionLabel ? `Bookmark this place for ${selectionLabel}` : 'Bookmark this place in the story');
+        bookmarkBtn.title = selectionLabel ? `Bookmark this place for ${selectionLabel}` : 'Bookmark this place in the story';
         controls.classList.toggle('is-speaking', this._storyAudioLoading || Boolean(this._storyAudioElement));
         controls.classList.toggle('is-saved-feedback', activeFeedback === 'saved');
         controls.classList.toggle('is-bookmarked-feedback', activeFeedback === 'bookmarked');
         speakBtn.classList.toggle('is-subtle-busy', this._storyAudioLoading || Boolean(this._storyAudioElement));
-        bookmarkBtn.classList.toggle('is-subtle-busy', activeFeedback === 'saved' || wordAlreadyBookmarked);
-        bookmarkBtn.title = selectionLabel
-            ? ((wordAlreadyBookmarked || activeFeedback === 'saved') ? `${wordActionPast} word ${selectionLabel}` : `${wordActionVerb} word ${selectionLabel}`)
-            : `${wordActionVerb} selected word`;
-        bookmarkMeta.textContent = bookmarkMetaLabel;
+        saveBtn.classList.toggle('is-subtle-busy', activeFeedback === 'saved' || wordAlreadySaved);
+        bookmarkBtn.classList.toggle('is-subtle-busy', activeFeedback === 'bookmarked');
+        bookmarkMeta.textContent = activeFeedback === 'bookmarked' ? 'Bookmarked place' : saveMetaLabel;
 
         if (selectionLabel) {
             status.textContent = selectionLabel;
@@ -5751,14 +5808,16 @@ class KidsMathsApp {
 
     // ===== BOOKMARKS =====
 
-    _saveBookmark() {
+    _saveBookmark(selection = this._getActiveReaderSelection()) {
         if (!this.currentStory) return;
         const bookmarks = state.get('bookmarks') || {};
+        const anchor = this._buildStoryBookmarkAnchor(selection);
         bookmarks[this.currentStory.id] = {
             page: this.currentStoryPage,
             title: this.currentStory.title,
             total: this.currentStory.pages.length,
-            date: new Date().toISOString()
+            date: new Date().toISOString(),
+            anchor
         };
         state.set('bookmarks', bookmarks);
         this._updateBookmarkButton();
@@ -5780,6 +5839,7 @@ class KidsMathsApp {
         const bookmark = bookmarks[this.currentStory.id];
         const hasBookmark = bookmark !== undefined;
         const isOnBookmarkPage = hasBookmark && Number(bookmark.page) === Number(this.currentStoryPage);
+        const hasAnchor = Boolean(bookmark?.anchor);
 
         btn.classList.toggle('active', hasBookmark);
         btn.textContent = hasBookmark ? '🔖' : '📑';
@@ -5788,23 +5848,23 @@ class KidsMathsApp {
             bookmarkState.textContent = '';
         }
         if (!hasBookmark) {
-            btn.title = 'Bookmark this page';
-            btn.setAttribute('aria-label', 'Bookmark this page');
+            btn.title = 'Bookmark this place in the story';
+            btn.setAttribute('aria-label', 'Bookmark this place in the story');
             return;
         }
         if (isOnBookmarkPage) {
-            btn.title = `Bookmark saved on page ${bookmark.page + 1}`;
-            btn.setAttribute('aria-label', `Bookmark saved on page ${bookmark.page + 1}`);
+            btn.title = hasAnchor ? `Bookmark saved at page ${bookmark.page + 1}, anchored to the selected place` : `Bookmark saved on page ${bookmark.page + 1}`;
+            btn.setAttribute('aria-label', hasAnchor ? `Bookmark saved at page ${bookmark.page + 1}, anchored to the selected place` : `Bookmark saved on page ${bookmark.page + 1}`);
             if (bookmarkState) {
-                bookmarkState.textContent = `Page bookmarked: page ${bookmark.page + 1}`;
+                bookmarkState.textContent = hasAnchor ? `Place bookmarked on page ${bookmark.page + 1}` : `Page bookmarked: page ${bookmark.page + 1}`;
                 bookmarkState.classList.remove('hidden');
             }
             return;
         }
-        btn.title = `Go to bookmark on page ${bookmark.page + 1}`;
-        btn.setAttribute('aria-label', `Go to bookmark on page ${bookmark.page + 1}`);
+        btn.title = hasAnchor ? `Go to bookmark on page ${bookmark.page + 1} and restore the saved place` : `Go to bookmark on page ${bookmark.page + 1}`;
+        btn.setAttribute('aria-label', hasAnchor ? `Go to bookmark on page ${bookmark.page + 1} and restore the saved place` : `Go to bookmark on page ${bookmark.page + 1}`);
         if (bookmarkState) {
-            bookmarkState.textContent = `Saved page ${bookmark.page + 1}`;
+            bookmarkState.textContent = hasAnchor ? `Saved place on page ${bookmark.page + 1}` : `Saved page ${bookmark.page + 1}`;
             bookmarkState.classList.remove('hidden');
         }
     }

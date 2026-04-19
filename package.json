@@ -4,7 +4,7 @@
   "description": "",
   "main": "sw.js",
   "scripts": {
-    "test": "node scripts/check-story-font-controls.js && node scripts/check-urdu-reading-layout.js && node scripts/check-urdu-reader-parity.js && node scripts/check-english-tts.js && node scripts/check-story-custom-selection.js && node scripts/check-story-selection-engine.js && node scripts/check-story-selection-positioning.js && node scripts/check-story-gesture-safety.js && node scripts/check-story-reader-ui.js",
+    "test": "node scripts/check-story-font-controls.js && node scripts/check-urdu-reading-layout.js && node scripts/check-urdu-reader-parity.js && node scripts/check-english-tts.js && node scripts/check-story-custom-selection.js && node scripts/check-story-handle-shape.js && node scripts/check-story-selection-engine.js && node scripts/check-story-selection-positioning.js && node scripts/check-story-gesture-safety.js && node scripts/check-story-reader-ui.js",
     "check:english-tts": "node scripts/check-english-tts.js"
   },
   "repository": {

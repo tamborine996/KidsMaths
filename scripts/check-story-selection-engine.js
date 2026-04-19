@@ -52,6 +52,9 @@ function makeButton({ text, normalized = text, paragraphIndex = 0, occurrenceInd
       }
       return buttons;
     },
+    getBoundingClientRect() {
+      return { left: 80, right: 520, top: 0, bottom: 380, width: 440, height: 380 };
+    },
   };
 
   global.document = {
@@ -71,6 +74,9 @@ function makeButton({ text, normalized = text, paragraphIndex = 0, occurrenceInd
 
   const paragraphScopedSelection = engine.getSelectionNearPoint(450, 120, 0);
   assert.strictEqual(paragraphScopedSelection.tokenIndex, 58, 'Expected paragraph preference to stop handle drag from snapping into another paragraph');
+
+  const titleAreaSelection = engine.getSelectionNearPoint(150, -60, 0);
+  assert.strictEqual(titleAreaSelection, null, 'Expected handle drag to stop once the pointer moves above the story text surface into the title/header area');
 
   global.document = {
     elementsFromPoint() {
