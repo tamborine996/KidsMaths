@@ -455,8 +455,8 @@ body {
     min-width: 0;
 }
 
-.next-up-icon {
-    font-size: 2.2rem;
+.next-up-icon,
+.next-up-cover {
     line-height: 1;
     width: 58px;
     height: 58px;
@@ -466,6 +466,17 @@ body {
     background: rgba(255,255,255,0.72);
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
     flex-shrink: 0;
+}
+
+.next-up-icon {
+    font-size: 2.2rem;
+}
+
+.next-up-cover {
+    width: 72px;
+    height: 96px;
+    border-radius: 22px 14px 14px 22px;
+    overflow: hidden;
 }
 
 .next-up-title {
@@ -596,7 +607,8 @@ body {
 }
 
 .home-resume-icon,
-.learning-area-icon {
+.learning-area-icon,
+.home-shelf-preview {
     font-size: 2rem;
     line-height: 1;
     width: 50px;
@@ -606,6 +618,35 @@ body {
     place-items: center;
     background: rgba(255,255,255,0.72);
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+.home-shelf-preview {
+    width: 76px;
+    height: 58px;
+    background: transparent;
+    box-shadow: none;
+    position: relative;
+}
+
+.home-shelf-cover {
+    position: absolute;
+    width: 40px;
+    height: 54px;
+    border-radius: 12px 8px 8px 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 18px rgba(72, 58, 32, 0.16);
+}
+
+.home-shelf-cover.is-front {
+    left: 0;
+    bottom: 0;
+    z-index: 2;
+}
+
+.home-shelf-cover.is-back {
+    right: 0;
+    top: 0;
+    z-index: 1;
 }
 
 .learning-area-urdu .learning-area-icon {
@@ -2571,34 +2612,31 @@ td.mastery-mastered {
 
 .our-stories-last-read-card {
     display: grid;
-    grid-template-columns: 108px 1fr;
-    gap: 16px;
-    padding: 18px;
-    border: var(--border-width) solid rgba(171, 135, 67, 0.48);
-    border-radius: var(--border-radius-xl);
-    background: linear-gradient(135deg, #fff8ea 0%, #ffffff 62%, #f3fbff 100%);
-    box-shadow: 4px 4px 0 rgba(171, 135, 67, 0.18);
+    grid-template-columns: 120px 1fr;
+    gap: 18px;
+    padding: 20px;
+    border: 1px solid rgba(171, 135, 67, 0.28);
+    border-radius: 28px;
+    background: linear-gradient(135deg, rgba(255, 248, 234, 0.98) 0%, rgba(255, 255, 255, 0.98) 62%, rgba(243, 251, 255, 0.98) 100%);
+    box-shadow: 0 18px 38px rgba(120, 91, 32, 0.12);
 }
 
 .our-stories-last-read-cover,
 .our-stories-book-cover {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-display);
-    font-weight: 700;
+    align-items: stretch;
+    justify-content: stretch;
     color: var(--reading-text);
-    background: linear-gradient(180deg, #fffdf8 0%, #dff2fb 100%);
-    border: 3px solid rgba(74, 106, 122, 0.2);
-    border-radius: 18px 12px 12px 18px;
-    box-shadow: inset -6px 0 0 rgba(74, 106, 122, 0.08);
+    border: 1px solid rgba(74, 106, 122, 0.14);
+    border-radius: 22px 14px 14px 22px;
+    box-shadow: inset -8px 0 0 rgba(74, 106, 122, 0.08), 0 10px 24px rgba(74, 106, 122, 0.12);
+    overflow: hidden;
 }
 
 .our-stories-last-read-cover {
-    width: 108px;
-    min-width: 108px;
-    min-height: 146px;
-    font-size: 2rem;
+    width: 120px;
+    min-width: 120px;
+    min-height: 164px;
 }
 
 .our-stories-last-read-copy {
@@ -2684,6 +2722,22 @@ td.mastery-mastered {
 .our-stories-action-btn,
 .our-stories-row-btn {
     white-space: nowrap;
+    border-radius: 14px;
+    box-shadow: none;
+}
+
+.our-stories-action-btn.primary-btn,
+.our-stories-row-btn.primary-btn {
+    background: linear-gradient(135deg, #f5b747 0%, #e7a73e 100%);
+    border-color: rgba(149, 101, 17, 0.18);
+    color: #4b3815;
+}
+
+.our-stories-action-btn.secondary-btn,
+.our-stories-row-btn.secondary-btn {
+    background: rgba(255,255,255,0.84);
+    border-color: rgba(93, 78, 55, 0.12);
+    color: #5d4e37;
 }
 
 .our-stories-collection {
@@ -2702,33 +2756,33 @@ td.mastery-mastered {
 
 .our-stories-book-row {
     display: grid;
-    grid-template-columns: 72px minmax(0, 1fr) auto;
-    gap: 14px;
-    align-items: center;
-    padding: 14px;
-    border: 2px solid rgba(163, 213, 232, 0.75);
-    border-radius: var(--border-radius-lg);
-    background: rgba(255, 255, 255, 0.94);
-    box-shadow: 2px 2px 0 rgba(163, 213, 232, 0.75);
+    grid-template-columns: 82px minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+    padding: 16px;
+    border: 1px solid rgba(163, 213, 232, 0.42);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 12px 28px rgba(111, 153, 182, 0.10);
     cursor: pointer;
 }
 
 .our-stories-book-cover {
-    width: 72px;
-    min-width: 72px;
-    min-height: 96px;
-    font-size: 1.3rem;
+    width: 82px;
+    min-width: 82px;
+    min-height: 112px;
+    grid-row: 1 / span 2;
 }
 
 .story-cover-alice {
-    background: linear-gradient(160deg, #6c8fd7 0%, #98baf0 100%);
-    border-color: rgba(76, 110, 170, 0.28);
+    background: linear-gradient(180deg, #8eaef2 0%, #5c78c4 52%, #324d8f 100%);
+    border-color: rgba(53, 81, 138, 0.24);
     color: #ffffff;
 }
 
 .story-cover-carol {
-    background: linear-gradient(160deg, #4f8f6c 0%, #8db59a 100%);
-    border-color: rgba(58, 104, 77, 0.28);
+    background: linear-gradient(180deg, #7fae91 0%, #567d68 48%, #304f40 100%);
+    border-color: rgba(47, 73, 59, 0.24);
     color: #ffffff;
 }
 
@@ -2736,14 +2790,86 @@ td.mastery-mastered {
     background: linear-gradient(180deg, #fffdf8 0%, #dff2fb 100%);
 }
 
+.story-cover-art {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 14px 10px 12px;
+    text-align: center;
+    background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(0,0,0,0.08));
+}
+
+.story-cover-art-image {
+    justify-content: center;
+}
+
+.story-cover-ornament {
+    font-size: 0.86rem;
+    letter-spacing: 0.2em;
+    opacity: 0.88;
+}
+
+.story-cover-title-line {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    line-height: 1.02;
+    letter-spacing: 0.01em;
+    text-wrap: balance;
+}
+
+.story-cover-author {
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.82;
+}
+
+.next-up-cover .story-cover-art {
+    padding: 10px 8px 8px;
+}
+
+.next-up-cover .story-cover-title-line {
+    font-size: 0.72rem;
+}
+
+.next-up-cover .story-cover-author {
+    font-size: 0.46rem;
+}
+
+.home-shelf-cover .story-cover-art {
+    padding: 7px 5px 6px;
+    gap: 3px;
+}
+
+.home-shelf-cover .story-cover-ornament {
+    font-size: 0.52rem;
+}
+
+.home-shelf-cover .story-cover-title-line {
+    font-size: 0.48rem;
+}
+
+.home-shelf-cover .story-cover-author {
+    font-size: 0.34rem;
+}
+
 .our-stories-book-main {
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
 .our-stories-book-actions {
-    flex-direction: column;
+    grid-column: 2;
+    flex-direction: row;
     align-items: stretch;
-    min-width: 144px;
+    min-width: 0;
+    flex-wrap: wrap;
 }
 
 .story-grid {
@@ -4646,6 +4772,11 @@ td.mastery-mastered {
         align-items: start;
     }
 
+    .story-list.our-stories-list {
+        grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+        gap: 22px;
+    }
+
     #story-text {
         font-size: 1.7rem;
     }
@@ -4715,6 +4846,11 @@ td.mastery-mastered {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         align-items: start;
+    }
+
+    .story-list.our-stories-list {
+        grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+        gap: 22px;
     }
 
 }

@@ -1252,10 +1252,10 @@ class KidsMathsApp {
         if (!nextItem) {
             container.innerHTML = `
                 <button class="next-up-card" data-kind="screen" data-screen="reading">
-                    <div class="next-up-label">Last Read</div>
-                    <div class="next-up-title">Open your reading shelf</div>
-                    <div class="next-up-meta">Choose English or Urdu and go straight into your books.</div>
-                    <div class="next-up-cta next-up-cta-primary">Open reading</div>
+                    <div class="next-up-label">Continue Reading</div>
+                    <div class="next-up-title">Choose your next book</div>
+                    <div class="next-up-meta">Open English or Urdu and step straight back into a calm reading session.</div>
+                    <div class="next-up-cta next-up-cta-primary">Continue reading</div>
                 </button>
             `;
             return;
@@ -1264,16 +1264,21 @@ class KidsMathsApp {
         if (!showMaths && nextItem.type !== 'story') {
             container.innerHTML = `
                 <button class="next-up-card" data-kind="screen" data-screen="reading">
-                    <div class="next-up-label">Last Read</div>
-                    <div class="next-up-title">Open your reading shelf</div>
-                    <div class="next-up-meta">Choose English or Urdu and go straight into your books.</div>
-                    <div class="next-up-cta next-up-cta-primary">Open reading</div>
+                    <div class="next-up-label">Continue Reading</div>
+                    <div class="next-up-title">Choose your next book</div>
+                    <div class="next-up-meta">Open English or Urdu and step straight back into a calm reading session.</div>
+                    <div class="next-up-cta next-up-cta-primary">Continue reading</div>
                 </button>
             `;
             return;
         }
 
         const icon = nextItem.type === 'story' ? '📖' : (nextItem.icon || '➕');
+        const storyMatch = nextItem.type === 'story' ? this._findStoryById(nextItem.storyId) : null;
+        const story = storyMatch?.story || null;
+        const nextUpVisual = story
+            ? `<div class="next-up-cover ${this._getStoryCoverClass(story)}">${this._buildStoryCoverBadge(story, Boolean(story.pages?.[0]?.image))}</div>`
+            : `<span class="next-up-icon">${icon}</span>`;
         const dataAttrs = nextItem.type === 'story'
             ? `data-kind="story" data-story-id="${nextItem.storyId}" data-page="${nextItem.page}"`
             : nextItem.type === 'math-mission'
@@ -1285,22 +1290,23 @@ class KidsMathsApp {
                 ? `${nextItem.levelName || 'Mission ready'}${nextItem.progressLabel ? ' · ' + nextItem.progressLabel : ''}`
                 : `${nextItem.levelName || 'Ready to continue'}${nextItem.modeLabel ? ' · ' + nextItem.modeLabel : ''}`;
         const kicker = nextItem.type === 'story'
-            ? 'Last Read'
+            ? 'Continue Reading'
             : nextItem.type === 'math-mission'
                 ? 'Maths mission'
                 : 'Maths practice';
+        const cta = nextItem.type === 'story' ? 'Continue reading' : nextItem.cta;
 
         container.innerHTML = `
             <button class="next-up-card" ${dataAttrs}>
                 <div class="next-up-label">${this._escapeHtml(kicker)}</div>
                 <div class="next-up-main">
-                    <span class="next-up-icon">${icon}</span>
+                    ${nextUpVisual}
                     <div class="next-up-copy">
                         <div class="next-up-title">${this._escapeHtml(nextItem.title)}</div>
                         <div class="next-up-meta">${this._escapeHtml(meta)}</div>
                     </div>
                 </div>
-                <div class="next-up-cta next-up-cta-primary">${this._escapeHtml(nextItem.cta)}</div>
+                <div class="next-up-cta next-up-cta-primary">${this._escapeHtml(cta)}</div>
             </button>
         `;
     }
@@ -1374,6 +1380,20 @@ class KidsMathsApp {
         }).join('');
     }
 
+    _buildHomeShelfPreview(storyIds = []) {
+        const covers = storyIds
+            .map(storyId => this._findStoryById(storyId)?.story)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((story, index) => `
+                <span class="home-shelf-cover ${this._getStoryCoverClass(story)} ${index === 1 ? 'is-back' : 'is-front'}" aria-hidden="true">
+                    ${this._buildStoryCoverBadge(story, Boolean(story.pages?.[0]?.image))}
+                </span>
+            `)
+            .join('');
+        return covers ? `<span class="home-shelf-preview" aria-hidden="true">${covers}</span>` : '<span class="learning-area-icon">📚</span>';
+    }
+
     _renderHomeLearningAreas() {
         const mathsHub = document.getElementById('home-maths-hub');
         const readingHub = document.getElementById('home-reading-hub');
@@ -1418,7 +1438,7 @@ class KidsMathsApp {
 
         readingHub.innerHTML = `
             <div class="learning-area-top">
-                <span class="learning-area-icon">📚</span>
+                ${this._buildHomeShelfPreview(['r5-04', 'r5-05'])}
                 <span class="learning-area-badge">English</span>
             </div>
             <div class="learning-area-title">English</div>
@@ -2794,7 +2814,7 @@ class KidsMathsApp {
 
         document.getElementById('story-title-translation-toggle').addEventListener('click', () => {
             this._showStoryTitleTranslation = !this._showStoryTitleTranslation;
-            this._renderStoryPage();
+            this._updateStoryTitleHeader();
         });
 
         document.getElementById('urdu-saved-words-panel').addEventListener('click', (e) => {
@@ -3540,6 +3560,7 @@ class KidsMathsApp {
         const level = levels.find(l => l.id === levelId);
         const list = document.getElementById('story-list');
         list.classList.toggle('urdu-story-list', tab === 'urdu');
+        list.classList.toggle('our-stories-list', tab === 'ours');
         list.innerHTML = '';
 
         if (tab === 'urdu') {
@@ -3837,9 +3858,48 @@ class KidsMathsApp {
     }
 
     _buildStoryCoverBadge(story, hasImage = false) {
-        if (hasImage) return '🖼️';
-        const label = String(story.titleEnglish || story.title || 'B').trim().charAt(0).toUpperCase();
-        return this._escapeHtml(label || 'B');
+        if (hasImage) {
+            return `
+                <span class="story-cover-art story-cover-art-image" aria-hidden="true">
+                    <span class="story-cover-ornament">✦</span>
+                    <span class="story-cover-title-line">Illustrated</span>
+                </span>
+            `;
+        }
+
+        switch (story?.id) {
+            case 'r5-04':
+                return `
+                    <span class="story-cover-art" aria-hidden="true">
+                        <span class="story-cover-ornament">♣</span>
+                        <span class="story-cover-title-line">Alice</span>
+                        <span class="story-cover-title-line">Wonderland</span>
+                        <span class="story-cover-author">Lewis Carroll</span>
+                    </span>
+                `;
+            case 'r5-05':
+                return `
+                    <span class="story-cover-art" aria-hidden="true">
+                        <span class="story-cover-ornament">✦</span>
+                        <span class="story-cover-title-line">Christmas</span>
+                        <span class="story-cover-title-line">Carol</span>
+                        <span class="story-cover-author">Charles Dickens</span>
+                    </span>
+                `;
+            default: {
+                const label = String(story?.titleEnglish || story?.title || 'Book').trim();
+                const words = label.split(/\s+/).filter(Boolean);
+                const firstLine = words.slice(0, 2).join(' ') || 'Book';
+                const secondLine = words.slice(2, 4).join(' ');
+                return `
+                    <span class="story-cover-art" aria-hidden="true">
+                        <span class="story-cover-ornament">✦</span>
+                        <span class="story-cover-title-line">${this._escapeHtml(firstLine)}</span>
+                        ${secondLine ? `<span class="story-cover-title-line">${this._escapeHtml(secondLine)}</span>` : ''}
+                    </span>
+                `;
+            }
+        }
     }
 
     _getStoryCoverClass(story) {
@@ -3914,35 +3974,17 @@ class KidsMathsApp {
         const isInteractiveUrdu = this._storySupportsUrduTools(story);
         const isUrduArticle = this._isUrduArticleStory(story);
 
-        const storyTitle = document.getElementById('story-title');
-        const storyTitleSubtitle = document.getElementById('story-title-subtitle');
-        const storyTitleTranslationToggle = document.getElementById('story-title-translation-toggle');
-        const storyText = document.getElementById('story-text');
         const storyScreen = document.getElementById('story-screen');
+        const storyContent = document.getElementById('story-content');
+        const storyText = document.getElementById('story-text');
 
-        storyTitle.textContent = story.title;
-        storyTitle.dir = direction;
-        const shouldCollapseEnglishTitle = isUrduArticle || (isInteractiveUrdu && window.matchMedia?.('(max-width: 720px)').matches);
-        if (story.titleEnglish) {
-            storyTitleSubtitle.textContent = story.titleEnglish;
-            if (shouldCollapseEnglishTitle) {
-                storyTitleTranslationToggle.classList.remove('hidden');
-                storyTitleTranslationToggle.textContent = this._showStoryTitleTranslation ? 'Hide English title' : 'Show English title';
-                storyTitleTranslationToggle.setAttribute('aria-expanded', this._showStoryTitleTranslation ? 'true' : 'false');
-                storyTitleSubtitle.classList.toggle('hidden', !this._showStoryTitleTranslation);
-            } else {
-                storyTitleTranslationToggle.classList.add('hidden');
-                storyTitleTranslationToggle.textContent = '';
-                storyTitleTranslationToggle.setAttribute('aria-expanded', 'false');
-                storyTitleSubtitle.classList.remove('hidden');
-            }
-        } else {
-            storyTitleSubtitle.textContent = '';
-            storyTitleSubtitle.classList.add('hidden');
-            storyTitleTranslationToggle.classList.add('hidden');
-            storyTitleTranslationToggle.textContent = '';
-            storyTitleTranslationToggle.setAttribute('aria-expanded', 'false');
-        }
+        storyScreen.classList.toggle('article-reader-mode', isUrduArticle);
+        storyScreen.classList.toggle('story-custom-selection-mode', this._storySupportsCustomWordSelection(story));
+        storyContent.classList.toggle('urdu-story-layout', isInteractiveUrdu);
+        storyContent.classList.toggle('urdu-article-reader-layout', isUrduArticle);
+        storyText.dir = direction;
+
+        this._updateStoryTitleHeader();
         this._renderCurrentStoryText();
         document.getElementById('story-page-text').textContent =
             `Page ${this.currentStoryPage + 1} of ${story.pages.length}`;
@@ -3950,12 +3992,6 @@ class KidsMathsApp {
         this._updateStoryFontControls();
         this._renderStorySelectionControls();
         this._updateStorySelectionHandles();
-
-        const storyContent = document.getElementById('story-content');
-        storyScreen.classList.toggle('article-reader-mode', isUrduArticle);
-        storyScreen.classList.toggle('story-custom-selection-mode', this._storySupportsCustomWordSelection(story));
-        storyContent.classList.toggle('urdu-story-layout', isInteractiveUrdu);
-        storyContent.classList.toggle('urdu-article-reader-layout', isUrduArticle);
 
         // Reset scroll position so each new page starts at the top
         storyContent.scrollTop = 0;
@@ -3986,6 +4022,42 @@ class KidsMathsApp {
 
         // Update bookmark button state
         this._updateBookmarkButton();
+    }
+
+    _updateStoryTitleHeader(story = this.currentStory) {
+        const storyTitle = document.getElementById('story-title');
+        const storyTitleSubtitle = document.getElementById('story-title-subtitle');
+        const storyTitleTranslationToggle = document.getElementById('story-title-translation-toggle');
+        if (!storyTitle || !storyTitleSubtitle || !storyTitleTranslationToggle || !story) return;
+
+        const direction = story.direction || 'ltr';
+        const isInteractiveUrdu = this._storySupportsUrduTools(story);
+        const isUrduArticle = this._isUrduArticleStory(story);
+        const shouldCollapseEnglishTitle = isUrduArticle || (isInteractiveUrdu && window.matchMedia?.('(max-width: 720px)').matches);
+
+        storyTitle.textContent = story.title;
+        storyTitle.dir = direction;
+
+        if (story.titleEnglish) {
+            storyTitleSubtitle.textContent = story.titleEnglish;
+            if (shouldCollapseEnglishTitle) {
+                storyTitleTranslationToggle.classList.remove('hidden');
+                storyTitleTranslationToggle.textContent = this._showStoryTitleTranslation ? 'Hide English title' : 'Show English title';
+                storyTitleTranslationToggle.setAttribute('aria-expanded', this._showStoryTitleTranslation ? 'true' : 'false');
+                storyTitleSubtitle.classList.toggle('hidden', !this._showStoryTitleTranslation);
+            } else {
+                storyTitleTranslationToggle.classList.add('hidden');
+                storyTitleTranslationToggle.textContent = '';
+                storyTitleTranslationToggle.setAttribute('aria-expanded', 'false');
+                storyTitleSubtitle.classList.remove('hidden');
+            }
+        } else {
+            storyTitleSubtitle.textContent = '';
+            storyTitleSubtitle.classList.add('hidden');
+            storyTitleTranslationToggle.classList.add('hidden');
+            storyTitleTranslationToggle.textContent = '';
+            storyTitleTranslationToggle.setAttribute('aria-expanded', 'false');
+        }
     }
 
     _getStoryFontScale() {
