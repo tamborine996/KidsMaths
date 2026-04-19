@@ -17,9 +17,10 @@ const packageJson = fs.readFileSync(path.join(root, 'package.json'), 'utf8');
 
 assert(packageJson.includes('check-story-reader-ui.js'), 'Expected story reader UI regression checks to be wired into npm test');
 assert(!html.includes('story-progress-fill'), 'Expected story reader progress bar to be removed from index.html');
-assert(!html.includes('story-font-decrease-btn'), 'Expected visible story font decrease control to be removed from index.html');
-assert(!html.includes('story-font-increase-btn'), 'Expected visible story font increase control to be removed from index.html');
-assert(!html.includes('story-font-reset-btn'), 'Expected visible story font reset control to be removed from index.html');
+assert(html.includes('story-font-decrease-btn'), 'Expected visible story font decrease control in index.html');
+assert(html.includes('story-font-increase-btn'), 'Expected visible story font increase control in index.html');
+assert(html.includes('story-font-reset-btn'), 'Expected visible story font reset control in index.html');
+assert(html.includes('story-font-label'), 'Expected visible story font size label in index.html');
 assert(html.includes('id="bookmark-btn"'), 'Expected a visible story-header bookmark button');
 assert(app.includes('_handleStoryHeaderBookmark('), 'Expected dedicated story-header bookmark handler');
 assert(app.includes('_goToStoryBookmark('), 'Expected ability to jump back to a saved bookmark');

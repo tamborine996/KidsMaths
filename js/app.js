@@ -2586,6 +2586,9 @@ class KidsMathsApp {
         // Story navigation
         document.getElementById('story-prev-btn').addEventListener('click', () => this._storyPrevPage());
         document.getElementById('story-next-btn').addEventListener('click', () => this._storyNextPage());
+        document.getElementById('story-font-decrease-btn')?.addEventListener('click', () => this._changeStoryFontScale(-this._storyFontScaleStep));
+        document.getElementById('story-font-increase-btn')?.addEventListener('click', () => this._changeStoryFontScale(this._storyFontScaleStep));
+        document.getElementById('story-font-reset-btn')?.addEventListener('click', () => this._resetStoryFontScale());
         const storyHeaderBookmarkBtn = document.getElementById('bookmark-btn');
         if (storyHeaderBookmarkBtn) storyHeaderBookmarkBtn.addEventListener('click', () => this._handleStoryHeaderBookmark());
         const storySpeakBtn = document.getElementById('story-selection-speak-btn');
@@ -4470,12 +4473,15 @@ class KidsMathsApp {
             return;
         }
 
+        const isRtl = (this.currentStory?.direction || 'ltr') === 'rtl';
         const positionHandle = (handle, button, boundary = 'start') => {
             const rect = button.getBoundingClientRect();
             const selectionRect = button.closest('.story-selection-unit')?.getBoundingClientRect() || rect;
-            handle.style.left = boundary === 'start'
-                ? `${Math.round(rect.left - 28)}px`
-                : `${Math.round(rect.right)}px`;
+            const logicalStartOnRight = isRtl;
+            const anchorToRightEdge = boundary === 'start' ? logicalStartOnRight : !logicalStartOnRight;
+            handle.style.left = anchorToRightEdge
+                ? `${Math.round(rect.right)}px`
+                : `${Math.round(rect.left - 28)}px`;
             // Anchor vertically to the actual highlighted selection unit, not the
             // taller inline button box. Otherwise the handles can look detached
             // even when they are mathematically close to the button bounds.

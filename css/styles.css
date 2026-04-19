@@ -95,8 +95,8 @@
     --font-display: 'Fraunces', serif;
     --font-body: 'Inter', sans-serif;
     --story-font-size-base: 1.5rem;
-    --story-font-size-urdu: clamp(2.55rem, 7vw, 3.15rem);
-    --story-font-size-article: clamp(2.95rem, 8vw, 3.6rem);
+    --story-font-size-urdu: clamp(2.4rem, 6.6vw, 2.95rem);
+    --story-font-size-article: clamp(2.5rem, 6.8vw, 3.05rem);
     --story-font-scale: 1;
 
     /* Warm accent for dark mode */
@@ -3446,6 +3446,49 @@ td.mastery-mastered {
     letter-spacing: 0.01em;
 }
 
+.story-font-controls {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.story-font-btn {
+    min-height: 32px;
+    min-width: 32px;
+    padding: 6px 10px;
+    border: 1px solid rgba(93, 78, 55, 0.16);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.82);
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 0.86rem;
+    font-weight: 800;
+}
+
+.story-font-btn:disabled {
+    opacity: 0.42;
+}
+
+.story-font-btn-reset {
+    padding-inline: 12px;
+}
+
+.story-font-label {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.58);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
 .story-selection-adjusters {
     position: fixed;
     inset: 0;
@@ -4545,6 +4588,12 @@ td.mastery-mastered {
         margin-bottom: 8px;
     }
 
+    .story-font-controls {
+        width: 100%;
+        margin-left: 0;
+        justify-content: flex-start;
+    }
+
     .story-title-subtitle {
         font-size: 1.08rem;
     }
@@ -4614,7 +4663,7 @@ td.mastery-mastered {
     }
 
     .story-content.urdu-article-reader-layout #story-text {
-        font-size: calc(2.82rem * var(--story-font-scale));
+        font-size: calc(2.28rem * var(--story-font-scale));
         line-height: 1.88;
         gap: 18px;
         padding-bottom: clamp(80px, 14vh, 120px);
@@ -4672,6 +4721,22 @@ td.mastery-mastered {
         gap: 6px;
     }
 
+    .story-font-controls {
+        gap: 5px;
+    }
+
+    .story-font-btn {
+        min-height: 30px;
+        min-width: 30px;
+        padding: 5px 9px;
+        font-size: 0.8rem;
+    }
+
+    .story-font-label {
+        font-size: 0.76rem;
+        padding: 4px 8px;
+    }
+
     .story-title-subtitle {
         font-size: 1rem;
     }
@@ -4712,7 +4777,7 @@ td.mastery-mastered {
     }
 
     .story-content.urdu-article-reader-layout #story-text {
-        font-size: calc(2.56rem * var(--story-font-scale));
+        font-size: calc(2.08rem * var(--story-font-scale));
         line-height: 1.84;
         gap: 16px;
         padding-bottom: clamp(74px, 13vh, 112px);

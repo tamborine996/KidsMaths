@@ -34,6 +34,12 @@ test('Urdu reader exposes the same handle-based selection affordance as English'
   await expect(page.locator('#story-selection-adjusters')).toBeVisible();
   await expect(page.locator('#story-selection-start-handle')).toBeVisible();
   await expect(page.locator('#story-selection-end-handle')).toBeVisible();
+
+  const startBox = await page.locator('#story-selection-start-handle').boundingBox();
+  const endBox = await page.locator('#story-selection-end-handle').boundingBox();
+  expect(startBox).toBeTruthy();
+  expect(endBox).toBeTruthy();
+  expect(startBox.x).toBeGreaterThan(endBox.x);
 });
 
 test('Urdu article title can be fully read in-story without forced header ellipsis', async ({ page }) => {
