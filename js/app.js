@@ -150,8 +150,89 @@ class KidsMathsApp {
         this._setupUpdateButton();
 
         // Render initial screen
-        this._renderHomeScreen();
+        const routed = this._applyInitialRouteFromUrl();
+        if (!routed) {
+            this._renderHomeScreen();
+        }
         this._updateCoinDisplay();
+    }
+
+    _parseRouteFromUrl() {
+        const url = new URL(window.location.href);
+        const params = url.searchParams;
+        const screen = String(params.get('screen') || '').trim();
+        const storyId = String(params.get('story') || '').trim();
+        const tab = String(params.get('tab') || '').trim();
+        const requestedPage = Number.parseInt(params.get('page') || '', 10);
+        const page = Number.isFinite(requestedPage) ? requestedPage : null;
+        return {
+            screen,
+            storyId,
+            tab,
+            page
+        };
+    }
+
+    _applyInitialRouteFromUrl() {
+        const route = this._parseRouteFromUrl();
+        if (!route.screen && !route.storyId) return false;
+
+        if ((route.screen === 'story' || route.storyId) && route.storyId) {
+            const storyMatch = this._findStoryById(route.storyId);
+            if (!storyMatch?.story) return false;
+            const isUrdu = storyMatch.story.direction === 'rtl';
+            state.set('readingTab', isUrdu ? 'urdu' : 'library');
+            const pageIndex = route.page !== null ? Math.max(0, route.page - 1) : undefined;
+            this._startStory(route.storyId, pageIndex);
+            return true;
+        }
+
+        if (route.screen === 'reading') {
+            if (route.tab === 'urdu' || route.tab === 'library') {
+                state.set('readingTab', route.tab);
+            }
+            this._showScreen('reading');
+            return true;
+        }
+
+        if (route.screen) {
+            this._showScreen(route.screen);
+            return true;
+        }
+
+        return false;
+    }
+
+    _buildAppUrl(screenName = state.get('currentScreen') || 'home') {
+        const url = new URL(window.location.href);
+        url.search = '';
+
+        if (screenName === 'home') {
+            return url.pathname;
+        }
+
+        if (screenName === 'story' && this.currentStory) {
+            url.searchParams.set('screen', 'story');
+            url.searchParams.set('story', this.currentStory.id);
+            url.searchParams.set('page', String((Number(this.currentStoryPage) || 0) + 1));
+            return `${url.pathname}${url.search}`;
+        }
+
+        if (screenName === 'reading') {
+            url.searchParams.set('screen', 'reading');
+            const tab = state.get('readingTab') || 'library';
+            if (tab !== 'library') {
+                url.searchParams.set('tab', tab);
+            }
+            return `${url.pathname}${url.search}`;
+        }
+
+        url.searchParams.set('screen', screenName);
+        return `${url.pathname}${url.search}`;
+    }
+
+    _replaceCurrentUrl(screenName = state.get('currentScreen') || 'home') {
+        history.replaceState({ screen: screenName }, '', this._buildAppUrl(screenName));
     }
 
     async _loadData() {
@@ -478,7 +559,7 @@ class KidsMathsApp {
         const prevScreen = state.get('currentScreen');
         state.set('currentScreen', screenName);
         if (screenName !== prevScreen) {
-            history.pushState({ screen: screenName }, '', '');
+            history.pushState({ screen: screenName }, '', this._buildAppUrl(screenName));
         }
     }
 
@@ -3631,6 +3712,7 @@ class KidsMathsApp {
                 }
 
                 this._showScreen('story');
+                this._replaceCurrentUrl('story');
                 return;
             }
         }
@@ -3681,6 +3763,7 @@ class KidsMathsApp {
         this._renderCurrentStoryText();
         document.getElementById('story-page-text').textContent =
             `Page ${this.currentStoryPage + 1} of ${story.pages.length}`;
+        this._replaceCurrentUrl('story');
         this._updateStoryFontControls();
         this._renderStorySelectionControls();
         this._updateStorySelectionHandles();
@@ -5734,8 +5817,8 @@ class KidsMathsApp {
     // ===== HISTORY API - BACK BUTTON TRAPPING =====
 
     _initHistoryTrapping() {
-        // Push initial state
-        history.replaceState({ screen: 'home' }, '', '');
+        // Push initial state without wiping any incoming route params
+        history.replaceState({ screen: 'home' }, '', `${window.location.pathname}${window.location.search}`);
 
         window.addEventListener('popstate', (e) => {
             const currentScreen = state.get('currentScreen');
