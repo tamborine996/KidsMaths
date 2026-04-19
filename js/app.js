@@ -315,7 +315,7 @@ class KidsMathsApp {
     }
 
     _getOurStoriesBookshelf() {
-        const keepIds = new Set(['r5-04', 'r5-05']);
+        const keepIds = new Set(['r5-04', 'r5-05', 'r5-01', 'r5-02', 'r5-03', 'r4-02', 'r4-03']);
         const allStories = this.storyLevels.flatMap(level =>
             level.stories.map(story => ({
                 ...story,
@@ -358,7 +358,7 @@ class KidsMathsApp {
         document.getElementById('store-btn').addEventListener('click', () => this._showScreen('store'));
         document.getElementById('parent-btn').addEventListener('click', () => this._showScreen('parent'));
         document.getElementById('home-reading-hub').addEventListener('click', () => {
-            state.set('readingTab', 'library');
+            state.set('readingTab', 'ours');
             this._showScreen('reading');
         });
         document.getElementById('home-urdu-hub').addEventListener('click', () => {
@@ -2805,10 +2805,35 @@ class KidsMathsApp {
                 return;
             }
 
+            const bookshelfBtn = e.target.closest('[data-story-bookshelf-action]');
+            if (bookshelfBtn) {
+                const storyId = bookshelfBtn.dataset.storyId;
+                const action = bookshelfBtn.dataset.storyBookshelfAction;
+                const row = bookshelfBtn.closest('[data-story-id]');
+                const resumePage = row?.dataset.resumePage;
+                const openPage = row?.dataset.openPage;
+
+                if (storyId) {
+                    if (action === 'latest-bookmark' && resumePage !== undefined) {
+                        this._startStory(storyId, parseInt(resumePage));
+                    } else {
+                        this._startStory(storyId, openPage !== undefined ? parseInt(openPage) : 0);
+                    }
+                }
+                return;
+            }
+
             const card = e.target.closest('.reading-featured-card, .reading-quick-card, .story-card');
             if (card) {
                 const resumePage = card.dataset.resumePage;
                 this._startStory(card.dataset.storyId, resumePage ? parseInt(resumePage) : undefined);
+            }
+
+            const bookshelfRow = e.target.closest('.our-stories-book-row');
+            if (bookshelfRow) {
+                const openPage = bookshelfRow.dataset.openPage;
+                this._startStory(bookshelfRow.dataset.storyId, openPage !== undefined ? parseInt(openPage) : 0);
+                return;
             }
 
             const urduRow = e.target.closest('.urdu-item-row');
@@ -3203,8 +3228,10 @@ class KidsMathsApp {
         const searchToggleLabel = document.getElementById('reading-search-toggle-label');
         const levelSelector = document.querySelector('#reading-screen .reading-level-selector');
         const isUrdu = tab === 'urdu';
+        const isOurStories = tab === 'ours';
         const hideLevelSelector = tab === 'urdu' || tab === 'ours';
-        const isOpen = this._isReadingSearchOpen() && !isUrdu;
+        const hideSearchControls = isUrdu || isOurStories;
+        const isOpen = this._isReadingSearchOpen() && !hideSearchControls;
 
         if (levelSelector) {
             levelSelector.classList.toggle('hidden', hideLevelSelector);
@@ -3215,7 +3242,7 @@ class KidsMathsApp {
         }
 
         if (searchToggle) {
-            searchToggle.classList.toggle('hidden', isUrdu);
+            searchToggle.classList.toggle('hidden', hideSearchControls);
             searchToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
             searchToggle.classList.toggle('is-open', isOpen);
         }
@@ -3526,46 +3553,155 @@ class KidsMathsApp {
     }
 
     _renderOurStoriesBookshelf(list) {
-        const readStories = state.get('readStories') || [];
-        const bookmarks = state.get('bookmarks') || {};
-        const { activeStories, archivedStories } = this._getOurStoriesBookshelf();
-        const rankedStories = activeStories.map((story, index) => ({
-            story,
-            index,
-            isRead: readStories.includes(story.id),
-            bookmark: bookmarks[story.id],
-            totalPages: story.pages.length,
-            hasImage: Boolean(story.pages[0]?.image)
-        }));
-
-        const priorityStories = [...rankedStories].sort((a, b) => {
-            const aScore = a.bookmark ? 3 : a.isRead ? 1 : 2;
-            const bScore = b.bookmark ? 3 : b.isRead ? 1 : 2;
-            if (bScore !== aScore) return bScore - aScore;
-            if (!!b.bookmark !== !!a.bookmark) return Number(!!b.bookmark) - Number(!!a.bookmark);
-            return a.index - b.index;
-        });
-
-        const featured = priorityStories[0] || null;
-        const quickPicks = priorityStories.slice(1, 3);
+        const { activeStories } = this._getOurStoriesBookshelf();
+        const entries = this._getOurStoriesBookshelfEntries(activeStories);
+        const lastRead = this._getOurStoriesLastReadEntry(entries);
+        if (!entries.length) {
+            list.innerHTML = '';
+            return;
+        }
 
         list.innerHTML = `
-            ${featured ? this._buildReadingShelfMarkup({
-                tab: 'ours',
-                shelfLabel: 'Your bookshelf',
-                featured,
-                quickPicks,
-                featuredKicker: 'Continue reading',
-                showGridSection: false
-            }) : ''}
-            <section class="reading-library-section english-bookshelf-note">
-                <div class="reading-library-header">
+            ${lastRead ? this._buildOurStoriesLastReadCard(lastRead) : ''}
+            <section class="reading-library-section our-stories-collection">
+                <div class="reading-library-header our-stories-collection-header">
                     <div>
-                        <h3 class="reading-library-title">Archived from the main shelf</h3>
-                        <p class="reading-library-copy">${archivedStories.length} other English stories are now out of the main view so this screen behaves more like a simple Kindle-style bookshelf.</p>
+                        <div class="reading-library-kicker">Your collection</div>
+                        <h3 class="reading-library-title">Books on this shelf</h3>
+                        <p class="reading-library-copy">Scroll through your books the way you would on Kindle.</p>
+                    </div>
+                    <div class="our-stories-collection-count">${entries.length} books</div>
+                </div>
+                <div class="our-stories-book-list">
+                    ${entries.map(entry => this._buildOurStoriesBookshelfRow(entry)).join('')}
+                </div>
+            </section>
+        `;
+    }
+
+    _getOurStoriesBookshelfEntries(activeStories = []) {
+        const readStories = state.get('readStories') || [];
+        const bookmarks = state.get('bookmarks') || {};
+        const rankMap = new Map(['r5-04', 'r5-05', 'r5-01', 'r5-02', 'r5-03', 'r4-02', 'r4-03'].map((id, index) => [id, index]));
+        return activeStories
+            .map((story, index) => ({
+                story,
+                index,
+                rank: rankMap.has(story.id) ? rankMap.get(story.id) : index,
+                isRead: readStories.includes(story.id),
+                bookmark: bookmarks[story.id],
+                totalPages: story.pages.length,
+                hasImage: Boolean(story.pages[0]?.image)
+            }))
+            .sort((a, b) => a.rank - b.rank);
+    }
+
+    _getOurStoriesLastReadEntry(entries = []) {
+        if (!entries.length) return null;
+
+        const entryById = new Map(entries.map(entry => [entry.story.id, entry]));
+        const recentStory = (state.get('recentItems') || [])
+            .filter(item => item?.type === 'story' && entryById.has(item.storyId))
+            .sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''))[0];
+
+        if (recentStory) {
+            return entryById.get(recentStory.storyId) || entries[0];
+        }
+
+        const bookmarkEntry = [...entries]
+            .filter(entry => entry.bookmark)
+            .sort((a, b) => (b.bookmark?.date || '').localeCompare(a.bookmark?.date || ''))[0];
+
+        return bookmarkEntry || entries[0];
+    }
+
+    _getOurStoriesSecondaryAction(entry) {
+        if (entry.bookmark) {
+            return {
+                action: 'latest-bookmark',
+                label: 'Latest bookmark',
+                detail: `Page ${entry.bookmark.page + 1}`
+            };
+        }
+
+        if (entry.isRead) {
+            return {
+                action: 'open',
+                label: 'Read again',
+                detail: 'Start from page 1'
+            };
+        }
+
+        return {
+            action: 'open',
+            label: 'Start here',
+            detail: 'Start from page 1'
+        };
+    }
+
+    _buildOurStoriesLastReadCard(entry) {
+        const secondary = this._getOurStoriesSecondaryAction(entry);
+        const bookmarkLine = entry.bookmark
+            ? `Page ${entry.bookmark.page + 1}`
+            : entry.isRead
+                ? 'Finished before'
+                : 'Start from page 1';
+        const summary = entry.bookmark
+            ? 'Come straight back to the saved place without hunting through the shelf.'
+            : entry.isRead
+                ? 'Reopen this finished book from the top whenever you want to read it again.'
+                : 'This becomes the calm top-card entry until a newer reading session takes its place.';
+
+        return `
+            <section class="reading-shelf our-stories-last-read" data-story-id="${entry.story.id}" data-open-page="0" ${entry.bookmark ? `data-resume-page="${entry.bookmark.page}"` : ''}>
+                <div class="our-stories-last-read-card">
+                    <div class="our-stories-last-read-cover">${this._buildStoryCoverBadge(entry.story, entry.hasImage)}</div>
+                    <div class="our-stories-last-read-copy">
+                        <div class="reading-library-kicker">Last Read</div>
+                        <div class="our-stories-last-read-title" dir="${entry.story.direction || 'ltr'}">${this._escapeHtml(entry.story.title)}</div>
+                        ${entry.story.author ? `<div class="our-stories-last-read-byline">${this._escapeHtml(entry.story.author)}</div>` : ''}
+                        <div class="our-stories-last-read-summary">${this._escapeHtml(summary)}</div>
+                        <div class="our-stories-last-read-bookmark-box">
+                            <div class="our-stories-last-read-bookmark-label">Latest bookmark</div>
+                            <div class="our-stories-last-read-bookmark-line">${this._escapeHtml(bookmarkLine)}</div>
+                        </div>
+                        <div class="our-stories-last-read-actions">
+                            <button class="primary-btn our-stories-action-btn" type="button" data-story-bookshelf-action="open" data-story-id="${entry.story.id}">Open book</button>
+                            <button class="secondary-btn our-stories-action-btn" type="button" data-story-bookshelf-action="${secondary.action}" data-story-id="${entry.story.id}">${this._escapeHtml(secondary.label)}</button>
+                        </div>
                     </div>
                 </div>
             </section>
+        `;
+    }
+
+    _buildOurStoriesBookshelfRow(entry) {
+        const secondary = this._getOurStoriesSecondaryAction(entry);
+        const progressLine = entry.bookmark
+            ? `Latest bookmark: page ${entry.bookmark.page + 1}`
+            : entry.isRead
+                ? 'Read again from the start'
+                : 'Start from page 1';
+        const statusLine = entry.bookmark
+            ? `${entry.totalPages} pages · in progress`
+            : entry.isRead
+                ? `${entry.totalPages} pages · finished before`
+                : `${entry.totalPages} pages · ready on shelf`;
+
+        return `
+            <div class="our-stories-book-row" data-story-id="${entry.story.id}" data-open-page="0" ${entry.bookmark ? `data-resume-page="${entry.bookmark.page}"` : ''}>
+                <div class="our-stories-book-cover" aria-hidden="true">${this._buildStoryCoverBadge(entry.story, entry.hasImage)}</div>
+                <div class="our-stories-book-main">
+                    <div class="our-stories-book-title" dir="${entry.story.direction || 'ltr'}">${this._escapeHtml(entry.story.title)}</div>
+                    ${entry.story.author ? `<div class="our-stories-book-byline">${this._escapeHtml(entry.story.author)}</div>` : ''}
+                    <div class="our-stories-book-meta">${this._escapeHtml(statusLine)}</div>
+                    <div class="our-stories-book-progress">${this._escapeHtml(progressLine)}</div>
+                </div>
+                <div class="our-stories-book-actions">
+                    <button class="primary-btn our-stories-row-btn" type="button" data-story-bookshelf-action="open" data-story-id="${entry.story.id}">Open</button>
+                    <button class="secondary-btn our-stories-row-btn" type="button" data-story-bookshelf-action="${secondary.action}" data-story-id="${entry.story.id}">${this._escapeHtml(secondary.label)}</button>
+                </div>
+            </div>
         `;
     }
 
