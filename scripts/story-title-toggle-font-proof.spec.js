@@ -1,6 +1,7 @@
 const { test, expect, devices } = require('playwright/test');
 
 const baseURL = process.env.STORY_TITLE_TOGGLE_BASE_URL || 'http://127.0.0.1:8125/';
+const storageKey = 'kidsmaths_state';
 
 test.use({
   ...devices['Pixel 7'],
@@ -8,6 +9,16 @@ test.use({
 });
 
 test('Show English title does not change reader text size or reset reading position', async ({ page }) => {
+  await page.goto(baseURL, { waitUntil: 'domcontentloaded' });
+  await page.evaluate(({ storageKey }) => {
+    const current = JSON.parse(localStorage.getItem(storageKey) || '{}');
+    localStorage.setItem(storageKey, JSON.stringify({
+      ...current,
+      storyFontScale: 1.65,
+      readingTab: 'urdu',
+    }));
+  }, { storageKey });
+
   await page.goto(baseURL, { waitUntil: 'networkidle' });
   await page.getByRole('button', { name: /Open Urdu/i }).click();
   await page.getByRole('button', { name: /Start reading/i }).click();
@@ -29,6 +40,9 @@ test('Show English title does not change reader text size or reset reading posit
       scrollTop: storyContent?.scrollTop || 0,
     };
   });
+
+  expect(before.computedFontSize).not.toBe('');
+  expect(parseFloat(before.computedFontSize)).toBeGreaterThan(40);
 
   await titleToggle.click();
 
