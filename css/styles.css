@@ -401,12 +401,12 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
-    padding: 18px 18px 18px;
-    background: linear-gradient(140deg, #FFF5CB 0%, #FFE39A 45%, #FFF8E8 100%);
-    border: 2px solid rgba(154, 108, 14, 0.28);
-    border-radius: 28px;
-    box-shadow: 0 18px 34px rgba(154, 108, 14, 0.18), inset 0 1px 0 rgba(255,255,255,0.9);
+    gap: 14px;
+    padding: 20px 20px 20px;
+    background: linear-gradient(145deg, #fff7d9 0%, #ffe6ac 44%, #fffaf0 100%);
+    border: 1px solid rgba(154, 108, 14, 0.20);
+    border-radius: 30px;
+    box-shadow: 0 20px 38px rgba(154, 108, 14, 0.14), inset 0 1px 0 rgba(255,255,255,0.92);
     cursor: pointer;
     text-align: left;
     position: relative;
@@ -442,7 +442,7 @@ body {
 
 .next-up-main {
     display: flex;
-    gap: 14px;
+    gap: 16px;
     align-items: center;
     width: 100%;
 }
@@ -450,7 +450,7 @@ body {
 .next-up-copy {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 7px;
     flex: 1;
     min-width: 0;
 }
@@ -481,17 +481,25 @@ body {
 
 .next-up-title {
     font-family: var(--font-display);
-    font-size: clamp(1.48rem, 5vw, 2rem);
+    font-size: clamp(1.56rem, 5vw, 2.12rem);
     font-weight: 700;
     color: var(--text-heading);
     line-height: 0.98;
 }
 
+.next-up-support {
+    color: rgba(88, 63, 20, 0.86);
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
 .next-up-meta {
     color: #5E533C;
     font-weight: 700;
-    font-size: clamp(0.98rem, 3.3vw, 1.06rem);
-    line-height: 1.32;
+    font-size: clamp(0.98rem, 3.2vw, 1.04rem);
+    line-height: 1.34;
     max-width: 30rem;
 }
 
@@ -514,8 +522,11 @@ body {
 }
 
 .next-up-cta-primary {
-    background: linear-gradient(135deg, #ffffff 0%, #fff7d7 100%);
-    border-color: rgba(154, 108, 14, 0.22);
+    background: linear-gradient(135deg, #fffaf0 0%, #fff2c4 100%);
+    border-color: rgba(154, 108, 14, 0.18);
+    color: #6d4b10;
+    min-height: 52px;
+    padding-inline: 20px;
 }
 
 .home-dashboard {
@@ -2735,9 +2746,13 @@ td.mastery-mastered {
 
 .our-stories-action-btn.secondary-btn,
 .our-stories-row-btn.secondary-btn {
-    background: rgba(255,255,255,0.84);
-    border-color: rgba(93, 78, 55, 0.12);
-    color: #5d4e37;
+    background: transparent;
+    border-color: transparent;
+    color: rgba(93, 78, 55, 0.88);
+    padding-inline: 6px;
+    min-height: 40px;
+    justify-content: flex-start;
+    font-weight: 700;
 }
 
 .our-stories-collection {

@@ -1252,10 +1252,10 @@ class KidsMathsApp {
         if (!nextItem) {
             container.innerHTML = `
                 <button class="next-up-card" data-kind="screen" data-screen="reading">
-                    <div class="next-up-label">Continue Reading</div>
-                    <div class="next-up-title">Choose your next book</div>
-                    <div class="next-up-meta">Open English or Urdu and step straight back into a calm reading session.</div>
-                    <div class="next-up-cta next-up-cta-primary">Continue reading</div>
+                    <div class="next-up-label">Start Reading</div>
+                    <div class="next-up-title">Choose your reading shelf</div>
+                    <div class="next-up-meta">Step into English or Urdu and pick a calm book to begin.</div>
+                    <div class="next-up-cta next-up-cta-primary">Browse shelves</div>
                 </button>
             `;
             return;
@@ -1264,10 +1264,10 @@ class KidsMathsApp {
         if (!showMaths && nextItem.type !== 'story') {
             container.innerHTML = `
                 <button class="next-up-card" data-kind="screen" data-screen="reading">
-                    <div class="next-up-label">Continue Reading</div>
-                    <div class="next-up-title">Choose your next book</div>
-                    <div class="next-up-meta">Open English or Urdu and step straight back into a calm reading session.</div>
-                    <div class="next-up-cta next-up-cta-primary">Continue reading</div>
+                    <div class="next-up-label">Start Reading</div>
+                    <div class="next-up-title">Choose your reading shelf</div>
+                    <div class="next-up-meta">Step into English or Urdu and pick a calm book to begin.</div>
+                    <div class="next-up-cta next-up-cta-primary">Browse shelves</div>
                 </button>
             `;
             return;
@@ -1290,11 +1290,14 @@ class KidsMathsApp {
                 ? `${nextItem.levelName || 'Mission ready'}${nextItem.progressLabel ? ' · ' + nextItem.progressLabel : ''}`
                 : `${nextItem.levelName || 'Ready to continue'}${nextItem.modeLabel ? ' · ' + nextItem.modeLabel : ''}`;
         const kicker = nextItem.type === 'story'
-            ? 'Continue Reading'
+            ? 'Resume this book'
             : nextItem.type === 'math-mission'
                 ? 'Maths mission'
                 : 'Maths practice';
-        const cta = nextItem.type === 'story' ? 'Continue reading' : nextItem.cta;
+        const cta = nextItem.type === 'story' ? 'Resume book' : nextItem.cta;
+        const support = nextItem.type === 'story'
+            ? [story?.author, story?.direction === 'rtl' ? 'Urdu shelf' : 'English shelf'].filter(Boolean).join(' • ')
+            : '';
 
         container.innerHTML = `
             <button class="next-up-card" ${dataAttrs}>
@@ -1303,6 +1306,7 @@ class KidsMathsApp {
                     ${nextUpVisual}
                     <div class="next-up-copy">
                         <div class="next-up-title">${this._escapeHtml(nextItem.title)}</div>
+                        ${support ? `<div class="next-up-support">${this._escapeHtml(support)}</div>` : ''}
                         <div class="next-up-meta">${this._escapeHtml(meta)}</div>
                     </div>
                 </div>
