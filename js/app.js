@@ -3689,28 +3689,17 @@ class KidsMathsApp {
             };
         }
 
-        if (entry.isRead) {
-            return {
-                action: 'open',
-                label: 'Read again',
-                detail: 'Start from page 1'
-            };
-        }
-
-        return {
-            action: 'open',
-            label: 'Start here',
-            detail: 'Start from page 1'
-        };
+        return null;
     }
 
     _buildOurStoriesLastReadCard(entry) {
         const secondary = this._getOurStoriesSecondaryAction(entry);
+        const bookmarkLabel = entry.bookmark ? 'Latest bookmark' : 'Starting point';
         const bookmarkLine = entry.bookmark
             ? `Page ${entry.bookmark.page + 1}`
             : entry.isRead
-                ? 'Finished before'
-                : 'Start from page 1';
+                ? 'Page 1'
+                : 'Page 1';
         const summary = entry.bookmark
             ? 'Come straight back to the saved place without hunting through the shelf.'
             : entry.isRead
@@ -3727,12 +3716,12 @@ class KidsMathsApp {
                         ${entry.story.author ? `<div class="our-stories-last-read-byline">${this._escapeHtml(entry.story.author)}</div>` : ''}
                         <div class="our-stories-last-read-summary">${this._escapeHtml(summary)}</div>
                         <div class="our-stories-last-read-bookmark-box">
-                            <div class="our-stories-last-read-bookmark-label">Latest bookmark</div>
+                            <div class="our-stories-last-read-bookmark-label">${this._escapeHtml(bookmarkLabel)}</div>
                             <div class="our-stories-last-read-bookmark-line">${this._escapeHtml(bookmarkLine)}</div>
                         </div>
                         <div class="our-stories-last-read-actions">
                             <button class="primary-btn our-stories-action-btn" type="button" data-story-bookshelf-action="open" data-story-id="${entry.story.id}">Open book</button>
-                            <button class="secondary-btn our-stories-action-btn" type="button" data-story-bookshelf-action="${secondary.action}" data-story-id="${entry.story.id}">${this._escapeHtml(secondary.label)}</button>
+                            ${secondary ? `<button class="secondary-btn our-stories-action-btn" type="button" data-story-bookshelf-action="${secondary.action}" data-story-id="${entry.story.id}">${this._escapeHtml(secondary.label)}</button>` : ''}
                         </div>
                     </div>
                 </div>
@@ -3745,7 +3734,7 @@ class KidsMathsApp {
         const progressLine = entry.bookmark
             ? `Latest bookmark: page ${entry.bookmark.page + 1}`
             : entry.isRead
-                ? 'Read again from the start'
+                ? 'Start from page 1'
                 : 'Start from page 1';
         const statusLine = entry.bookmark
             ? `${entry.totalPages} pages · in progress`
@@ -3764,7 +3753,7 @@ class KidsMathsApp {
                 </div>
                 <div class="our-stories-book-actions">
                     <button class="primary-btn our-stories-row-btn" type="button" data-story-bookshelf-action="open" data-story-id="${entry.story.id}">Open</button>
-                    <button class="secondary-btn our-stories-row-btn" type="button" data-story-bookshelf-action="${secondary.action}" data-story-id="${entry.story.id}">${this._escapeHtml(secondary.label)}</button>
+                    ${secondary ? `<button class="secondary-btn our-stories-row-btn" type="button" data-story-bookshelf-action="${secondary.action}" data-story-id="${entry.story.id}">${this._escapeHtml(secondary.label)}</button>` : ''}
                 </div>
             </div>
         `;
