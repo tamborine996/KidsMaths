@@ -53,8 +53,8 @@ assert(app.includes('_cancelStoryWordHoldSelection('), 'Expected long-hold cance
 assert(app.includes('_clearStoryWordSelection('), 'Expected custom English story word clearing handler');
 assert(app.includes('_saveSelectedStoryWord('), 'Expected save action for selected story words');
 assert(app.includes('_bookmarkCurrentStoryFromSelection('), 'Expected bookmark action compatibility helper to remain available');
-assert(app.includes('Bookmarked word'), 'Expected explicit saved-word feedback in the story word sheet');
-assert(app.includes('Bookmark word'), 'Expected explicit word-bookmark copy in the story word sheet');
+assert(app.includes("const wordActionVerb = isUrduSelection ? 'Save' : 'Bookmark';"), 'Expected popup wording to distinguish Urdu save-word vs English bookmark-word language');
+assert(app.includes("const wordActionPast = isUrduSelection ? 'Saved' : 'Bookmarked';"), 'Expected popup wording to distinguish saved states by reader type');
 assert(app.includes('_handleStoryHeaderBookmark('), 'Expected visible story-header bookmark access handler');
 assert(app.includes('_beginStorySelectionHandleDrag('), 'Expected Kindle-style selection handle drag start handler');
 assert(app.includes('_updateStorySelectionHandleDrag('), 'Expected Kindle-style selection handle drag update handler');
@@ -84,7 +84,7 @@ assert(storySelectionPositioning.includes('getClientRects'), 'Expected story sel
 assert(storySelectionPositioning.includes('visualViewport'), 'Expected story selection positioning helper to respect the visual viewport');
 assert(app.includes("status.textContent = 'hold one';"), 'Expected calm top-chip fallback copy for the long-hold icon popup');
 assert(!app.includes('Tap a word or drag across a phrase to hear it, save it, bookmark it, or clear it.'), 'Expected old save-heavy helper copy to be removed');
-assert(app.includes('Bookmarked word'), 'Expected explicit saved-word feedback for word bookmarking');
+assert(app.includes("const wordActionPast = isUrduSelection ? 'Saved' : 'Bookmarked';"), 'Expected explicit saved-word feedback logic for word actions');
 assert(app.includes('story-word-button'), 'Expected custom button class for selectable English story words');
 assert(app.includes('data-token-index'), 'Expected token index markers for phrase range selection');
 assert(!app.includes('_handleStoryTextSelection()'), 'Expected native selection-based English TTS handler to be removed');

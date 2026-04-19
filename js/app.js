@@ -91,6 +91,9 @@ class KidsMathsApp {
         this._pendingUrduSelectionText = '';
         this._urduParagraphTranslations = {};
         this._urduParagraphLoadingKey = '';
+        this._readerSelectionMeaningCache = {};
+        this._readerSelectionMeaningText = '';
+        this._readerSelectionMeaningKey = '';
         this._baseUrduLevels = [];
         this._bbcFeedItems = [];
         this._bbcFeedExpanded = false;
@@ -3844,9 +3847,68 @@ class KidsMathsApp {
 
     _storySupportsCustomWordSelection(story = this.currentStory) {
         if (!story) return false;
-        if ((story.direction || 'ltr') !== 'ltr') return false;
-        const text = story.pages?.[this.currentStoryPage]?.text || '';
-        return Boolean(String(text).trim());
+        return Boolean(String(story.pages?.[this.currentStoryPage]?.text || '').trim());
+    }
+
+    _getReaderSelectionMeaningKey(selection = this._getActiveReaderSelection()) {
+        if (!selection || !this.currentStory) return '';
+        return [
+            this.currentStory.id,
+            this.currentStoryPage,
+            Number(selection.paragraphIndex ?? -1),
+            Number(selection.startTokenIndex ?? selection.occurrenceIndex ?? -1),
+            Number(selection.endTokenIndex ?? selection.occurrenceIndex ?? -1),
+            String(selection.text || selection.word || '').trim()
+        ].join('::');
+    }
+
+    _getReaderSelectionMeaning(selection = this._getActiveReaderSelection()) {
+        const key = this._getReaderSelectionMeaningKey(selection);
+        if (!key) return '';
+        if (this._readerSelectionMeaningKey === key && this._readerSelectionMeaningText) {
+            return this._readerSelectionMeaningText;
+        }
+        return this._readerSelectionMeaningCache[key] || '';
+    }
+
+    async _syncReaderSelectionMeaning(selection = this._getActiveReaderSelection()) {
+        if (!selection || !this.currentStory || this.currentStory.direction !== 'rtl') {
+            this._readerSelectionMeaningKey = '';
+            this._readerSelectionMeaningText = '';
+            return '';
+        }
+
+        const text = String(selection.text || selection.word || '').trim();
+        const key = this._getReaderSelectionMeaningKey(selection);
+        if (!text || !key) return '';
+
+        if (this._readerSelectionMeaningCache[key]) {
+            this._readerSelectionMeaningKey = key;
+            this._readerSelectionMeaningText = this._readerSelectionMeaningCache[key];
+            return this._readerSelectionMeaningText;
+        }
+
+        this._readerSelectionMeaningKey = key;
+        this._readerSelectionMeaningText = 'Translating…';
+        this._renderStorySelectionControls();
+
+        try {
+            const translation = await this._translateWithGoogle(text);
+            const resolved = translation || 'No translation found';
+            this._readerSelectionMeaningCache[key] = resolved;
+            if (this._readerSelectionMeaningKey === key) {
+                this._readerSelectionMeaningText = resolved;
+                this._renderStorySelectionControls();
+            }
+            return resolved;
+        } catch (error) {
+            console.error('Reader selection translation failed:', error);
+            if (this._readerSelectionMeaningKey === key) {
+                this._readerSelectionMeaningText = 'Translation failed. Try again.';
+                this._renderStorySelectionControls();
+            }
+            return this._readerSelectionMeaningText;
+        }
     }
 
     _splitStoryParagraphs(text = '') {
@@ -4173,6 +4235,8 @@ class KidsMathsApp {
         this._suppressStoryWordClick = false;
         this._showStorySavedWords = false;
         this._showStorySelectionExtras = false;
+        this._readerSelectionMeaningKey = '';
+        this._readerSelectionMeaningText = '';
         if (!preserveStatus) {
             this._storyAudioStatusOverride = '';
         }
@@ -4360,6 +4424,9 @@ class KidsMathsApp {
         this._renderCurrentStoryText();
         this._renderStorySelectionControls();
         this._updateStorySelectionHandles();
+        if (this.currentStory.direction === 'rtl' && this._selectionIsSingleWord(nextSelection)) {
+            this._syncReaderSelectionMeaning(nextSelection);
+        }
     }
 
     _selectStoryWordRange(startSelection, endSelection = startSelection, { preserveHandleDrag = false } = {}) {
@@ -4401,6 +4468,12 @@ class KidsMathsApp {
         this._renderCurrentStoryText();
         this._renderStorySelectionControls();
         this._updateStorySelectionHandles();
+        if (this.currentStory?.direction === 'rtl' && this._selectionIsSingleWord(nextSelection)) {
+            this._syncReaderSelectionMeaning(nextSelection);
+        } else if (this.currentStory?.direction === 'rtl') {
+            this._readerSelectionMeaningKey = '';
+            this._readerSelectionMeaningText = '';
+        }
     }
 
     _openStorySelectionActions(selection = this._getSelectedStoryWord()) {
@@ -4415,82 +4488,87 @@ class KidsMathsApp {
         this._renderStorySelectionControls();
     }
 
-    _renderInteractiveEnglishStoryText(text) {
-        const paragraphs = this._splitStoryParagraphs(text);
-        const selectedWord = this._getSelectedStoryWord() || this._getStoryPreviewSelection();
-        const savedWords = this._getStorySavedWords();
+    _renderSelectableStoryParagraph(paragraph, paragraphIndex, {
+        selectedWord = this._getSelectedStoryWord() || this._getStoryPreviewSelection(),
+        savedWordMatcher = ({ normalizedWord, tokenIndex, occurrenceIndex }) => this._storySavedWordMatchesToken(this._getStorySavedWords().find(item => this._storySavedWordMatchesToken(item, {
+            paragraphIndex,
+            tokenIndex,
+            normalizedWord
+        })), {
+            paragraphIndex,
+            tokenIndex,
+            normalizedWord
+        }),
+    } = {}) {
+        const occurrenceCounts = new Map();
+        const tokens = String(paragraph || '').split(/(\s+)/);
+        const selectionStartToken = selectedWord
+            && Number(selectedWord.paragraphIndex ?? -1) === paragraphIndex
+            ? Number(selectedWord.startTokenIndex ?? -1)
+            : null;
+        const selectionEndToken = selectedWord
+            && Number(selectedWord.paragraphIndex ?? -1) === paragraphIndex
+            ? Number(selectedWord.endTokenIndex ?? -1)
+            : null;
         const wordPattern = /^([^\p{L}\p{N}'’-]*)([\p{L}\p{N}'’-]+)([^\p{L}\p{N}'’-]*)$/u;
 
+        return tokens.map((token, tokenIndex) => {
+            const isTokenSelected = selectionStartToken !== null
+                && selectionEndToken !== null
+                && tokenIndex >= selectionStartToken
+                && tokenIndex <= selectionEndToken;
+            const isSelectionStart = isTokenSelected && tokenIndex === selectionStartToken;
+            const isSelectionEnd = isTokenSelected && tokenIndex === selectionEndToken;
+            const fragmentClass = `story-selection-fragment${isTokenSelected ? ' is-selected' : ''}${isSelectionStart ? ' is-selection-start' : ''}${isSelectionEnd ? ' is-selection-end' : ''}`;
+            if (!token) return '';
+            if (/^\s+$/u.test(token)) {
+                const whitespaceHtml = token.replace(/ /g, '&nbsp;');
+                return isTokenSelected
+                    ? `<span class="${fragmentClass}" data-token-fragment-index="${tokenIndex}">${whitespaceHtml}</span>`
+                    : whitespaceHtml;
+            }
+
+            const match = token.match(wordPattern);
+            if (!match) {
+                return isTokenSelected
+                    ? `<span class="${fragmentClass}" data-token-fragment-index="${tokenIndex}">${this._escapeHtml(token)}</span>`
+                    : this._escapeHtml(token);
+            }
+
+            const [, prefix = '', rawWord = '', suffix = ''] = match;
+            const normalizedWord = this._normalizeStoryWordText(rawWord);
+            if (!normalizedWord) {
+                return isTokenSelected
+                    ? `<span class="${fragmentClass}" data-token-fragment-index="${tokenIndex}">${this._escapeHtml(token)}</span>`
+                    : this._escapeHtml(token);
+            }
+
+            const occurrenceIndex = occurrenceCounts.get(normalizedWord) || 0;
+            occurrenceCounts.set(normalizedWord, occurrenceIndex + 1);
+
+            const isSelected = isTokenSelected;
+            const isBookmarkedWord = Boolean(savedWordMatcher?.({ normalizedWord, tokenIndex, occurrenceIndex }));
+            const isRangeEdge = isSelected && (
+                Number(selectedWord?.startTokenIndex ?? -1) === tokenIndex
+                || Number(selectedWord?.endTokenIndex ?? -1) === tokenIndex
+            );
+            const unitClass = `story-selection-unit${isSelected ? ' is-selected' : ''}${isBookmarkedWord ? ' is-bookmarked-word' : ''}${isRangeEdge ? ' is-range-edge' : ''}${isSelectionStart ? ' is-selection-start' : ''}${isSelectionEnd ? ' is-selection-end' : ''}`;
+            const prefixHtml = prefix
+                ? `<span class="${fragmentClass}" data-token-fragment-index="${tokenIndex}">${this._escapeHtml(prefix)}</span>`
+                : '';
+            const suffixHtml = suffix
+                ? `<span class="${fragmentClass}" data-token-fragment-index="${tokenIndex}">${this._escapeHtml(suffix)}</span>`
+                : '';
+
+            return `${prefixHtml}<span class="${unitClass}" data-token-unit-index="${tokenIndex}"><button class="story-word-button${isSelected ? ' is-selected' : ''}${isBookmarkedWord ? ' is-bookmarked-word' : ''}${isRangeEdge ? ' is-range-edge' : ''}" data-story-word="${this._escapeHtml(rawWord)}" data-story-word-normalized="${this._escapeHtml(normalizedWord)}" data-paragraph-index="${paragraphIndex}" data-occurrence-index="${occurrenceIndex}" data-token-index="${tokenIndex}" type="button">${this._escapeHtml(rawWord)}</button></span>${suffixHtml}`;
+        }).join('');
+    }
+
+    _renderInteractiveEnglishStoryText(text) {
+        const paragraphs = this._splitStoryParagraphs(text);
+
         return paragraphs.map((paragraph, paragraphIndex) => {
-            const occurrenceCounts = new Map();
-            const tokens = paragraph.split(/(\s+)/);
-            const selectionStartToken = selectedWord
-                && Number(selectedWord.paragraphIndex ?? -1) === paragraphIndex
-                ? Number(selectedWord.startTokenIndex ?? -1)
-                : null;
-            const selectionEndToken = selectedWord
-                && Number(selectedWord.paragraphIndex ?? -1) === paragraphIndex
-                ? Number(selectedWord.endTokenIndex ?? -1)
-                : null;
-            const renderedTokens = tokens.map((token, tokenIndex) => {
-                const isTokenSelected = selectionStartToken !== null
-                    && selectionEndToken !== null
-                    && tokenIndex >= selectionStartToken
-                    && tokenIndex <= selectionEndToken;
-                const isSelectionStart = isTokenSelected && tokenIndex === selectionStartToken;
-                const isSelectionEnd = isTokenSelected && tokenIndex === selectionEndToken;
-                const fragmentClass = `story-selection-fragment${isTokenSelected ? ' is-selected' : ''}${isSelectionStart ? ' is-selection-start' : ''}${isSelectionEnd ? ' is-selection-end' : ''}`;
-                if (!token) return '';
-                if (/^\s+$/u.test(token)) {
-                    const whitespaceHtml = token.replace(/ /g, '&nbsp;');
-                    return isTokenSelected
-                        ? `<span class="${fragmentClass}" data-token-fragment-index="${tokenIndex}">${whitespaceHtml}</span>`
-                        : whitespaceHtml;
-                }
-
-                const match = token.match(wordPattern);
-                if (!match) {
-                    return isTokenSelected
-                        ? `<span class="${fragmentClass}" data-token-fragment-index="${tokenIndex}">${this._escapeHtml(token)}</span>`
-                        : this._escapeHtml(token);
-                }
-
-                const [, prefix = '', rawWord = '', suffix = ''] = match;
-                const normalizedWord = this._normalizeStoryWordText(rawWord);
-                if (!normalizedWord) {
-                    return isTokenSelected
-                        ? `<span class="${fragmentClass}" data-token-fragment-index="${tokenIndex}">${this._escapeHtml(token)}</span>`
-                        : this._escapeHtml(token);
-                }
-
-                const occurrenceIndex = occurrenceCounts.get(normalizedWord) || 0;
-                occurrenceCounts.set(normalizedWord, occurrenceIndex + 1);
-
-                const isSelected = isTokenSelected;
-                const isBookmarkedWord = this._storySavedWordMatchesToken(savedWords.find(item => this._storySavedWordMatchesToken(item, {
-                    paragraphIndex,
-                    tokenIndex,
-                    normalizedWord
-                })), {
-                    paragraphIndex,
-                    tokenIndex,
-                    normalizedWord
-                });
-                const isRangeEdge = isSelected && (
-                    Number(selectedWord?.startTokenIndex ?? -1) === tokenIndex
-                    || Number(selectedWord?.endTokenIndex ?? -1) === tokenIndex
-                );
-                const unitClass = `story-selection-unit${isSelected ? ' is-selected' : ''}${isBookmarkedWord ? ' is-bookmarked-word' : ''}${isRangeEdge ? ' is-range-edge' : ''}${isSelectionStart ? ' is-selection-start' : ''}${isSelectionEnd ? ' is-selection-end' : ''}`;
-                const prefixHtml = prefix
-                    ? `<span class="${fragmentClass}" data-token-fragment-index="${tokenIndex}">${this._escapeHtml(prefix)}</span>`
-                    : '';
-                const suffixHtml = suffix
-                    ? `<span class="${fragmentClass}" data-token-fragment-index="${tokenIndex}">${this._escapeHtml(suffix)}</span>`
-                    : '';
-
-                return `${prefixHtml}<span class="${unitClass}" data-token-unit-index="${tokenIndex}"><button class="story-word-button${isSelected ? ' is-selected' : ''}${isBookmarkedWord ? ' is-bookmarked-word' : ''}${isRangeEdge ? ' is-range-edge' : ''}" data-story-word="${this._escapeHtml(rawWord)}" data-story-word-normalized="${this._escapeHtml(normalizedWord)}" data-paragraph-index="${paragraphIndex}" data-occurrence-index="${occurrenceIndex}" data-token-index="${tokenIndex}" type="button">${this._escapeHtml(rawWord)}</button></span>${suffixHtml}`;
-            }).join('');
-
+            const renderedTokens = this._renderSelectableStoryParagraph(paragraph, paragraphIndex);
             return `<p class="story-text-paragraph" data-story-paragraph="${paragraphIndex}">${renderedTokens}</p>`;
         }).join('');
     }
@@ -4660,11 +4738,14 @@ class KidsMathsApp {
             ? (isSingleWordSelection ? selectedWord.word : selectedWord.text)
             : '';
         const isUrduSelection = Boolean(selectedWord?.isUrduSelection);
+        const meaningText = isUrduSelection ? this._getReaderSelectionMeaning(selectedWord) : '';
+        const wordActionVerb = isUrduSelection ? 'Save' : 'Bookmark';
+        const wordActionPast = isUrduSelection ? 'Saved' : 'Bookmarked';
         const bookmarkMetaLabel = isUrduSelection
-            ? [String(selectedWord?.meaning || '').trim(), activeFeedback === 'saved' || wordAlreadyBookmarked ? 'Saved word' : 'Save word'].filter(Boolean).join(' • ')
+            ? [String(meaningText || '').trim(), activeFeedback === 'saved' || wordAlreadyBookmarked ? `${wordActionPast} word` : `${wordActionVerb} word`].filter(Boolean).join(' • ')
             : (activeFeedback === 'saved' || wordAlreadyBookmarked
-                ? 'Bookmarked word'
-                : 'Bookmark word');
+                ? `${wordActionPast} word`
+                : `${wordActionVerb} word`);
 
         controls.classList.toggle('hidden', !trayVisible);
         backdrop.classList.toggle('hidden', !trayVisible);
@@ -4685,7 +4766,7 @@ class KidsMathsApp {
         clearBtn.disabled = !selectedWord;
         speakBtn.setAttribute('aria-label', selectionLabel ? `Speak ${selectionLabel}` : 'Speak selected word');
         speakBtn.title = selectionLabel ? `Speak ${selectionLabel}` : 'Speak selected word';
-        bookmarkBtn.setAttribute('aria-label', selectionLabel ? ((wordAlreadyBookmarked || activeFeedback === 'saved') ? `Saved word ${selectionLabel}` : `Save word ${selectionLabel}`) : 'Save selected word');
+        bookmarkBtn.setAttribute('aria-label', selectionLabel ? ((wordAlreadyBookmarked || activeFeedback === 'saved') ? `${wordActionPast} word ${selectionLabel}` : `${wordActionVerb} word ${selectionLabel}`) : `${wordActionVerb} selected word`);
         clearBtn.setAttribute('aria-label', selectionLabel ? `Clear ${selectionLabel}` : 'Clear selected word');
         clearBtn.title = selectionLabel ? `Clear ${selectionLabel}` : 'Clear selected word';
         controls.classList.toggle('is-speaking', this._storyAudioLoading || Boolean(this._storyAudioElement));
@@ -4694,8 +4775,8 @@ class KidsMathsApp {
         speakBtn.classList.toggle('is-subtle-busy', this._storyAudioLoading || Boolean(this._storyAudioElement));
         bookmarkBtn.classList.toggle('is-subtle-busy', activeFeedback === 'saved' || wordAlreadyBookmarked);
         bookmarkBtn.title = selectionLabel
-            ? ((wordAlreadyBookmarked || activeFeedback === 'saved') ? `Saved word ${selectionLabel}` : `Save word ${selectionLabel}`)
-            : 'Save selected word';
+            ? ((wordAlreadyBookmarked || activeFeedback === 'saved') ? `${wordActionPast} word ${selectionLabel}` : `${wordActionVerb} word ${selectionLabel}`)
+            : `${wordActionVerb} selected word`;
         bookmarkMeta.textContent = bookmarkMetaLabel;
 
         if (selectionLabel) {
@@ -4931,7 +5012,12 @@ class KidsMathsApp {
 
     _getActiveReaderSelection() {
         const selectedStoryWord = this._getSelectedStoryWord();
-        if (selectedStoryWord) return selectedStoryWord;
+        if (selectedStoryWord) {
+            return {
+                ...selectedStoryWord,
+                isUrduSelection: this.currentStory?.direction === 'rtl'
+            };
+        }
         if (!this._selectedUrduWord || !this.currentStory) return null;
 
         const cleanWord = String(this._selectedUrduWord.word || '').trim();
@@ -4985,6 +5071,18 @@ class KidsMathsApp {
 
     _getUrduParagraphCacheKey(index) {
         return `${this.currentStory?.id || 'story'}::${this.currentStoryPage}::${index}`;
+    }
+
+    _revealUrduParagraphTranslation(index) {
+        requestAnimationFrame(() => {
+            const translation = document.querySelector(`.urdu-paragraph-block[data-paragraph-index="${index}"] .urdu-paragraph-translation:not(.hidden)`);
+            const storyContent = document.getElementById('story-content');
+            if (!translation || !storyContent) return;
+            const translationRect = translation.getBoundingClientRect();
+            const contentRect = storyContent.getBoundingClientRect();
+            const desiredOffset = translationRect.top - contentRect.top - 20;
+            storyContent.scrollTop += desiredOffset;
+        });
     }
 
     _getUrduVocabExclusionSets() {
@@ -5053,7 +5151,7 @@ class KidsMathsApp {
             const key = this._getUrduParagraphCacheKey(index);
             const translation = this._urduParagraphTranslations[key] || '';
             const isLoading = this._urduParagraphLoadingKey === key;
-            const hasInlineSelection = Number(this._selectedUrduWord?.paragraphIndex ?? -1) === index;
+            const hasInlineSelection = Number((this._getSelectedStoryWord()?.paragraphIndex ?? -1)) === index;
             const translationHtml = isLoading
                 ? '<div class="urdu-page-translation-label">English for this paragraph</div><p>Translating paragraph…</p>'
                 : `<div class="urdu-page-translation-label">English for this paragraph</div><p>${this._escapeHtml(translation).replace(/\n/g, '<br>')}</p>`;
@@ -5062,7 +5160,9 @@ class KidsMathsApp {
                 <div class="urdu-paragraph-block${hasInlineSelection ? ' has-selection' : ''}" data-paragraph-index="${index}">
                     <div class="urdu-paragraph-row">
                         <button class="urdu-paragraph-translate-btn${translation ? ' is-active' : ''}" type="button" data-paragraph-translate="${index}" aria-label="Translate paragraph ${index + 1}">EN</button>
-                        <div class="urdu-paragraph-text">${this._renderInteractiveUrduParagraph(paragraph, vocabulary, index)}</div>
+                        <div class="urdu-paragraph-text">${this._renderSelectableStoryParagraph(paragraph, index, {
+                            savedWordMatcher: ({ paragraphIndex, tokenIndex, occurrenceIndex }) => this._isUrduWordBookmarked(paragraphIndex, occurrenceIndex, this._getUrduSavedWords(), tokenIndex)
+                        })}</div>
                     </div>
                     <div class="urdu-paragraph-translation${translation || isLoading ? '' : ' hidden'}">${translationHtml}</div>
                 </div>
@@ -5077,7 +5177,7 @@ class KidsMathsApp {
             const key = this._getUrduParagraphCacheKey(index);
             const translation = this._urduParagraphTranslations[key] || '';
             const isLoading = this._urduParagraphLoadingKey === key;
-            const hasInlineSelection = Number(this._selectedUrduWord?.paragraphIndex ?? -1) === index;
+            const hasInlineSelection = Number((this._getSelectedStoryWord()?.paragraphIndex ?? -1)) === index;
             const translationHtml = isLoading
                 ? '<div class="urdu-page-translation-label">English for this paragraph</div><p>Translating paragraph…</p>'
                 : `<div class="urdu-page-translation-label">English for this paragraph</div><p>${this._escapeHtml(translation).replace(/\n/g, '<br>')}</p>`;
@@ -5086,7 +5186,9 @@ class KidsMathsApp {
                 <div class="urdu-paragraph-block urdu-article-paragraph${hasInlineSelection ? ' has-selection' : ''}" data-paragraph-index="${index}">
                     <div class="urdu-paragraph-row urdu-article-paragraph-row">
                         <button class="urdu-paragraph-translate-btn urdu-article-translate-btn${translation ? ' is-active' : ''}" type="button" data-paragraph-translate="${index}" aria-label="Translate paragraph ${index + 1}">EN</button>
-                        <div class="urdu-paragraph-text urdu-article-paragraph-text">${this._renderInteractiveUrduParagraph(paragraph, {}, index)}</div>
+                        <div class="urdu-paragraph-text urdu-article-paragraph-text">${this._renderSelectableStoryParagraph(paragraph, index, {
+                            savedWordMatcher: ({ paragraphIndex, tokenIndex, occurrenceIndex }) => this._isUrduWordBookmarked(paragraphIndex, occurrenceIndex, this._getUrduSavedWords(), tokenIndex)
+                        })}</div>
                     </div>
                     <div class="urdu-paragraph-translation${translation || isLoading ? '' : ' hidden'}">${translationHtml}</div>
                 </div>
@@ -5299,6 +5401,7 @@ class KidsMathsApp {
                 this._urduParagraphLoadingKey = '';
             }
             this._renderCurrentStoryText();
+            this._revealUrduParagraphTranslation(index);
         }
     }
 
@@ -5306,17 +5409,19 @@ class KidsMathsApp {
         return state.get('urduSavedWords') || [];
     }
 
-    _getUrduSavedWordKey(selection = this._selectedUrduWord) {
+    _getUrduSavedWordKey(selection = this._getActiveReaderSelection()) {
         if (!selection || !this.currentStory) return '';
         return [
             this.currentStory.id,
             this.currentStoryPage,
             Number(selection.paragraphIndex ?? -1),
-            Number(selection.occurrenceIndex ?? -1)
+            Number(selection.occurrenceIndex ?? -1),
+            Number(selection.startTokenIndex ?? selection.occurrenceIndex ?? -1),
+            Number(selection.endTokenIndex ?? selection.occurrenceIndex ?? -1)
         ].join('::');
     }
 
-    _urduSavedWordMatchesSelection(item, selection = this._selectedUrduWord) {
+    _urduSavedWordMatchesSelection(item, selection = this._getActiveReaderSelection()) {
         if (!item || !selection || !this.currentStory) return false;
         const exactKey = this._getUrduSavedWordKey(selection);
         if (item.key === exactKey) return true;
@@ -5326,24 +5431,34 @@ class KidsMathsApp {
             && Number(item.occurrenceIndex) === Number(selection.occurrenceIndex ?? -1);
     }
 
-    _isUrduWordBookmarked(paragraphIndex = -1, occurrenceIndex = -1, savedWords = this._getUrduSavedWords()) {
+    _isUrduWordBookmarked(paragraphIndex = -1, occurrenceIndex = -1, savedWords = this._getUrduSavedWords(), tokenIndex = occurrenceIndex) {
         if (!this.currentStory) return false;
-        return savedWords.some(item => String(item.storyId) === String(this.currentStory.id)
-            && Number(item.page) === Number(this.currentStoryPage)
-            && Number(item.paragraphIndex) === Number(paragraphIndex)
-            && Number(item.occurrenceIndex) === Number(occurrenceIndex));
+        return savedWords.some(item => {
+            if (String(item.storyId) !== String(this.currentStory.id) || Number(item.page) !== Number(this.currentStoryPage)) {
+                return false;
+            }
+            if (item.startTokenIndex !== undefined && item.endTokenIndex !== undefined) {
+                return Number(item.paragraphIndex) === Number(paragraphIndex)
+                    && Number(item.startTokenIndex) <= Number(tokenIndex)
+                    && Number(item.endTokenIndex) >= Number(tokenIndex);
+            }
+            return Number(item.paragraphIndex) === Number(paragraphIndex)
+                && Number(item.occurrenceIndex) === Number(occurrenceIndex);
+        });
     }
 
     _isSelectedUrduWordSaved(savedWords = this._getUrduSavedWords()) {
-        if (!this._selectedUrduWord) return false;
-        return savedWords.some(item => this._urduSavedWordMatchesSelection(item, this._selectedUrduWord));
+        const selection = this._getActiveReaderSelection();
+        if (!selection || !this.currentStory || this.currentStory.direction !== 'rtl') return false;
+        return savedWords.some(item => this._urduSavedWordMatchesSelection(item, selection));
     }
 
     _saveSelectedUrduWord() {
-        if (!this._selectedUrduWord || !this.currentStory) return;
+        const selection = this._getActiveReaderSelection();
+        if (!selection || !this.currentStory || this.currentStory.direction !== 'rtl') return;
         const existing = this._getUrduSavedWords();
-        const key = this._getUrduSavedWordKey(this._selectedUrduWord);
-        if (existing.some(item => this._urduSavedWordMatchesSelection(item, this._selectedUrduWord))) {
+        const key = this._getUrduSavedWordKey(selection);
+        if (existing.some(item => this._urduSavedWordMatchesSelection(item, selection))) {
             this._storySelectionFeedback = 'saved';
             this._renderCurrentStoryText();
             this._renderStorySelectionControls();
@@ -5353,13 +5468,15 @@ class KidsMathsApp {
         state.set('urduSavedWords', [
             {
                 key,
-                word: this._selectedUrduWord.word,
-                meaning: this._selectedUrduWord.meaning,
+                word: selection.word,
+                meaning: this._getReaderSelectionMeaning(selection) || '',
                 storyId: this.currentStory.id,
                 storyTitle: this.currentStory.title,
                 page: this.currentStoryPage,
-                paragraphIndex: Number(this._selectedUrduWord.paragraphIndex ?? -1),
-                occurrenceIndex: Number(this._selectedUrduWord.occurrenceIndex ?? -1)
+                paragraphIndex: Number(selection.paragraphIndex ?? -1),
+                occurrenceIndex: Number(selection.occurrenceIndex ?? -1),
+                startTokenIndex: Number(selection.startTokenIndex ?? selection.occurrenceIndex ?? -1),
+                endTokenIndex: Number(selection.endTokenIndex ?? selection.occurrenceIndex ?? -1)
             },
             ...existing
         ].slice(0, 60));

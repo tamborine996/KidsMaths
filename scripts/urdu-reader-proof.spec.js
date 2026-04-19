@@ -21,9 +21,34 @@ test('Urdu shelf is article-focused and reader uses popup + inline paragraph tra
   await page.getByRole('button', { name: /Start reading/i }).click();
   await expect(page.locator('#bookmark-btn')).toBeVisible();
 
-  const urduWord = page.locator('.urdu-word-button', { hasText: 'کردار' }).first();
+  const urduWord = page.locator('.story-word-button', { hasText: 'کردار' }).first();
   await urduWord.scrollIntoViewIfNeeded();
   await urduWord.click();
+  await expect(page.locator('#story-selection-adjusters')).toBeVisible();
+
+  const box = await urduWord.boundingBox();
+  await urduWord.dispatchEvent('pointerdown', {
+    pointerId: 7,
+    pointerType: 'touch',
+    isPrimary: true,
+    bubbles: true,
+    clientX: box.x + box.width / 2,
+    clientY: box.y + box.height / 2,
+    button: 0,
+    buttons: 1,
+  });
+  await page.waitForTimeout(650);
+  await urduWord.dispatchEvent('pointerup', {
+    pointerId: 7,
+    pointerType: 'touch',
+    isPrimary: true,
+    bubbles: true,
+    clientX: box.x + box.width / 2,
+    clientY: box.y + box.height / 2,
+    button: 0,
+    buttons: 0,
+  });
+  await page.waitForTimeout(100);
 
   const popup = page.locator('#story-selection-controls');
   await expect(popup).toBeVisible();

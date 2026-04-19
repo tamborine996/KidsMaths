@@ -1074,10 +1074,11 @@ body {
 
 #story-screen .screen-header h2 {
     font-size: clamp(1.08rem, 3.3vw, 1.42rem);
-    line-height: 1.18;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.22;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
 }
 
 #story-screen .back-btn,
@@ -3581,16 +3582,15 @@ td.mastery-mastered {
 .urdu-word-button {
     appearance: none;
     border: none;
-    border-bottom: 2px dotted #8C6A9E;
     background: transparent;
     color: inherit;
     font: inherit;
     line-height: inherit;
-    padding: 0.04em 0.06em;
+    padding: 0.03em 0.08em;
     margin: 0;
-    border-radius: 8px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background 0.15s ease, transform 0.15s ease, border-bottom-color 0.15s ease;
+    transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .urdu-word-button.active {
