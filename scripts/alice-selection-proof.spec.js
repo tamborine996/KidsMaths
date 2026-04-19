@@ -25,6 +25,10 @@ async function selectedFragments(page) {
   );
 }
 
+async function selectedUnitBoxForToken(page, tokenIndex) {
+  return await page.locator(`.story-selection-unit:has(.story-word-button[data-token-index="${tokenIndex}"])`).boundingBox();
+}
+
 test.use({
   ...devices['Pixel 7'],
   viewport: { width: 412, height: 915 },
@@ -47,15 +51,22 @@ test('Alice selection handles support backward and continued downward extension'
   await expect(endHandle).toBeVisible();
 
   const middleBox = await middleWord.boundingBox();
+  const middleUnitBox = await selectedUnitBoxForToken(page, 102);
   const startBox = await startHandle.boundingBox();
   const endBox = await endHandle.boundingBox();
   expect(middleBox).toBeTruthy();
+  expect(middleUnitBox).toBeTruthy();
   expect(startBox).toBeTruthy();
   expect(endBox).toBeTruthy();
 
-  // Initial proof: two visible handles sit at the left/right boundaries of the selected word.
+  // Initial proof: two visible handles sit at the left/right boundaries of the selected word
+  // and attach to the actual highlighted unit, not the taller button line box.
   expect(startBox.x).toBeLessThan(middleBox.x + 5);
   expect(endBox.x + endBox.width).toBeGreaterThan(middleBox.x + middleBox.width - 5);
+  expect(startBox.y).toBeLessThanOrEqual(middleUnitBox.y + middleUnitBox.height);
+  expect(endBox.y).toBeLessThanOrEqual(middleUnitBox.y + middleUnitBox.height);
+  expect(startBox.y).toBeGreaterThanOrEqual(middleUnitBox.y + middleUnitBox.height - 5);
+  expect(endBox.y).toBeGreaterThanOrEqual(middleUnitBox.y + middleUnitBox.height - 5);
 
   await page.screenshot({ path: path.join(outputDir, '01-middle-word-with-handles.png'), fullPage: false });
 

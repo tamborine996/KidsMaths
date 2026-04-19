@@ -4220,10 +4220,14 @@ class KidsMathsApp {
 
         const positionHandle = (handle, button, boundary = 'start') => {
             const rect = button.getBoundingClientRect();
+            const selectionRect = button.closest('.story-selection-unit')?.getBoundingClientRect() || rect;
             handle.style.left = boundary === 'start'
                 ? `${Math.round(rect.left - 28)}px`
                 : `${Math.round(rect.right)}px`;
-            handle.style.top = `${Math.round(rect.bottom - 1)}px`;
+            // Anchor vertically to the actual highlighted selection unit, not the
+            // taller inline button box. Otherwise the handles can look detached
+            // even when they are mathematically close to the button bounds.
+            handle.style.top = `${Math.round(selectionRect.bottom - 2)}px`;
         };
 
         positionHandle(startHandle, startButton, 'start');
