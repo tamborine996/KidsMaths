@@ -23,6 +23,10 @@ assert(!html.includes('story-font-reset-btn'), 'Expected visible story font rese
 assert(html.includes('id="bookmark-btn"'), 'Expected a visible story-header bookmark button');
 assert(app.includes('_handleStoryHeaderBookmark('), 'Expected dedicated story-header bookmark handler');
 assert(app.includes('_goToStoryBookmark('), 'Expected ability to jump back to a saved bookmark');
+assert(app.includes('_getOurStoriesBookshelf('), 'Expected dedicated simplified bookshelf helper for Our Stories');
+assert(app.includes("levelSelector.classList.toggle('hidden', hideLevelSelector);"), 'Expected level selector to be hidden on the Our Stories bookshelf');
+assert(app.includes('Archived from the main shelf'), 'Expected simplified bookshelf copy explaining archived English stories');
+assert(app.includes("const keepIds = new Set(['r5-04', 'r5-05']);"), 'Expected only Alice and A Christmas Carol to remain on the active English shelf');
 assert(!app.includes('story-progress-fill'), 'Expected story page rendering to stop updating a removed progress bar');
 assert(css.includes('.timer-bar {'), 'Expected timer bar styling to remain defined');
 assert(!html.includes('id="coin-count"'), 'Expected top timer-bar coin display to be removed from index.html');

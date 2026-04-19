@@ -121,7 +121,12 @@ export class StorySelectionEngine {
             const dx = clientX < rect.left ? rect.left - clientX : clientX > rect.right ? clientX - rect.right : 0;
             const dy = clientY < rect.top ? rect.top - clientY : clientY > rect.bottom ? clientY - rect.bottom : 0;
             const distance = Math.hypot(dx, dy);
-            if (distance > 64) return;
+            // Do not hard-cut nearby cross-line targets during handle drag.
+            // On phone/tablet, the handle sits below the selection, so dragging to a word
+            // on the line above can easily exceed a small Euclidean threshold before the
+            // finger is visually over that word. The caller already paragraph-scopes the
+            // search during handle drag, so picking the nearest word in that paragraph is
+            // the stable reader-like behavior.
             const centerX = rect.left + (rect.width / 2);
             const centerY = rect.top + (rect.height / 2);
             const score = distance + (Math.abs(centerX - clientX) * 0.02) + (Math.abs(centerY - clientY) * 0.02);

@@ -3087,6 +3087,19 @@ td.mastery-mastered {
     font-weight: 800;
 }
 
+.story-page-bookmark-state {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: rgba(196, 70, 82, 0.12);
+    color: #8c2b38;
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+}
+
 .story-selection-adjusters {
     position: fixed;
     inset: 0;
@@ -3243,6 +3256,14 @@ td.mastery-mastered {
     cursor: grabbing;
 }
 
+.story-selection-context-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+}
+
 .story-selection-context {
     display: inline-flex;
     align-items: center;
@@ -3263,6 +3284,13 @@ td.mastery-mastered {
     text-overflow: ellipsis;
 }
 
+.story-selection-bookmark-meta {
+    font-size: 0.72rem;
+    line-height: 1.25;
+    color: rgba(56, 82, 118, 0.88);
+    text-align: center;
+}
+
 .story-selection-context-value {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -3275,6 +3303,15 @@ td.mastery-mastered {
     width: 100%;
     font-size: 1.05rem;
     line-height: 1;
+}
+
+.story-selection-btn-label {
+    display: block;
+    margin-top: 3px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.01em;
 }
 
 .story-selection-actions {
@@ -3449,6 +3486,43 @@ td.mastery-mastered {
     margin-bottom: 0;
 }
 
+.story-selection-unit,
+.story-selection-fragment {
+    display: inline;
+}
+
+.story-selection-unit.is-selected,
+.story-selection-fragment.is-selected {
+    background: rgba(26, 115, 232, 0.18);
+    box-shadow: inset 0 0 0 1px rgba(26, 115, 232, 0.12);
+    border-radius: 0;
+}
+
+.story-selection-unit.is-range-edge,
+.story-selection-fragment.is-selection-start,
+.story-selection-fragment.is-selection-end {
+    background: rgba(26, 115, 232, 0.26);
+    box-shadow: inset 0 0 0 1px rgba(26, 115, 232, 0.22);
+}
+
+.story-selection-unit.is-selection-start,
+.story-selection-fragment.is-selection-start {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+.story-selection-unit.is-selection-end,
+.story-selection-fragment.is-selection-end {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.story-selection-unit.is-bookmarked-word:not(.is-selected) {
+    background: rgba(247, 185, 206, 0.52);
+    box-shadow: inset 0 0 0 1px rgba(193, 87, 127, 0.24);
+    border-radius: 2px;
+}
+
 .story-word-button {
     appearance: none;
     border: none;
@@ -3470,16 +3544,20 @@ td.mastery-mastered {
 }
 
 .story-word-button.is-selected {
-    background: rgba(26, 115, 232, 0.18);
-    box-shadow: inset 0 0 0 1px rgba(26, 115, 232, 0.12);
-    border-radius: 2px;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
     color: #1f3f73;
 }
 
+.story-word-button.is-bookmarked-word:not(.is-selected) {
+    color: #8a3156;
+}
+
 .story-word-button.is-range-edge {
-    background: rgba(26, 115, 232, 0.26);
-    box-shadow: inset 0 0 0 1px rgba(26, 115, 232, 0.22);
-    border-radius: 2px;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
     color: #16335d;
 }
 
@@ -3516,10 +3594,17 @@ td.mastery-mastered {
 }
 
 .urdu-word-button.active {
-    background: rgba(140, 106, 158, 0.28);
+    background: rgba(26, 115, 232, 0.18);
     border-bottom-style: solid;
-    border-bottom-color: #6E4E88;
-    box-shadow: 0 0 0 2px rgba(140, 106, 158, 0.18);
+    border-bottom-color: rgba(26, 115, 232, 0.58);
+    box-shadow: inset 0 0 0 1px rgba(26, 115, 232, 0.12);
+}
+
+.urdu-word-button.is-bookmarked-word:not(.active) {
+    background: rgba(247, 185, 206, 0.52);
+    border-bottom-style: solid;
+    border-bottom-color: rgba(193, 87, 127, 0.34);
+    color: #8a3156;
 }
 
 .urdu-word-button:hover,
@@ -3529,10 +3614,15 @@ td.mastery-mastered {
 }
 
 .urdu-inline-selection.active {
-    background: rgba(255, 226, 138, 0.7);
-    border-radius: 10px;
+    background: rgba(26, 115, 232, 0.18);
+    border-radius: 2px;
     padding: 0.06em 0.18em;
-    box-shadow: 0 0 0 2px rgba(214, 162, 32, 0.18);
+    box-shadow: inset 0 0 0 1px rgba(26, 115, 232, 0.12);
+}
+
+.urdu-inline-selection.active.is-bookmarked-word {
+    background: rgba(26, 115, 232, 0.18);
+    box-shadow: inset 0 0 0 1px rgba(26, 115, 232, 0.12), 0 0 0 1px rgba(193, 87, 127, 0.18);
 }
 
 .urdu-paragraph-block {

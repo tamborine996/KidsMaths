@@ -351,6 +351,7 @@
             </header>
             <div class="story-reader-meta">
                 <div class="story-page-label" id="story-page-text">Page 1 of 4</div>
+                <div class="story-page-bookmark-state hidden" id="story-page-bookmark-state">Saved bookmark</div>
             </div>
             <div class="story-content" id="story-content">
                 <div id="story-text"></div>
@@ -368,14 +369,17 @@
             <div class="story-selection-backdrop hidden" id="story-selection-backdrop" aria-hidden="true"></div>
             <div class="story-selection-controls hidden" id="story-selection-controls" aria-label="Story word actions" aria-live="polite">
                 <button class="story-selection-sheet-handle" id="story-selection-sheet-handle" type="button" aria-label="Dismiss word actions"></button>
-                <div class="story-selection-context" aria-label="Selected word">
-                    <span class="story-selection-context-value" id="story-selection-status">hold one</span>
+                <div class="story-selection-context-wrap">
+                    <div class="story-selection-context" aria-label="Selected word">
+                        <span class="story-selection-context-value" id="story-selection-status">hold one</span>
+                    </div>
+                    <div class="story-selection-bookmark-meta" id="story-selection-bookmark-meta">Bookmark word</div>
                 </div>
 
                 <div class="story-selection-actions story-selection-primary-actions">
-                    <button class="primary-btn story-selection-btn story-selection-primary-btn" id="story-selection-speak-btn" type="button" aria-label="Speak selected word" title="Speak selected word" disabled><span class="story-selection-btn-icon" aria-hidden="true">🔊</span></button>
-                    <button class="secondary-btn story-selection-btn" id="story-selection-bookmark-btn" type="button" aria-label="Bookmark this reading spot" title="Bookmark this reading spot" disabled><span class="story-selection-btn-icon" aria-hidden="true">★</span></button>
-                    <button class="secondary-btn story-selection-btn story-selection-quiet-btn" id="story-selection-clear-btn" type="button" aria-label="Clear selected word" title="Clear selected word" disabled><span class="story-selection-btn-icon" aria-hidden="true">✕</span></button>
+                    <button class="primary-btn story-selection-btn story-selection-primary-btn" id="story-selection-speak-btn" type="button" aria-label="Speak selected word" title="Speak selected word" disabled><span class="story-selection-btn-icon" aria-hidden="true">🔊</span><span class="story-selection-btn-label">Speak</span></button>
+                    <button class="secondary-btn story-selection-btn" id="story-selection-bookmark-btn" type="button" aria-label="Bookmark selected word" title="Bookmark selected word" disabled><span class="story-selection-btn-icon" aria-hidden="true">🔖</span><span class="story-selection-btn-label">Word</span></button>
+                    <button class="secondary-btn story-selection-btn story-selection-quiet-btn" id="story-selection-clear-btn" type="button" aria-label="Clear selected word" title="Clear selected word" disabled><span class="story-selection-btn-icon" aria-hidden="true">✕</span><span class="story-selection-btn-label">Clear</span></button>
                 </div>
             </div>
             <div class="urdu-story-tools hidden" id="urdu-story-tools">

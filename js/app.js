@@ -230,6 +230,20 @@ class KidsMathsApp {
         };
     }
 
+    _getOurStoriesBookshelf() {
+        const keepIds = new Set(['r5-04', 'r5-05']);
+        const allStories = this.storyLevels.flatMap(level =>
+            level.stories.map(story => ({
+                ...story,
+                _levelName: level.name,
+                _levelId: level.id
+            }))
+        );
+        const activeStories = allStories.filter(story => keepIds.has(story.id));
+        const archivedStories = allStories.filter(story => !keepIds.has(story.id));
+        return { activeStories, archivedStories };
+    }
+
     _getFallbackMathWorlds() {
         return {
             worlds: [
@@ -2429,9 +2443,21 @@ class KidsMathsApp {
         const storySpeakBtn = document.getElementById('story-selection-speak-btn');
         if (storySpeakBtn) storySpeakBtn.addEventListener('click', () => this._speakStorySelection());
         const storyBookmarkBtn = document.getElementById('story-selection-bookmark-btn');
-        if (storyBookmarkBtn) storyBookmarkBtn.addEventListener('click', () => this._bookmarkCurrentStoryFromSelection());
+        if (storyBookmarkBtn) storyBookmarkBtn.addEventListener('click', () => {
+            if (this._storySupportsUrduTools()) {
+                this._saveSelectedUrduWord();
+                return;
+            }
+            this._saveSelectedStoryWord();
+        });
         const storyClearBtn = document.getElementById('story-selection-clear-btn');
-        if (storyClearBtn) storyClearBtn.addEventListener('click', () => this._clearStoryWordSelection());
+        if (storyClearBtn) storyClearBtn.addEventListener('click', () => {
+            if (this._storySupportsUrduTools()) {
+                this._clearSelectedUrduWord();
+                return;
+            }
+            this._clearStoryWordSelection();
+        });
         const storySelectionBackdrop = document.getElementById('story-selection-backdrop');
         if (storySelectionBackdrop) storySelectionBackdrop.addEventListener('click', () => this._dismissStorySelectionSheet());
         const storySelectionStartHandle = document.getElementById('story-selection-start-handle');
@@ -2589,12 +2615,20 @@ class KidsMathsApp {
                 if (isSameWord) {
                     this._clearSelectedUrduWord();
                 } else {
-                    this._selectUrduWord(
-                        nextWord,
-                        nextMeaning,
-                        nextParagraphIndex,
-                        nextOccurrenceIndex
-                    );
+                    if (String(nextMeaning || '').trim()) {
+                        this._selectUrduWord(
+                            nextWord,
+                            nextMeaning,
+                            nextParagraphIndex,
+                            nextOccurrenceIndex
+                        );
+                    } else {
+                        await this._translateTappedUrduText({
+                            word: nextWord,
+                            paragraphIndex: nextParagraphIndex,
+                            occurrenceIndex: nextOccurrenceIndex
+                        });
+                    }
                 }
                 return;
             }
@@ -3089,10 +3123,11 @@ class KidsMathsApp {
         const searchToggleLabel = document.getElementById('reading-search-toggle-label');
         const levelSelector = document.querySelector('#reading-screen .reading-level-selector');
         const isUrdu = tab === 'urdu';
+        const hideLevelSelector = tab === 'urdu' || tab === 'ours';
         const isOpen = this._isReadingSearchOpen() && !isUrdu;
 
         if (levelSelector) {
-            levelSelector.classList.toggle('hidden', isUrdu);
+            levelSelector.classList.toggle('hidden', hideLevelSelector);
         }
 
         if (searchSection) {
@@ -3115,6 +3150,18 @@ class KidsMathsApp {
         const { levels, stateKey, attribution } = this._getReadingSourceConfig(tab);
 
         const select = document.getElementById('reading-level-select');
+        const attr = document.getElementById('library-attribution');
+
+        if (tab === 'ours') {
+            if (select) {
+                select.innerHTML = '';
+            }
+            if (attr) {
+                attr.classList.add('hidden');
+                attr.textContent = '';
+            }
+            return;
+        }
 
         select.innerHTML = '';
 
@@ -3134,7 +3181,6 @@ class KidsMathsApp {
         }
 
         // Show/hide attribution
-        const attr = document.getElementById('library-attribution');
         if (attribution) {
             attr.textContent = attribution;
             attr.classList.remove('hidden');
@@ -3196,12 +3242,7 @@ class KidsMathsApp {
     }
 
     _getUrduStoryPreparationState(story) {
-        const isBbc = /BBC/i.test(story?.source || '') || story?.importSource === 'bbc-rss';
-        if (!isBbc) return null;
-        if (story.analysisState === 'smartened') {
-            return { label: 'Reading-ready', className: 'is-smartened' };
-        }
-        return { label: 'Needs smoothing', className: 'is-basic' };
+        return null;
     }
 
     _buildUrduStoryRow(story, { archived = false, current = false, featured = false } = {}) {
@@ -3266,25 +3307,29 @@ class KidsMathsApp {
     }
 
     _renderUrduStoryList(list) {
-        const archivedIds = new Set(state.get('archivedUrduStoryIds') || []);
-        const currentId = state.get('currentUrduStoryId');
         const showArchived = !!state.get('showArchivedUrdu');
+        const currentId = state.get('currentUrduStoryId');
         const stories = this._getAllUrduStories();
 
         const ranked = stories.map(story => {
             const progress = this._getUrduStoryProgress(story);
-            const updatedAt = progress.bookmark?.date || story.publishedAt || '';
+            const updatedAt = story.addedAt || progress.bookmark?.date || story.publishedAt || '';
             return { story, progress, updatedAt };
         }).sort((a, b) => {
             const aCurrent = a.story.id === currentId ? 1 : 0;
             const bCurrent = b.story.id === currentId ? 1 : 0;
             if (bCurrent !== aCurrent) return bCurrent - aCurrent;
+            if (b.updatedAt !== a.updatedAt) return (b.updatedAt || '').localeCompare(a.updatedAt || '');
             if (b.progress.percent !== a.progress.percent) return b.progress.percent - a.progress.percent;
-            return (b.updatedAt || '').localeCompare(a.updatedAt || '');
+            return 0;
         });
 
-        const activeStories = ranked.filter(item => !archivedIds.has(item.story.id)).map(item => item.story);
-        const archivedStories = ranked.filter(item => archivedIds.has(item.story.id)).map(item => item.story);
+        const preferredStories = ranked
+            .filter(item => item.story.importSource || item.story.sourceType === 'news')
+            .map(item => item.story);
+        const activeStories = (preferredStories.length ? preferredStories : ranked.map(item => item.story)).slice(0, 2);
+        const activeIds = new Set(activeStories.map(story => story.id));
+        const archivedStories = ranked.filter(item => !activeIds.has(item.story.id)).map(item => item.story);
         const currentStory = activeStories.find(story => story.id === currentId)
             || activeStories.find(story => this._getUrduStoryProgress(story).status === 'In progress')
             || activeStories[0]
@@ -3298,7 +3343,7 @@ class KidsMathsApp {
                         <div>
                             <div class="urdu-library-kicker">Pick up again</div>
                             <h3 class="urdu-library-heading urdu-hero-heading">Continue your Urdu reading</h3>
-                            <div class="urdu-library-copy">Your current piece stays here so returning to reading feels like one calm tap.</div>
+                            <div class="urdu-library-copy">The live Urdu shelf now stays focused on the article-style reads you actually want to keep in play.</div>
                         </div>
                     </div>
                     ${currentStory ? this._buildUrduStoryRow(currentStory, { current: true, featured: true }) : ''}
@@ -3309,15 +3354,15 @@ class KidsMathsApp {
                         <div class="urdu-library-heading-row">
                             <div>
                                 <div class="urdu-library-kicker">Your reading shelf</div>
-                                <h3 class="urdu-library-heading">Urdu library</h3>
-                                <div class="urdu-library-copy">Choose another story, revisit a finished favourite, or keep the shelf feeling alive.</div>
+                                <h3 class="urdu-library-heading">Urdu bookshelf</h3>
+                                <div class="urdu-library-copy">Only the two live article reads stay on the main shelf; everything else is archived out of the way.</div>
                             </div>
                             <div class="urdu-library-count">${activeStories.length} on your shelf</div>
                         </div>
                         <div class="urdu-library-list urdu-library-card-list">
                             ${activeList.length
                                 ? activeList.map(story => this._buildUrduStoryRow(story)).join('')
-                                : '<div class="urdu-library-empty">No other active Urdu items yet.</div>'}
+                                : '<div class="urdu-library-empty">No second live Urdu article is on this local shelf yet.</div>'}
                         </div>
                     </section>
 
@@ -3328,10 +3373,10 @@ class KidsMathsApp {
                     <div class="urdu-library-heading-row">
                         <div>
                             <div class="urdu-library-kicker">Archive</div>
-                            <h3 class="urdu-library-heading">Older items, tucked away</h3>
-                            <div class="urdu-library-copy">Keep the live shelf focused while older pieces stay easy to retrieve.</div>
+                            <h3 class="urdu-library-heading">Archived Urdu reading</h3>
+                            <div class="urdu-library-copy">Classic stories and older pieces stay tucked away so the main shelf stays simple.</div>
                         </div>
-                        <button class="secondary-btn urdu-archive-toggle" type="button" data-urdu-story-action="toggle-archive">${showArchived ? 'Hide older items' : `See older items (${archivedStories.length})`}</button>
+                        <button class="secondary-btn urdu-archive-toggle" type="button" data-urdu-story-action="toggle-archive">${showArchived ? 'Hide archived items' : `See archived items (${archivedStories.length})`}</button>
                     </div>
                     <div class="urdu-library-list urdu-library-card-list ${showArchived ? '' : 'hidden'}" id="urdu-archive-list">
                         ${archivedStories.map(story => this._buildUrduStoryRow(story, { archived: true })).join('')}
@@ -3352,6 +3397,11 @@ class KidsMathsApp {
 
         if (tab === 'urdu') {
             this._renderUrduStoryList(list);
+            return;
+        }
+
+        if (tab === 'ours') {
+            this._renderOurStoriesBookshelf(list);
             return;
         }
 
@@ -3382,23 +3432,64 @@ class KidsMathsApp {
         const gridStories = rankedStories.filter(entry => !shelfIds.has(entry.story.id));
 
         list.innerHTML = `
-            ${featured ? this._buildReadingShelfMarkup({ tab, level, featured, quickPicks }) : ''}
-            ${gridStories.length ? `
-            <section class="reading-library-section">
-                <div class="reading-library-header">
-                    <div>
-                        <h3 class="reading-library-title">${tab === 'library' ? 'More books in this level' : 'More stories in this level'}</h3>
-                        <p class="reading-library-copy">Pick a book-sized card and jump straight in.</p>
-                    </div>
-                </div>
-                <div class="story-grid">
-                    ${gridStories.map(entry => this._buildStoryCardMarkup(entry.story, { tab, isRead: entry.isRead, bookmark: entry.bookmark, hasImage: entry.hasImage })).join('')}
-                </div>
-            </section>` : ''}
+            ${featured ? this._buildReadingShelfMarkup({
+                tab,
+                shelfLabel: level.name,
+                featured,
+                quickPicks,
+                showGridSection: gridStories.length > 0,
+                gridStories,
+                gridTitle: tab === 'library' ? 'More books in this level' : 'More stories in this level',
+                gridCopy: 'Pick a book-sized card and jump straight in.'
+            }) : ''}
         `;
     }
 
-    _buildReadingShelfMarkup({ level, featured, quickPicks }) {
+    _renderOurStoriesBookshelf(list) {
+        const readStories = state.get('readStories') || [];
+        const bookmarks = state.get('bookmarks') || {};
+        const { activeStories, archivedStories } = this._getOurStoriesBookshelf();
+        const rankedStories = activeStories.map((story, index) => ({
+            story,
+            index,
+            isRead: readStories.includes(story.id),
+            bookmark: bookmarks[story.id],
+            totalPages: story.pages.length,
+            hasImage: Boolean(story.pages[0]?.image)
+        }));
+
+        const priorityStories = [...rankedStories].sort((a, b) => {
+            const aScore = a.bookmark ? 3 : a.isRead ? 1 : 2;
+            const bScore = b.bookmark ? 3 : b.isRead ? 1 : 2;
+            if (bScore !== aScore) return bScore - aScore;
+            if (!!b.bookmark !== !!a.bookmark) return Number(!!b.bookmark) - Number(!!a.bookmark);
+            return a.index - b.index;
+        });
+
+        const featured = priorityStories[0] || null;
+        const quickPicks = priorityStories.slice(1, 3);
+
+        list.innerHTML = `
+            ${featured ? this._buildReadingShelfMarkup({
+                tab: 'ours',
+                shelfLabel: 'Your bookshelf',
+                featured,
+                quickPicks,
+                featuredKicker: 'Continue reading',
+                showGridSection: false
+            }) : ''}
+            <section class="reading-library-section english-bookshelf-note">
+                <div class="reading-library-header">
+                    <div>
+                        <h3 class="reading-library-title">Archived from the main shelf</h3>
+                        <p class="reading-library-copy">${archivedStories.length} other English stories are now out of the main view so this screen behaves more like a simple Kindle-style bookshelf.</p>
+                    </div>
+                </div>
+            </section>
+        `;
+    }
+
+    _buildReadingShelfMarkup({ shelfLabel = '', featured, quickPicks, featuredKicker = '', showGridSection = true, gridStories = [], gridTitle = 'More books', gridCopy = 'Pick a book-sized card and jump straight in.', tab = 'library' }) {
         const featureStory = featured.story;
         const bookmark = featured.bookmark;
         const statusLabel = bookmark ? 'Continue reading' : featured.isRead ? 'Read again' : 'Start here';
@@ -3408,12 +3499,13 @@ class KidsMathsApp {
                 ? `${featured.totalPages} pages · finished already`
                 : `${featured.totalPages} pages ready to read`;
         const featuredCta = bookmark ? 'Resume this book' : featured.isRead ? 'Open again' : 'Open this book';
+        const kickerParts = [featuredKicker || statusLabel, shelfLabel].filter(Boolean);
 
         return `
             <section class="reading-shelf">
                 <button class="reading-featured-card" type="button" data-story-id="${featureStory.id}" ${bookmark ? `data-resume-page="${bookmark.page}"` : ''}>
                     <div class="reading-featured-copy">
-                        <div class="reading-featured-kicker">${this._escapeHtml(statusLabel)} • ${this._escapeHtml(level.name)}</div>
+                        <div class="reading-featured-kicker">${this._escapeHtml(kickerParts.join(' • '))}</div>
                         <div class="reading-featured-title" dir="${featureStory.direction || 'ltr'}">${this._escapeHtml(featureStory.title)}</div>
                         ${featureStory.titleEnglish ? `<div class="reading-featured-subtitle">${this._escapeHtml(featureStory.titleEnglish)}</div>` : ''}
                         <div class="reading-featured-meta">${this._escapeHtml(progressLine)}</div>
@@ -3442,6 +3534,18 @@ class KidsMathsApp {
                     </div>
                 ` : ''}
             </section>
+            ${showGridSection && gridStories.length ? `
+            <section class="reading-library-section">
+                <div class="reading-library-header">
+                    <div>
+                        <h3 class="reading-library-title">${this._escapeHtml(gridTitle)}</h3>
+                        <p class="reading-library-copy">${this._escapeHtml(gridCopy)}</p>
+                    </div>
+                </div>
+                <div class="story-grid">
+                    ${gridStories.map(entry => this._buildStoryCardMarkup(entry.story, { tab, isRead: entry.isRead, bookmark: entry.bookmark, hasImage: entry.hasImage })).join('')}
+                </div>
+            </section>` : ''}
         `;
     }
 
@@ -4023,14 +4127,20 @@ class KidsMathsApp {
         if (!nextSelection || !selectedWord) return;
         if (Number(nextSelection.paragraphIndex) !== Number(selectedWord.paragraphIndex)) return;
 
-        const startSelection = this._storySelectionHandleDrag.boundary === 'start'
+        const activeBoundary = this._storySelectionHandleDrag.boundary === 'end' ? 'end' : 'start';
+        const currentBoundary = this._getStorySelectionBoundarySelection(activeBoundary, selectedWord);
+        if (currentBoundary && Number(currentBoundary.tokenIndex) === Number(nextSelection.tokenIndex)) {
+            return;
+        }
+
+        const startSelection = activeBoundary === 'start'
             ? nextSelection
             : this._getStorySelectionBoundarySelection('start', selectedWord);
-        const endSelection = this._storySelectionHandleDrag.boundary === 'end'
+        const endSelection = activeBoundary === 'end'
             ? nextSelection
             : this._getStorySelectionBoundarySelection('end', selectedWord);
 
-        this._selectStoryWordRange(startSelection, endSelection);
+        this._selectStoryWordRange(startSelection, endSelection, { preserveHandleDrag: true });
     }
 
     _endStorySelectionHandleDrag(pointerEvent) {
@@ -4098,7 +4208,7 @@ class KidsMathsApp {
         const storyScreen = document.getElementById('story-screen');
         if (!controls || !storyScreen) return;
 
-        const selectedButtons = Array.from(document.querySelectorAll('#story-text .story-word-button.is-selected'));
+        const selectedButtons = Array.from(document.querySelectorAll('#story-text .story-word-button.is-selected, #story-text .urdu-word-button.active'));
         if (!trayVisible || !selectedButtons.length) {
             this._storySelectionPositioner.clear(controls, storyScreen);
             return;
@@ -4252,7 +4362,7 @@ class KidsMathsApp {
         this._updateStorySelectionHandles();
     }
 
-    _selectStoryWordRange(startSelection, endSelection = startSelection) {
+    _selectStoryWordRange(startSelection, endSelection = startSelection, { preserveHandleDrag = false } = {}) {
         const nextSelection = this.currentStory
             ? this._storySelectionEngine.createRangeSelection(startSelection, endSelection, {
                 storyId: this.currentStory.id,
@@ -4264,11 +4374,30 @@ class KidsMathsApp {
             return;
         }
 
+        const currentSelection = this._getSelectedStoryWord();
+        const isSameSelection = currentSelection
+            && Number(currentSelection.paragraphIndex ?? -1) === Number(nextSelection.paragraphIndex ?? -1)
+            && Number(currentSelection.startTokenIndex ?? -1) === Number(nextSelection.startTokenIndex ?? -1)
+            && Number(currentSelection.endTokenIndex ?? -1) === Number(nextSelection.endTokenIndex ?? -1)
+            && currentSelection.storyId === nextSelection.storyId
+            && Number(currentSelection.page ?? -1) === Number(nextSelection.page ?? -1);
+        if (isSameSelection) {
+            if (preserveHandleDrag) {
+                this._suppressStoryWordClick = true;
+                this._updateStorySelectionHandles();
+            }
+            return;
+        }
+
         this._selectedStoryWord = nextSelection;
         this._showStorySavedWords = false;
         this._showStorySelectionExtras = false;
         this._storyAudioStatusOverride = '';
-        this._cancelStorySelectionHandleDrag();
+        if (!preserveHandleDrag) {
+            this._cancelStorySelectionHandleDrag();
+        } else {
+            this._suppressStoryWordClick = true;
+        }
         this._renderCurrentStoryText();
         this._renderStorySelectionControls();
         this._updateStorySelectionHandles();
@@ -4286,44 +4415,80 @@ class KidsMathsApp {
         this._renderStorySelectionControls();
     }
 
-    _renderInteractiveEnglishStoryText(text = '') {
+    _renderInteractiveEnglishStoryText(text) {
         const paragraphs = this._splitStoryParagraphs(text);
-        const selectedWord = this._getSelectedStoryWord();
-        const wordPattern = /^([^\p{L}\p{N}'’-]*)([\p{L}\p{N}][\p{L}\p{N}'’-]*)([^\p{L}\p{N}'’-]*)$/u;
+        const selectedWord = this._getSelectedStoryWord() || this._getStoryPreviewSelection();
+        const savedWords = this._getStorySavedWords();
+        const wordPattern = /^([^\p{L}\p{N}'’-]*)([\p{L}\p{N}'’-]+)([^\p{L}\p{N}'’-]*)$/u;
 
         return paragraphs.map((paragraph, paragraphIndex) => {
             const occurrenceCounts = new Map();
             const tokens = paragraph.split(/(\s+)/);
+            const selectionStartToken = selectedWord
+                && Number(selectedWord.paragraphIndex ?? -1) === paragraphIndex
+                ? Number(selectedWord.startTokenIndex ?? -1)
+                : null;
+            const selectionEndToken = selectedWord
+                && Number(selectedWord.paragraphIndex ?? -1) === paragraphIndex
+                ? Number(selectedWord.endTokenIndex ?? -1)
+                : null;
             const renderedTokens = tokens.map((token, tokenIndex) => {
+                const isTokenSelected = selectionStartToken !== null
+                    && selectionEndToken !== null
+                    && tokenIndex >= selectionStartToken
+                    && tokenIndex <= selectionEndToken;
+                const isSelectionStart = isTokenSelected && tokenIndex === selectionStartToken;
+                const isSelectionEnd = isTokenSelected && tokenIndex === selectionEndToken;
+                const fragmentClass = `story-selection-fragment${isTokenSelected ? ' is-selected' : ''}${isSelectionStart ? ' is-selection-start' : ''}${isSelectionEnd ? ' is-selection-end' : ''}`;
                 if (!token) return '';
                 if (/^\s+$/u.test(token)) {
-                    return token.replace(/ /g, '&nbsp;');
+                    const whitespaceHtml = token.replace(/ /g, '&nbsp;');
+                    return isTokenSelected
+                        ? `<span class="${fragmentClass}" data-token-fragment-index="${tokenIndex}">${whitespaceHtml}</span>`
+                        : whitespaceHtml;
                 }
 
                 const match = token.match(wordPattern);
                 if (!match) {
-                    return this._escapeHtml(token);
+                    return isTokenSelected
+                        ? `<span class="${fragmentClass}" data-token-fragment-index="${tokenIndex}">${this._escapeHtml(token)}</span>`
+                        : this._escapeHtml(token);
                 }
 
                 const [, prefix = '', rawWord = '', suffix = ''] = match;
                 const normalizedWord = this._normalizeStoryWordText(rawWord);
                 if (!normalizedWord) {
-                    return this._escapeHtml(token);
+                    return isTokenSelected
+                        ? `<span class="${fragmentClass}" data-token-fragment-index="${tokenIndex}">${this._escapeHtml(token)}</span>`
+                        : this._escapeHtml(token);
                 }
 
                 const occurrenceIndex = occurrenceCounts.get(normalizedWord) || 0;
                 occurrenceCounts.set(normalizedWord, occurrenceIndex + 1);
 
-                const isSelected = selectedWord
-                    && Number(selectedWord.paragraphIndex ?? -1) === paragraphIndex
-                    && Number(selectedWord.startTokenIndex ?? -1) <= tokenIndex
-                    && Number(selectedWord.endTokenIndex ?? -1) >= tokenIndex;
+                const isSelected = isTokenSelected;
+                const isBookmarkedWord = this._storySavedWordMatchesToken(savedWords.find(item => this._storySavedWordMatchesToken(item, {
+                    paragraphIndex,
+                    tokenIndex,
+                    normalizedWord
+                })), {
+                    paragraphIndex,
+                    tokenIndex,
+                    normalizedWord
+                });
                 const isRangeEdge = isSelected && (
-                    Number(selectedWord.startTokenIndex ?? -1) === tokenIndex
-                    || Number(selectedWord.endTokenIndex ?? -1) === tokenIndex
+                    Number(selectedWord?.startTokenIndex ?? -1) === tokenIndex
+                    || Number(selectedWord?.endTokenIndex ?? -1) === tokenIndex
                 );
+                const unitClass = `story-selection-unit${isSelected ? ' is-selected' : ''}${isBookmarkedWord ? ' is-bookmarked-word' : ''}${isRangeEdge ? ' is-range-edge' : ''}${isSelectionStart ? ' is-selection-start' : ''}${isSelectionEnd ? ' is-selection-end' : ''}`;
+                const prefixHtml = prefix
+                    ? `<span class="${fragmentClass}" data-token-fragment-index="${tokenIndex}">${this._escapeHtml(prefix)}</span>`
+                    : '';
+                const suffixHtml = suffix
+                    ? `<span class="${fragmentClass}" data-token-fragment-index="${tokenIndex}">${this._escapeHtml(suffix)}</span>`
+                    : '';
 
-                return `${this._escapeHtml(prefix)}<button class="story-word-button${isSelected ? ' is-selected' : ''}${isRangeEdge ? ' is-range-edge' : ''}" data-story-word="${this._escapeHtml(rawWord)}" data-story-word-normalized="${this._escapeHtml(normalizedWord)}" data-paragraph-index="${paragraphIndex}" data-occurrence-index="${occurrenceIndex}" data-token-index="${tokenIndex}" type="button">${this._escapeHtml(rawWord)}</button>${this._escapeHtml(suffix)}`;
+                return `${prefixHtml}<span class="${unitClass}" data-token-unit-index="${tokenIndex}"><button class="story-word-button${isSelected ? ' is-selected' : ''}${isBookmarkedWord ? ' is-bookmarked-word' : ''}${isRangeEdge ? ' is-range-edge' : ''}" data-story-word="${this._escapeHtml(rawWord)}" data-story-word-normalized="${this._escapeHtml(normalizedWord)}" data-paragraph-index="${paragraphIndex}" data-occurrence-index="${occurrenceIndex}" data-token-index="${tokenIndex}" type="button">${this._escapeHtml(rawWord)}</button></span>${suffixHtml}`;
             }).join('');
 
             return `<p class="story-text-paragraph" data-story-paragraph="${paragraphIndex}">${renderedTokens}</p>`;
@@ -4334,11 +4499,57 @@ class KidsMathsApp {
         return state.get('storySavedWords') || [];
     }
 
+    _getStorySavedWordKey(selection = this._getSelectedStoryWord()) {
+        if (!selection || !this.currentStory) return '';
+        return [
+            this.currentStory.id,
+            Number(selection.page),
+            Number(selection.paragraphIndex),
+            Number(selection.startTokenIndex),
+            Number(selection.endTokenIndex)
+        ].join('::');
+    }
+
+    _getLegacyStorySavedWordKey(selection = this._getSelectedStoryWord()) {
+        if (!selection || !this.currentStory) return '';
+        return `${String(selection.word || '').toLowerCase()}::${this.currentStory.id}`;
+    }
+
+    _storySavedWordMatchesSelection(item, selection = this._getSelectedStoryWord()) {
+        if (!item || !selection || !this.currentStory || !this._selectionIsSingleWord(selection)) return false;
+        const exactKey = this._getStorySavedWordKey(selection);
+        if (item.key === exactKey) return true;
+
+        const hasTokenCoordinates = item.startTokenIndex !== undefined && item.endTokenIndex !== undefined && item.paragraphIndex !== undefined;
+        if (hasTokenCoordinates) {
+            return String(item.storyId) === String(this.currentStory.id)
+                && Number(item.page) === Number(selection.page)
+                && Number(item.paragraphIndex) === Number(selection.paragraphIndex)
+                && Number(item.startTokenIndex) === Number(selection.startTokenIndex)
+                && Number(item.endTokenIndex) === Number(selection.endTokenIndex);
+        }
+
+        return item.key === this._getLegacyStorySavedWordKey(selection);
+    }
+
+    _storySavedWordMatchesToken(item, { paragraphIndex, tokenIndex, normalizedWord } = {}) {
+        if (!item || !this.currentStory) return false;
+        const hasTokenCoordinates = item.startTokenIndex !== undefined && item.endTokenIndex !== undefined && item.paragraphIndex !== undefined;
+        if (hasTokenCoordinates) {
+            return String(item.storyId) === String(this.currentStory.id)
+                && Number(item.page) === Number(this.currentStoryPage)
+                && Number(item.paragraphIndex) === Number(paragraphIndex)
+                && Number(item.startTokenIndex) <= Number(tokenIndex)
+                && Number(item.endTokenIndex) >= Number(tokenIndex);
+        }
+
+        return item.key === `${String(normalizedWord || '').toLowerCase()}::${this.currentStory.id}`;
+    }
+
     _isSelectedStoryWordSaved(savedWords = this._getStorySavedWords()) {
         const selectedWord = this._getSelectedStoryWord();
         if (!selectedWord || !this.currentStory || !this._selectionIsSingleWord(selectedWord)) return false;
-        const key = `${selectedWord.word.toLowerCase()}::${this.currentStory.id}`;
-        return savedWords.some(item => item.key === key);
+        return savedWords.some(item => this._storySavedWordMatchesSelection(item, selectedWord));
     }
 
     _saveSelectedStoryWord() {
@@ -4346,9 +4557,10 @@ class KidsMathsApp {
         if (!selectedWord || !this.currentStory || !this._selectionIsSingleWord(selectedWord)) return;
 
         const existing = this._getStorySavedWords();
-        const key = `${selectedWord.word.toLowerCase()}::${this.currentStory.id}`;
-        if (existing.some(item => item.key === key)) {
+        const key = this._getStorySavedWordKey(selectedWord);
+        if (existing.some(item => this._storySavedWordMatchesSelection(item, selectedWord))) {
             this._setStorySelectionFeedback('saved', 1200);
+            this._renderStoryPage();
             this._renderStorySelectionControls();
             return;
         }
@@ -4357,20 +4569,24 @@ class KidsMathsApp {
             {
                 key,
                 word: selectedWord.word,
+                normalizedWord: this._normalizeStoryWordText(selectedWord.word),
                 storyId: this.currentStory.id,
-                storyTitle: this.currentStory.title
+                storyTitle: this.currentStory.title,
+                page: Number(selectedWord.page),
+                paragraphIndex: Number(selectedWord.paragraphIndex),
+                occurrenceIndex: Number(selectedWord.occurrenceIndex),
+                startTokenIndex: Number(selectedWord.startTokenIndex),
+                endTokenIndex: Number(selectedWord.endTokenIndex)
             },
             ...existing
         ].slice(0, 80));
         this._setStorySelectionFeedback('saved', 1200);
+        this._renderStoryPage();
         this._renderStorySelectionControls();
     }
 
     _bookmarkCurrentStoryFromSelection() {
-        if (!this.currentStory || !this._getSelectedStoryWord()) return;
-        this._saveBookmark();
-        this._setStorySelectionFeedback('bookmarked', 1200);
-        this._renderStorySelectionControls();
+        this._saveSelectedStoryWord();
     }
 
     _handleStoryHeaderBookmark() {
@@ -4417,9 +4633,10 @@ class KidsMathsApp {
         const bookmarkBtn = document.getElementById('story-selection-bookmark-btn');
         const clearBtn = document.getElementById('story-selection-clear-btn');
         const status = document.getElementById('story-selection-status');
-        if (!controls || !backdrop || !storyScreen || !speakBtn || !bookmarkBtn || !clearBtn || !status) return;
+        const bookmarkMeta = document.getElementById('story-selection-bookmark-meta');
+        if (!controls || !backdrop || !storyScreen || !speakBtn || !bookmarkBtn || !clearBtn || !status || !bookmarkMeta) return;
 
-        const enabled = this._storySupportsCustomWordSelection();
+        const enabled = this._storyUsesSelectionPopup();
         if (!enabled) {
             controls.classList.add('hidden');
             backdrop.classList.add('hidden');
@@ -4430,15 +4647,24 @@ class KidsMathsApp {
             return;
         }
 
-        const selectedWord = this._getSelectedStoryWord();
-        const isSingleWordSelection = this._selectionIsSingleWord(selectedWord);
+        const selectedWord = this._getActiveReaderSelection();
+        const isSingleWordSelection = this._selectionIsSingleWord(selectedWord) || Boolean(selectedWord?.isUrduSelection);
         const canSpeak = Boolean(selectedWord && !this._storyAudioLoading && this._storyHasAnySpeechPath());
         const hasNonPinchStatus = Boolean(this._storyAudioStatusOverride && !this._storyAudioStatusOverride.includes(this._storyPinchResizeHint));
         const activeFeedback = this._storySelectionFeedback;
+        const wordAlreadyBookmarked = this._storySupportsUrduTools()
+            ? this._isSelectedUrduWordSaved()
+            : this._isSelectedStoryWordSaved();
         const trayVisible = Boolean((this._storySelectionActionsOpen && selectedWord) || hasNonPinchStatus);
         const selectionLabel = selectedWord
             ? (isSingleWordSelection ? selectedWord.word : selectedWord.text)
             : '';
+        const isUrduSelection = Boolean(selectedWord?.isUrduSelection);
+        const bookmarkMetaLabel = isUrduSelection
+            ? [String(selectedWord?.meaning || '').trim(), activeFeedback === 'saved' || wordAlreadyBookmarked ? 'Saved word' : 'Save word'].filter(Boolean).join(' • ')
+            : (activeFeedback === 'saved' || wordAlreadyBookmarked
+                ? 'Bookmarked word'
+                : 'Bookmark word');
 
         controls.classList.toggle('hidden', !trayVisible);
         backdrop.classList.toggle('hidden', !trayVisible);
@@ -4455,19 +4681,22 @@ class KidsMathsApp {
         }
 
         speakBtn.disabled = !canSpeak;
-        bookmarkBtn.disabled = !selectedWord || !this.currentStory;
+        bookmarkBtn.disabled = !selectedWord || !this.currentStory || !isSingleWordSelection;
         clearBtn.disabled = !selectedWord;
         speakBtn.setAttribute('aria-label', selectionLabel ? `Speak ${selectionLabel}` : 'Speak selected word');
         speakBtn.title = selectionLabel ? `Speak ${selectionLabel}` : 'Speak selected word';
-        bookmarkBtn.setAttribute('aria-label', selectionLabel ? `Bookmark ${selectionLabel}` : 'Bookmark this reading spot');
+        bookmarkBtn.setAttribute('aria-label', selectionLabel ? ((wordAlreadyBookmarked || activeFeedback === 'saved') ? `Saved word ${selectionLabel}` : `Save word ${selectionLabel}`) : 'Save selected word');
         clearBtn.setAttribute('aria-label', selectionLabel ? `Clear ${selectionLabel}` : 'Clear selected word');
         clearBtn.title = selectionLabel ? `Clear ${selectionLabel}` : 'Clear selected word';
         controls.classList.toggle('is-speaking', this._storyAudioLoading || Boolean(this._storyAudioElement));
         controls.classList.toggle('is-saved-feedback', activeFeedback === 'saved');
         controls.classList.toggle('is-bookmarked-feedback', activeFeedback === 'bookmarked');
         speakBtn.classList.toggle('is-subtle-busy', this._storyAudioLoading || Boolean(this._storyAudioElement));
-        bookmarkBtn.classList.toggle('is-subtle-busy', activeFeedback === 'bookmarked');
-        bookmarkBtn.title = activeFeedback === 'bookmarked' ? 'Bookmarked ✓' : 'Bookmark this reading spot';
+        bookmarkBtn.classList.toggle('is-subtle-busy', activeFeedback === 'saved' || wordAlreadyBookmarked);
+        bookmarkBtn.title = selectionLabel
+            ? ((wordAlreadyBookmarked || activeFeedback === 'saved') ? `Saved word ${selectionLabel}` : `Save word ${selectionLabel}`)
+            : 'Save selected word';
+        bookmarkMeta.textContent = bookmarkMetaLabel;
 
         if (selectionLabel) {
             status.textContent = selectionLabel;
@@ -4603,7 +4832,7 @@ class KidsMathsApp {
     }
 
     async _speakStorySelection() {
-        const selection = this._getSelectedStoryWord();
+        const selection = this._getActiveReaderSelection();
         if (!selection) {
             this._renderStorySelectionControls();
             return;
@@ -4694,6 +4923,32 @@ class KidsMathsApp {
 
     _isUrduArticleStory(story = this.currentStory) {
         return Boolean(story && story.direction === 'rtl' && story.sourceType === 'news');
+    }
+
+    _storyUsesSelectionPopup(story = this.currentStory) {
+        return this._storySupportsCustomWordSelection(story) || this._storySupportsUrduTools(story);
+    }
+
+    _getActiveReaderSelection() {
+        const selectedStoryWord = this._getSelectedStoryWord();
+        if (selectedStoryWord) return selectedStoryWord;
+        if (!this._selectedUrduWord || !this.currentStory) return null;
+
+        const cleanWord = String(this._selectedUrduWord.word || '').trim();
+        if (!cleanWord) return null;
+
+        return {
+            word: cleanWord,
+            text: cleanWord,
+            paragraphIndex: Number(this._selectedUrduWord.paragraphIndex ?? -1),
+            occurrenceIndex: Number(this._selectedUrduWord.occurrenceIndex ?? -1),
+            startTokenIndex: Number(this._selectedUrduWord.occurrenceIndex ?? -1),
+            endTokenIndex: Number(this._selectedUrduWord.occurrenceIndex ?? -1),
+            storyId: this.currentStory.id,
+            page: this.currentStoryPage,
+            meaning: String(this._selectedUrduWord.meaning || '').trim(),
+            isUrduSelection: true
+        };
     }
 
     _renderCurrentStoryText() {
@@ -4844,73 +5099,47 @@ class KidsMathsApp {
     }
 
     _renderActiveUrduMeaningBadge() {
-        const meaning = String(this._selectedUrduWord?.meaning || '').trim();
-        if (!meaning) return '';
-        return `<span class="urdu-inline-meaning-badge">${this._escapeHtml(meaning)}</span>`;
+        return '';
     }
 
     _renderInteractiveUrduParagraph(text, vocabulary, paragraphIndex) {
         const escapedText = this._escapeHtml(text || '');
-        const sortedWords = Object.keys(vocabulary || {}).sort((a, b) => b.length - a.length);
-        const placeholders = [];
-        let rendered = escapedText;
         const selectedWord = String(this._selectedUrduWord?.word || '').trim();
         const selectedParagraphIndex = Number(this._selectedUrduWord?.paragraphIndex ?? -1);
         const selectedOccurrenceIndex = Number(this._selectedUrduWord?.occurrenceIndex ?? -1);
-        const selectedWordIsVocabulary = selectedWord && Object.prototype.hasOwnProperty.call(vocabulary || {}, selectedWord);
+        const urduWordPattern = /[\u0600-\u06FF]+/g;
+        let wordOccurrenceIndex = 0;
 
-        if (selectedWord && !selectedWordIsVocabulary && selectedParagraphIndex === paragraphIndex) {
-            const escapedSelectedWord = selectedWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            let selectedMatchIndex = 0;
-            rendered = rendered.replace(new RegExp(escapedSelectedWord, 'g'), match => {
-                if (selectedMatchIndex === selectedOccurrenceIndex) {
-                    const placeholder = `__URDU_ACTIVE_WORD_${paragraphIndex}_${selectedMatchIndex}__`;
-                    const selectedHtml = `<span class="urdu-inline-selection active">${this._renderActiveUrduMeaningBadge()}${this._escapeHtml(selectedWord)}</span>`;
-                    placeholders.push({ placeholder, html: selectedHtml });
-                    selectedMatchIndex += 1;
-                    return placeholder;
-                }
-
-                selectedMatchIndex += 1;
-                return match;
-            });
-        }
-
-        sortedWords.forEach((word, index) => {
-            const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return escapedText.replace(urduWordPattern, (word) => {
             const safeWord = this._escapeHtml(word);
-            const safeMeaning = this._escapeHtml(vocabulary[word]);
-            let wordOccurrenceIndex = 0;
-
-            rendered = rendered.replace(new RegExp(escapedWord, 'g'), () => {
-                const placeholder = `__URDU_WORD_${paragraphIndex}_${index}_${wordOccurrenceIndex}__`;
-                const isActive = selectedWord === word && selectedParagraphIndex === paragraphIndex && selectedOccurrenceIndex === wordOccurrenceIndex;
-                const meaningBadge = isActive ? this._renderActiveUrduMeaningBadge() : '';
-                const buttonHtml = `<button class="urdu-word-button${isActive ? ' active' : ''}" data-word="${safeWord}" data-meaning="${safeMeaning}" data-paragraph-index="${paragraphIndex}" data-occurrence-index="${wordOccurrenceIndex}" type="button">${meaningBadge}${safeWord}</button>`;
-                placeholders.push({ placeholder, html: buttonHtml });
-                wordOccurrenceIndex += 1;
-                return placeholder;
-            });
-        });
-
-        placeholders.forEach(({ placeholder, html }) => {
-            rendered = rendered.replaceAll(placeholder, html);
-        });
-
-        return rendered.replace(/\n/g, '<br>');
+            const safeMeaning = this._escapeHtml(vocabulary?.[word] || '');
+            const isActive = selectedWord === word
+                && selectedParagraphIndex === paragraphIndex
+                && selectedOccurrenceIndex === wordOccurrenceIndex;
+            const isBookmarkedWord = this._isUrduWordBookmarked(paragraphIndex, wordOccurrenceIndex);
+            const buttonHtml = `<button class="urdu-word-button${isActive ? ' active is-selected' : ''}${isBookmarkedWord ? ' is-bookmarked-word' : ''}" data-word="${safeWord}" data-meaning="${safeMeaning}" data-paragraph-index="${paragraphIndex}" data-occurrence-index="${wordOccurrenceIndex}" type="button">${safeWord}</button>`;
+            wordOccurrenceIndex += 1;
+            return buttonHtml;
+        }).replace(/\n/g, '<br>');
     }
 
     _selectUrduWord(word, meaning, paragraphIndex = -1, occurrenceIndex = -1) {
         this._selectedUrduWord = { word, meaning, paragraphIndex, occurrenceIndex };
         this._pendingUrduSelectionText = word;
+        this._storySelectionActionsOpen = true;
+        this._storySelectionFeedback = '';
         this._renderCurrentStoryText();
+        this._renderStorySelectionControls();
         this._renderUrduSupportPanel();
     }
 
     _clearSelectedUrduWord() {
         this._selectedUrduWord = null;
         this._pendingUrduSelectionText = '';
+        this._storySelectionActionsOpen = false;
+        this._storySelectionFeedback = '';
         this._renderCurrentStoryText();
+        this._renderStorySelectionControls();
         this._renderUrduSupportPanel();
         window.getSelection?.()?.removeAllRanges?.();
     }
@@ -5010,7 +5239,10 @@ class KidsMathsApp {
             paragraphIndex: Number(tappedWord.paragraphIndex ?? -1),
             occurrenceIndex: Number(tappedWord.occurrenceIndex ?? -1)
         };
+        this._storySelectionActionsOpen = true;
+        this._storySelectionFeedback = '';
         this._renderCurrentStoryText();
+        this._renderStorySelectionControls();
         this._renderUrduSupportPanel();
         window.getSelection?.()?.removeAllRanges?.();
 
@@ -5032,6 +5264,7 @@ class KidsMathsApp {
             };
         } finally {
             this._renderCurrentStoryText();
+            this._renderStorySelectionControls();
             this._renderUrduSupportPanel();
         }
     }
@@ -5073,18 +5306,47 @@ class KidsMathsApp {
         return state.get('urduSavedWords') || [];
     }
 
+    _getUrduSavedWordKey(selection = this._selectedUrduWord) {
+        if (!selection || !this.currentStory) return '';
+        return [
+            this.currentStory.id,
+            this.currentStoryPage,
+            Number(selection.paragraphIndex ?? -1),
+            Number(selection.occurrenceIndex ?? -1)
+        ].join('::');
+    }
+
+    _urduSavedWordMatchesSelection(item, selection = this._selectedUrduWord) {
+        if (!item || !selection || !this.currentStory) return false;
+        const exactKey = this._getUrduSavedWordKey(selection);
+        if (item.key === exactKey) return true;
+        return String(item.storyId) === String(this.currentStory.id)
+            && Number(item.page) === Number(this.currentStoryPage)
+            && Number(item.paragraphIndex) === Number(selection.paragraphIndex ?? -1)
+            && Number(item.occurrenceIndex) === Number(selection.occurrenceIndex ?? -1);
+    }
+
+    _isUrduWordBookmarked(paragraphIndex = -1, occurrenceIndex = -1, savedWords = this._getUrduSavedWords()) {
+        if (!this.currentStory) return false;
+        return savedWords.some(item => String(item.storyId) === String(this.currentStory.id)
+            && Number(item.page) === Number(this.currentStoryPage)
+            && Number(item.paragraphIndex) === Number(paragraphIndex)
+            && Number(item.occurrenceIndex) === Number(occurrenceIndex));
+    }
+
     _isSelectedUrduWordSaved(savedWords = this._getUrduSavedWords()) {
         if (!this._selectedUrduWord) return false;
-        const key = `${this._selectedUrduWord.word}::${this._selectedUrduWord.meaning}`;
-        return savedWords.some(item => item.key === key);
+        return savedWords.some(item => this._urduSavedWordMatchesSelection(item, this._selectedUrduWord));
     }
 
     _saveSelectedUrduWord() {
         if (!this._selectedUrduWord || !this.currentStory) return;
         const existing = this._getUrduSavedWords();
-        const key = `${this._selectedUrduWord.word}::${this._selectedUrduWord.meaning}`;
-        if (existing.some(item => item.key === key)) {
-            this._showUrduSavedWords = true;
+        const key = this._getUrduSavedWordKey(this._selectedUrduWord);
+        if (existing.some(item => this._urduSavedWordMatchesSelection(item, this._selectedUrduWord))) {
+            this._storySelectionFeedback = 'saved';
+            this._renderCurrentStoryText();
+            this._renderStorySelectionControls();
             this._renderUrduSupportPanel();
             return;
         }
@@ -5094,11 +5356,16 @@ class KidsMathsApp {
                 word: this._selectedUrduWord.word,
                 meaning: this._selectedUrduWord.meaning,
                 storyId: this.currentStory.id,
-                storyTitle: this.currentStory.title
+                storyTitle: this.currentStory.title,
+                page: this.currentStoryPage,
+                paragraphIndex: Number(this._selectedUrduWord.paragraphIndex ?? -1),
+                occurrenceIndex: Number(this._selectedUrduWord.occurrenceIndex ?? -1)
             },
             ...existing
         ].slice(0, 60));
-        this._showUrduSavedWords = true;
+        this._storySelectionFeedback = 'saved';
+        this._renderCurrentStoryText();
+        this._renderStorySelectionControls();
         this._renderUrduSupportPanel();
     }
 
@@ -5115,89 +5382,23 @@ class KidsMathsApp {
         const savedBtn = document.getElementById('urdu-saved-toggle-btn');
         const clearBtn = document.getElementById('urdu-clear-selection-btn');
         const saveBtn = document.getElementById('urdu-save-word-btn');
-        const supportTitle = document.getElementById('urdu-support-title');
-        const supportStatus = document.getElementById('urdu-support-status');
         const supportCard = document.querySelector('#urdu-story-tools .urdu-support-card');
-        const isUrduArticle = this._isUrduArticleStory();
 
-        if (!this._storySupportsUrduTools()) {
+        if (tools) {
             tools.classList.add('hidden');
             tools.classList.remove('urdu-article-tools', 'is-article-idle');
-            supportCard?.classList.remove('is-article-idle');
-            translation.classList.add('hidden');
-            savedPanel.classList.add('hidden');
-            translationBtn.classList.remove('is-active');
-            savedBtn.classList.remove('is-active');
-            clearBtn.classList.add('hidden');
-            saveBtn.classList.add('hidden');
-            translationBtn.setAttribute('aria-pressed', 'false');
-            savedBtn.setAttribute('aria-pressed', 'false');
-            document.querySelectorAll('.urdu-word-button.active').forEach(btn => btn.classList.remove('active'));
-            return;
         }
-
-        const page = this.currentStory.pages[this.currentStoryPage] || {};
-        const savedWords = this._getUrduSavedWords();
-        const wordAlreadySaved = this._isSelectedUrduWordSaved(savedWords);
-        const articleIdle = isUrduArticle && !this._selectedUrduWord && !this._showUrduTranslation && !this._showUrduSavedWords;
-        tools.classList.remove('hidden');
-        tools.classList.toggle('urdu-article-tools', isUrduArticle);
-        tools.classList.toggle('is-article-idle', articleIdle);
-        supportCard?.classList.toggle('is-article-idle', articleIdle);
-        const currentSelectionText = this._getCurrentUrduSelectionText();
-        translationBtn.textContent = this._showUrduTranslation ? 'Hide English help' : 'Show English help';
-        savedBtn.textContent = `Saved words (${savedWords.length})`;
-        translationBtn.classList.toggle('is-active', this._showUrduTranslation);
-        savedBtn.classList.toggle('is-active', this._showUrduSavedWords);
-        translationBtn.setAttribute('aria-pressed', this._showUrduTranslation ? 'true' : 'false');
-        savedBtn.setAttribute('aria-pressed', this._showUrduSavedWords ? 'true' : 'false');
-
-        if (this._selectedUrduWord) {
-            supportTitle.textContent = 'English sits beside the line so the reading stays open.';
-            supportStatus.textContent = wordAlreadySaved ? `Saved: ${this._selectedUrduWord.word}` : `Selected: ${this._selectedUrduWord.word}`;
-            clearBtn.classList.remove('hidden');
-            saveBtn.classList.remove('hidden');
-            saveBtn.disabled = wordAlreadySaved;
-            saveBtn.textContent = wordAlreadySaved ? 'Saved ✓' : 'Save word';
-        } else {
-            supportTitle.textContent = isUrduArticle
-                ? 'Tap any Urdu word and keep reading in place.'
-                : 'Tap a word and its English appears beside the text, not on top of it.';
-            supportStatus.textContent = isUrduArticle
-                ? (currentSelectionText ? `Last word: ${currentSelectionText}` : 'Tap any Urdu word')
-                : (currentSelectionText ? `Last word: ${currentSelectionText}` : 'Tap any highlighted word');
-            clearBtn.classList.add('hidden');
-            saveBtn.classList.add('hidden');
-            saveBtn.disabled = true;
-            saveBtn.textContent = 'Save word';
-        }
-
-        if (this._showUrduTranslation && page.translation) {
-            translation.classList.remove('hidden');
-            translation.innerHTML = `<div class="urdu-page-translation-label">English help for this page</div><p>${this._escapeHtml(page.translation).replace(/\n/g, '<br>')}</p>`;
-        } else {
-            translation.classList.add('hidden');
-            translation.innerHTML = '';
-        }
-
-        if (this._showUrduSavedWords) {
-            savedPanel.classList.remove('hidden');
-            savedPanel.innerHTML = savedWords.length
-                ? `<div class="urdu-saved-words-panel-label">Saved words</div>${savedWords.map(item => `
-                    <div class="urdu-saved-word-row">
-                        <div>
-                            <div class="urdu-saved-word-urdu">${this._escapeHtml(item.word)}</div>
-                            <div class="urdu-saved-word-english">${this._escapeHtml(item.meaning)}</div>
-                            <div class="urdu-saved-word-story">${this._escapeHtml(item.storyTitle)}</div>
-                        </div>
-                        <button class="secondary-btn urdu-remove-word-btn" type="button" data-remove-urdu-word="${this._escapeHtml(item.key)}">Remove</button>
-                    </div>
-                `).join('')}`
-                : '<div class="urdu-saved-words-panel-label">Saved words</div><div class="urdu-empty-state">Save a few words from a story and they will appear here.</div>';
-        } else {
-            savedPanel.classList.add('hidden');
-            savedPanel.innerHTML = '';
-        }
+        supportCard?.classList.remove('is-article-idle');
+        translation?.classList.add('hidden');
+        if (translation) translation.innerHTML = '';
+        savedPanel?.classList.add('hidden');
+        if (savedPanel) savedPanel.innerHTML = '';
+        translationBtn?.classList.remove('is-active');
+        savedBtn?.classList.remove('is-active');
+        clearBtn?.classList.add('hidden');
+        saveBtn?.classList.add('hidden');
+        if (translationBtn) translationBtn.setAttribute('aria-pressed', 'false');
+        if (savedBtn) savedBtn.setAttribute('aria-pressed', 'false');
     }
 
     _storyPrevPage() {
@@ -5300,10 +5501,27 @@ class KidsMathsApp {
         const storyList = document.getElementById('story-list');
         const libraryAttribution = document.getElementById('library-attribution');
         const bookmarks = state.get('bookmarks') || {};
-        const matches = this._storyIndex.filter(s =>
-            s.title.toLowerCase().includes(query) ||
-            s.author.toLowerCase().includes(query)
-        );
+        const tab = state.get('readingTab') || 'library';
+        const activeOurIds = new Set(this._getOurStoriesBookshelf().activeStories.map(story => story.id));
+        const activeUrduIds = new Set((() => {
+            const rankedUrdu = this._getAllUrduStories().map(story => ({
+                story,
+                updatedAt: story.addedAt || story.publishedAt || ''
+            })).sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+            const preferred = rankedUrdu.filter(item => item.story.importSource || item.story.sourceType === 'news').map(item => item.story);
+            const active = (preferred.length ? preferred : rankedUrdu.map(item => item.story)).slice(0, 2);
+            return active.map(story => story.id);
+        })());
+        const matches = this._storyIndex.filter(s => {
+            const expectedSource = tab === 'ours' ? 'ours' : tab;
+            if (s.source !== expectedSource) return false;
+            if (tab === 'ours' && !activeOurIds.has(s.id)) return false;
+            if (tab === 'urdu' && !activeUrduIds.has(s.id)) return false;
+            return (
+                s.title.toLowerCase().includes(query) ||
+                s.author.toLowerCase().includes(query)
+            );
+        });
 
         storyList.classList.add('hidden');
         libraryAttribution.classList.add('hidden');
@@ -5356,6 +5574,7 @@ class KidsMathsApp {
 
     _updateBookmarkButton() {
         const btn = document.getElementById('bookmark-btn');
+        const bookmarkState = document.getElementById('story-page-bookmark-state');
         if (!btn || !this.currentStory) return;
         const bookmarks = state.get('bookmarks') || {};
         const bookmark = bookmarks[this.currentStory.id];
@@ -5364,6 +5583,10 @@ class KidsMathsApp {
 
         btn.classList.toggle('active', hasBookmark);
         btn.textContent = hasBookmark ? '🔖' : '📑';
+        if (bookmarkState) {
+            bookmarkState.classList.add('hidden');
+            bookmarkState.textContent = '';
+        }
         if (!hasBookmark) {
             btn.title = 'Bookmark this page';
             btn.setAttribute('aria-label', 'Bookmark this page');
@@ -5372,10 +5595,18 @@ class KidsMathsApp {
         if (isOnBookmarkPage) {
             btn.title = `Bookmark saved on page ${bookmark.page + 1}`;
             btn.setAttribute('aria-label', `Bookmark saved on page ${bookmark.page + 1}`);
+            if (bookmarkState) {
+                bookmarkState.textContent = `Page bookmarked: page ${bookmark.page + 1}`;
+                bookmarkState.classList.remove('hidden');
+            }
             return;
         }
         btn.title = `Go to bookmark on page ${bookmark.page + 1}`;
         btn.setAttribute('aria-label', `Go to bookmark on page ${bookmark.page + 1}`);
+        if (bookmarkState) {
+            bookmarkState.textContent = `Saved page ${bookmark.page + 1}`;
+            bookmarkState.classList.remove('hidden');
+        }
     }
 
     _autoSaveBookmark() {

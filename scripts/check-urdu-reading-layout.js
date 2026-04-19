@@ -10,25 +10,15 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-assert(html.includes('id="urdu-save-word-btn"'), 'Expected a dedicated save-word action in the Urdu reading controls');
-assert(html.includes('id="urdu-clear-selection-btn"'), 'Expected a dedicated clear-word action in the Urdu reading controls');
-assert(js.includes('English sits beside the line so the reading stays open.'), 'Expected updated Urdu reading helper copy for side-by-side English support');
-assert(js.includes('Tap a word and its English appears beside the text, not on top of it.'), 'Expected default Urdu helper copy to describe non-overlay English help');
-assert(js.includes('_renderActiveUrduMeaningBadge()'), 'Expected inline meaning badge renderer for selected Urdu words');
+assert(html.includes('id="urdu-save-word-btn"'), 'Expected legacy Urdu save-word control element to remain in the DOM for compatibility');
+assert(html.includes('id="urdu-clear-selection-btn"'), 'Expected legacy Urdu clear-word control element to remain in the DOM for compatibility');
+assert(js.includes('_renderStorySelectionControls()'), 'Expected Urdu reader to use the shared anchored story selection popup');
+assert(js.includes("this._storySelectionActionsOpen = true;"), 'Expected Urdu word selection to open the shared popup actions');
+assert(js.includes("tools.classList.add('hidden');"), 'Expected old Urdu support panel to stay hidden now that the shared popup owns word actions');
+assert(js.includes("Only the two live article reads stay on the main shelf; everything else is archived out of the way."), 'Expected Urdu library shelf to be simplified around live article reads');
+assert(js.includes('_getUrduSavedWordKey('), 'Expected Urdu saved words to use exact coordinate keys for persistent highlights');
+assert(js.includes('_isUrduWordBookmarked('), 'Expected Urdu reader to detect persistent bookmarked words on rerender');
 assert(js.includes('_renderUrduArticleText(text = \'\')'), 'Expected a dedicated Urdu article reader render path');
 assert(js.includes('_isUrduArticleStory(story = this.currentStory)'), 'Expected Urdu article stories to have their own mode detection');
-assert(js.includes('Tap any Urdu word and keep reading in place.'), 'Expected article reader help copy for tap-any-word mode');
-assert(js.includes('_clearSelectedUrduWord()'), 'Expected Urdu reading flow to support clearing a selected word');
-assert(js.includes('this._clearSelectedUrduWord();'), 'Expected selected Urdu words to be clearable from the interaction flow');
-assert(js.includes('const isSameWord = this._selectedUrduWord'), 'Expected tapping the same Urdu word to toggle selection off');
-assert(js.includes('urdu-inline-meaning-badge'), 'Expected selected Urdu words to render an inline meaning badge');
-assert(css.includes('.urdu-inline-meaning-badge {'), 'Expected styling for inline English meaning badges');
-assert(css.includes('--story-font-size-urdu: clamp(2.55rem, 7vw, 3.15rem);'), 'Expected much larger Urdu reading text sizing token');
-assert(css.includes('font-size: calc(var(--story-font-size-urdu) * var(--story-font-scale));'), 'Expected Urdu story reader text to respect the shared font scaling control');
-assert(css.includes('.story-content.urdu-article-reader-layout #story-text {'), 'Expected dedicated article-reader typography styling');
-assert(css.includes('#story-screen.article-reader-mode .urdu-support-card.is-article-idle {'), 'Expected article reader to quiet helper chrome when idle');
-assert(!css.includes('.urdu-paragraph-row.has-inline-help'), 'Expected Urdu reading layout to stop using an extra helper column that narrows the text row');
-assert(!css.includes('margin-bottom: calc(var(--spacing-lg) + 84px);'), 'Expected large reserved bottom gap in Urdu story tools to be removed');
-assert(css.includes('.urdu-story-actions .secondary-btn {'), 'Expected compact flexible action-row styling for Urdu reading controls');
 
 console.log('Urdu reading layout checks passed.');
