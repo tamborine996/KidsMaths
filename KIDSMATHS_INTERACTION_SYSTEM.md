@@ -2,6 +2,9 @@
 
 This document applies the cross-project UX defaults to KidsMaths specifically.
 
+This file is interaction-specific, not the canonical home for overall project intent.
+For durable project direction, use `KIDSMATHS_PROJECT_INTENT.md`.
+
 ## Purpose
 
 Use this file when a KidsMaths UI problem involves reader interactions, gestures, popups, overlays, viewport behavior, or other mobile interaction-heavy behavior.

@@ -3326,6 +3326,13 @@ td.mastery-mastered {
     font-weight: 700;
 }
 
+.urdu-item-support-line {
+    margin-top: 6px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: var(--text-muted);
+}
+
 .urdu-item-status-row {
     display: flex;
     flex-wrap: wrap;

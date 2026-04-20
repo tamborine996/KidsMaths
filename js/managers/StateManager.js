@@ -19,9 +19,25 @@ export class StateManager {
             if (stored) {
                 const parsed = JSON.parse(stored);
                 const defaults = this._getDefaultState();
+                const legacyUrduSavedWords = Array.isArray(parsed.urduSavedWords) ? parsed.urduSavedWords : [];
+                const mergedStorySavedWords = [
+                    ...(Array.isArray(parsed.storySavedWords) ? parsed.storySavedWords : []),
+                    ...legacyUrduSavedWords.map((item = {}) => ({
+                        ...item,
+                        key: item.key || [
+                            String(item.storyId || ''),
+                            Number(item.page ?? -1),
+                            Number(item.paragraphIndex ?? -1),
+                            Number(item.startTokenIndex ?? item.occurrenceIndex ?? -1),
+                            Number(item.endTokenIndex ?? item.occurrenceIndex ?? -1)
+                        ].join('::')
+                    }))
+                ].filter(Boolean);
+                const dedupedStorySavedWords = mergedStorySavedWords.filter((item, index, arr) => arr.findIndex(other => String(other?.key || '') === String(item?.key || '')) === index);
                 this._state = {
                     ...defaults,
                     ...parsed,
+                    storySavedWords: dedupedStorySavedWords,
                     coins: {
                         ...defaults.coins,
                         ...(parsed.coins || {})
@@ -35,6 +51,7 @@ export class StateManager {
                         ...(parsed.mathMissionProgress || {})
                     }
                 };
+                delete this._state.urduSavedWords;
                 this._save();
             } else {
                 this._initDefaults();
@@ -81,7 +98,6 @@ export class StateManager {
             readStories: [],
             bookmarks: {},
             storySavedWords: [],
-            urduSavedWords: [],
             archivedUrduStoryIds: [],
             showArchivedUrdu: false,
             currentUrduStoryId: null,

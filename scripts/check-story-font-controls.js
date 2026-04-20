@@ -14,9 +14,9 @@ const css = fs.readFileSync(path.join(root, 'css', 'styles.css'), 'utf8');
 const app = fs.readFileSync(path.join(root, 'js', 'app.js'), 'utf8');
 const stateManager = fs.readFileSync(path.join(root, 'js', 'managers', 'StateManager.js'), 'utf8');
 
-assert(html.includes('story-font-decrease-btn'), 'Expected visible story reader font decrease button in index.html');
-assert(html.includes('story-font-increase-btn'), 'Expected visible story reader font increase button in index.html');
-assert(html.includes('story-font-reset-btn'), 'Expected visible story reader font reset button in index.html');
+assert(!html.includes('story-font-decrease-btn'), 'Expected story reader font decrease button to be removed from index.html');
+assert(!html.includes('story-font-increase-btn'), 'Expected story reader font increase button to be removed from index.html');
+assert(!html.includes('story-font-reset-btn'), 'Expected story reader font reset button to be removed from index.html');
 assert(html.includes('story-font-label'), 'Expected visible story reader font size label in index.html');
 
 assert(css.includes('--story-font-size-base'), 'Expected shared story font size CSS variable');

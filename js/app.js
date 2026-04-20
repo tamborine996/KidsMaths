@@ -2586,9 +2586,6 @@ class KidsMathsApp {
         // Story navigation
         document.getElementById('story-prev-btn').addEventListener('click', () => this._storyPrevPage());
         document.getElementById('story-next-btn').addEventListener('click', () => this._storyNextPage());
-        document.getElementById('story-font-decrease-btn')?.addEventListener('click', () => this._changeStoryFontScale(-this._storyFontScaleStep));
-        document.getElementById('story-font-increase-btn')?.addEventListener('click', () => this._changeStoryFontScale(this._storyFontScaleStep));
-        document.getElementById('story-font-reset-btn')?.addEventListener('click', () => this._resetStoryFontScale());
         const storyHeaderBookmarkBtn = document.getElementById('bookmark-btn');
         if (storyHeaderBookmarkBtn) storyHeaderBookmarkBtn.addEventListener('click', () => this._handleStoryHeaderBookmark());
         const storySpeakBtn = document.getElementById('story-selection-speak-btn');
@@ -2748,54 +2745,8 @@ class KidsMathsApp {
                 return;
             }
 
-            const wordBtn = e.target.closest('.urdu-word-button');
-            if (wordBtn) {
-                const nextWord = wordBtn.dataset.word;
-                const nextMeaning = wordBtn.dataset.meaning;
-                const nextParagraphIndex = Number(wordBtn.dataset.paragraphIndex);
-                const nextOccurrenceIndex = Number(wordBtn.dataset.occurrenceIndex);
-                const isSameWord = this._selectedUrduWord
-                    && this._selectedUrduWord.word === nextWord
-                    && Number(this._selectedUrduWord.paragraphIndex ?? -1) === nextParagraphIndex
-                    && Number(this._selectedUrduWord.occurrenceIndex ?? -1) === nextOccurrenceIndex;
-
-                if (isSameWord) {
-                    this._clearSelectedUrduWord();
-                } else {
-                    if (String(nextMeaning || '').trim()) {
-                        this._selectUrduWord(
-                            nextWord,
-                            nextMeaning,
-                            nextParagraphIndex,
-                            nextOccurrenceIndex
-                        );
-                    } else {
-                        await this._translateTappedUrduText({
-                            word: nextWord,
-                            paragraphIndex: nextParagraphIndex,
-                            occurrenceIndex: nextOccurrenceIndex
-                        });
-                    }
-                }
-                return;
-            }
-
-            const tappedWord = this._getTappedUrduWord(e);
-            if (tappedWord) {
-                const isSameTappedWord = this._selectedUrduWord
-                    && this._selectedUrduWord.word === tappedWord.word
-                    && Number(this._selectedUrduWord.paragraphIndex ?? -1) === Number(tappedWord.paragraphIndex ?? -1)
-                    && Number(this._selectedUrduWord.occurrenceIndex ?? -1) === Number(tappedWord.occurrenceIndex ?? -1);
-                if (isSameTappedWord) {
-                    this._clearSelectedUrduWord();
-                    return;
-                }
-                await this._translateTappedUrduText(tappedWord);
-                return;
-            }
-
-            if (this._selectedUrduWord) {
-                this._clearSelectedUrduWord();
+            if (this._getSelectedStoryWord()) {
+                this._clearStoryWordSelection();
             }
         });
 
@@ -2859,8 +2810,12 @@ class KidsMathsApp {
 
                 if (action === 'open' && storyId) {
                     const row = actionBtn.closest('[data-story-id]');
+                    const openPage = row?.dataset.openPage;
+                    this._startStory(storyId, openPage !== undefined ? parseInt(openPage) : 0);
+                } else if (action === 'latest-bookmark' && storyId) {
+                    const row = actionBtn.closest('[data-story-id]');
                     const resumePage = row?.dataset.resumePage;
-                    this._startStory(storyId, resumePage ? parseInt(resumePage) : undefined);
+                    this._startStory(storyId, resumePage !== undefined ? parseInt(resumePage) : undefined);
                 } else if (action === 'archive' && storyId) {
                     this._archiveUrduStory(storyId);
                 } else if (action === 'restore' && storyId) {
@@ -2905,8 +2860,8 @@ class KidsMathsApp {
 
             const urduRow = e.target.closest('.urdu-item-row');
             if (urduRow) {
-                const resumePage = urduRow.dataset.resumePage;
-                this._startStory(urduRow.dataset.storyId, resumePage ? parseInt(resumePage) : undefined);
+                const openPage = urduRow.dataset.openPage;
+                this._startStory(urduRow.dataset.storyId, openPage !== undefined ? parseInt(openPage) : 0);
             }
         });
     }
@@ -3424,22 +3379,27 @@ class KidsMathsApp {
         const resumePage = progress.bookmark?.page;
         const sourceLine = [story.source, this._formatUrduPublishedDate(story)].filter(Boolean).join(' • ');
         const progressLine = `${progress.percent}% complete • ${progress.currentPage || 0}/${progress.totalPages} pages`;
-        const status = current ? 'Current' : archived ? 'Archived' : progress.status;
-        const actionLabel = archived ? 'Restore to shelf' : featured ? 'Put away for now' : 'Archive';
+        const status = archived ? 'Archived' : progress.bookmark ? 'In progress' : progress.isFinished ? 'Finished' : 'Ready';
         const preparationState = this._getUrduStoryPreparationState(story);
+        const supportLine = story.sourceType === 'news'
+            ? 'Article read • English help on tap'
+            : 'Story read • English help on tap';
         const primaryLabel = archived
             ? 'Restore item'
+            : featured
+                ? (progress.bookmark ? 'Continue together' : 'Read together')
+                : progress.isFinished
+                    ? 'Open again'
+                    : 'Open';
+        const secondaryAction = archived
+            ? { action: 'restore', label: 'Restore to shelf' }
+            : progress.bookmark
+                ? { action: 'latest-bookmark', label: 'Latest bookmark' }
+                : null;
+        const progressSummary = progress.bookmark
+            ? `Latest bookmark • page ${progress.bookmark.page + 1}`
             : progress.isFinished
-                ? 'Read again'
-                : progress.status === 'New'
-                    ? featured ? 'Start reading' : 'Open'
-                    : current || featured
-                        ? 'Continue reading'
-                        : 'Continue';
-        const progressSummary = progress.isFinished
-            ? `Finished • ${progress.totalPages} pages`
-            : progress.currentPage > 0
-                ? `Page ${progress.currentPage} of ${progress.totalPages}`
+                ? `Finished • ${progress.totalPages} pages`
                 : `Start with page 1 of ${progress.totalPages}`;
         const showStatusPill = !(current && featured);
         const showDetailLine = !featured;
@@ -3451,7 +3411,7 @@ class KidsMathsApp {
         ].filter(Boolean).join(' ');
 
         return `
-            <div class="${rowClasses}" data-story-id="${story.id}" ${resumePage !== undefined ? `data-resume-page="${resumePage}"` : ''}>
+            <div class="${rowClasses}" data-story-id="${story.id}" data-open-page="0" ${resumePage !== undefined ? `data-resume-page="${resumePage}"` : ''}>
                 <div class="urdu-item-progress" aria-hidden="true">
                     <div class="urdu-item-progress-ring" style="--urdu-progress:${progress.percent}%">
                         <span>${progress.percent}%</span>
@@ -3464,6 +3424,7 @@ class KidsMathsApp {
                     </div>
                     <div class="urdu-item-meta">${this._escapeHtml(sourceLine)}</div>
                     <div class="urdu-item-progress-copy">${this._escapeHtml(progressSummary)}</div>
+                    <div class="urdu-item-support-line">${this._escapeHtml(supportLine)}</div>
                     ${(showStatusPill || preparationState) ? `
                         <div class="urdu-item-status-row">
                             ${showStatusPill ? `<div class="urdu-item-status-pill">${this._escapeHtml(status)}</div>` : ''}
@@ -3474,7 +3435,7 @@ class KidsMathsApp {
                 </div>
                 <div class="urdu-item-actions ${featured ? 'is-featured-actions' : ''}">
                     <button class="primary-btn urdu-item-action" type="button" data-urdu-story-action="open" data-story-id="${story.id}">${primaryLabel}</button>
-                    <button class="secondary-btn urdu-item-action ${featured && !archived ? 'is-soft' : ''}" type="button" data-urdu-story-action="${archived ? 'restore' : 'archive'}" data-story-id="${story.id}">${actionLabel}</button>
+                    ${secondaryAction ? `<button class="secondary-btn urdu-item-action ${featured && !archived ? 'is-soft' : ''}" type="button" data-urdu-story-action="${secondaryAction.action}" data-story-id="${story.id}">${this._escapeHtml(secondaryAction.label)}</button>` : ''}
                 </div>
             </div>
         `;
@@ -3515,9 +3476,9 @@ class KidsMathsApp {
                 <section class="urdu-library-section urdu-current-section ${currentStory ? '' : 'hidden'}">
                     <div class="urdu-library-heading-row urdu-hero-heading-row">
                         <div>
-                            <div class="urdu-library-kicker">Pick up again</div>
-                            <h3 class="urdu-library-heading urdu-hero-heading">Continue your Urdu reading</h3>
-                            <div class="urdu-library-copy">The live Urdu shelf now stays focused on the article-style reads you actually want to keep in play.</div>
+                            <div class="urdu-library-kicker">Last Read</div>
+                            <h3 class="urdu-library-heading urdu-hero-heading">Best next Urdu read</h3>
+                            <div class="urdu-library-copy">A calmer Urdu read with English help on tap, so you can read together without guesswork.</div>
                         </div>
                     </div>
                     ${currentStory ? this._buildUrduStoryRow(currentStory, { current: true, featured: true }) : ''}
@@ -3527,9 +3488,9 @@ class KidsMathsApp {
                     <section class="urdu-library-section urdu-library-main-section">
                         <div class="urdu-library-heading-row">
                             <div>
-                                <div class="urdu-library-kicker">Your reading shelf</div>
+                                <div class="urdu-library-kicker">Your collection</div>
                                 <h3 class="urdu-library-heading">Urdu bookshelf</h3>
-                                <div class="urdu-library-copy">Only the two live article reads stay on the main shelf; everything else is archived out of the way.</div>
+                                <div class="urdu-library-copy">Supportive Urdu reads stay first. Older or parent-managed items stay further out of the way.</div>
                             </div>
                             <div class="urdu-library-count">${activeStories.length} on your shelf</div>
                         </div>
@@ -3539,8 +3500,6 @@ class KidsMathsApp {
                                 : '<div class="urdu-library-empty">No second live Urdu article is on this local shelf yet.</div>'}
                         </div>
                     </section>
-
-                    ${this._buildBbcFeedSelectionSection()}
                 </div>
 
                 <section class="urdu-library-section urdu-archive-section ${archivedStories.length ? '' : 'hidden'}">
@@ -3556,6 +3515,8 @@ class KidsMathsApp {
                         ${archivedStories.map(story => this._buildUrduStoryRow(story, { archived: true })).join('')}
                     </div>
                 </section>
+
+                ${this._buildBbcFeedSelectionSection()}
             </div>
         `;
     }
@@ -4156,22 +4117,10 @@ class KidsMathsApp {
 
     _updateStoryFontControls(scale = this._getStoryFontScale()) {
         const storyFontLabel = document.getElementById('story-font-label');
-        const decreaseBtn = document.getElementById('story-font-decrease-btn');
-        const increaseBtn = document.getElementById('story-font-increase-btn');
-        const resetBtn = document.getElementById('story-font-reset-btn');
         const percent = Math.round(scale * 100);
 
         if (storyFontLabel) {
             storyFontLabel.textContent = `Text size ${percent}%`;
-        }
-        if (decreaseBtn) {
-            decreaseBtn.disabled = scale <= this._storyFontScaleMin + 0.001;
-        }
-        if (increaseBtn) {
-            increaseBtn.disabled = scale >= this._storyFontScaleMax - 0.001;
-        }
-        if (resetBtn) {
-            resetBtn.disabled = Math.abs(scale - 1) < 0.001;
         }
     }
 
@@ -4724,12 +4673,13 @@ class KidsMathsApp {
         });
     }
 
-    _selectStoryWord(word, paragraphIndex = -1, occurrenceIndex = -1, tokenIndex = occurrenceIndex) {
+    _selectStoryWord(word, paragraphIndex = -1, occurrenceIndex = -1, tokenIndex = occurrenceIndex, { localMeaning = '' } = {}) {
         const cleanWord = this._normalizeStoryWordText(word);
         if (!cleanWord || !this.currentStory) {
             this._clearStoryWordSelection();
             return;
         }
+        const trustedMeaning = String(localMeaning || '').trim();
 
         const nextSelection = this._storySelectionEngine.createSingleWordSelection(
             {
@@ -4762,10 +4712,18 @@ class KidsMathsApp {
         this._showStorySelectionExtras = false;
         this._storyAudioStatusOverride = '';
         this._cancelStorySelectionHandleDrag();
+        if (trustedMeaning && this.currentStory.direction === 'rtl' && this._selectionIsSingleWord(nextSelection)) {
+            const meaningKey = this._getReaderSelectionMeaningKey(nextSelection);
+            if (meaningKey) {
+                this._readerSelectionMeaningCache[meaningKey] = trustedMeaning;
+                this._readerSelectionMeaningKey = meaningKey;
+                this._readerSelectionMeaningText = trustedMeaning;
+            }
+        }
         this._renderCurrentStoryText();
         this._renderStorySelectionControls();
         this._updateStorySelectionHandles();
-        if (this.currentStory.direction === 'rtl' && this._selectionIsSingleWord(nextSelection)) {
+        if (this.currentStory.direction === 'rtl' && this._selectionIsSingleWord(nextSelection) && !trustedMeaning) {
             this._syncReaderSelectionMeaning(nextSelection);
         }
     }
@@ -4998,7 +4956,7 @@ class KidsMathsApp {
                 endTokenIndex: Number(selectedWord.endTokenIndex)
             },
             ...existing
-        ].slice(0, 80));
+        ].slice(0, 160));
         this._setStorySelectionFeedback('saved', 1200);
         this._renderStoryPage();
         this._renderStorySelectionControls();
@@ -5420,23 +5378,7 @@ class KidsMathsApp {
                 isUrduSelection: this.currentStory?.direction === 'rtl'
             };
         }
-        if (!this._selectedUrduWord || !this.currentStory) return null;
-
-        const cleanWord = String(this._selectedUrduWord.word || '').trim();
-        if (!cleanWord) return null;
-
-        return {
-            word: cleanWord,
-            text: cleanWord,
-            paragraphIndex: Number(this._selectedUrduWord.paragraphIndex ?? -1),
-            occurrenceIndex: Number(this._selectedUrduWord.occurrenceIndex ?? -1),
-            startTokenIndex: Number(this._selectedUrduWord.occurrenceIndex ?? -1),
-            endTokenIndex: Number(this._selectedUrduWord.occurrenceIndex ?? -1),
-            storyId: this.currentStory.id,
-            page: this.currentStoryPage,
-            meaning: String(this._selectedUrduWord.meaning || '').trim(),
-            isUrduSelection: true
-        };
+        return null;
     }
 
     _renderCurrentStoryText() {
@@ -5628,22 +5570,14 @@ class KidsMathsApp {
     }
 
     _selectUrduWord(word, meaning, paragraphIndex = -1, occurrenceIndex = -1) {
-        this._selectedUrduWord = { word, meaning, paragraphIndex, occurrenceIndex };
         this._pendingUrduSelectionText = word;
-        this._storySelectionActionsOpen = true;
-        this._storySelectionFeedback = '';
-        this._renderCurrentStoryText();
-        this._renderStorySelectionControls();
+        this._selectStoryWord(word, paragraphIndex, occurrenceIndex, occurrenceIndex, { localMeaning: meaning });
         this._renderUrduSupportPanel();
     }
 
     _clearSelectedUrduWord() {
-        this._selectedUrduWord = null;
         this._pendingUrduSelectionText = '';
-        this._storySelectionActionsOpen = false;
-        this._storySelectionFeedback = '';
-        this._renderCurrentStoryText();
-        this._renderStorySelectionControls();
+        this._clearStoryWordSelection({ preserveStatus: false });
         this._renderUrduSupportPanel();
         window.getSelection?.()?.removeAllRanges?.();
     }
@@ -5730,42 +5664,39 @@ class KidsMathsApp {
         const cleanText = String(tappedWord.word || '').trim();
         if (!cleanText) {
             this._pendingUrduSelectionText = '';
-            this._selectedUrduWord = null;
-            this._renderCurrentStoryText();
+            this._clearStoryWordSelection();
             this._renderUrduSupportPanel();
             return;
         }
 
         this._pendingUrduSelectionText = cleanText;
-        this._selectedUrduWord = {
-            word: cleanText,
-            meaning: 'Translating…',
-            paragraphIndex: Number(tappedWord.paragraphIndex ?? -1),
-            occurrenceIndex: Number(tappedWord.occurrenceIndex ?? -1)
-        };
-        this._storySelectionActionsOpen = true;
-        this._storySelectionFeedback = '';
-        this._renderCurrentStoryText();
-        this._renderStorySelectionControls();
+        this._selectStoryWord(cleanText, Number(tappedWord.paragraphIndex ?? -1), Number(tappedWord.occurrenceIndex ?? -1), Number(tappedWord.occurrenceIndex ?? -1));
+        const selectionState = this._getSelectedStoryWord();
+        const key = selectionState ? this._getReaderSelectionMeaningKey(selectionState) : '';
+        if (key) {
+            this._readerSelectionMeaningKey = key;
+            this._readerSelectionMeaningText = 'Translating…';
+            this._renderStorySelectionControls();
+        }
         this._renderUrduSupportPanel();
         window.getSelection?.()?.removeAllRanges?.();
 
         try {
             const translation = await this._translateWithGoogle(cleanText);
-            this._selectedUrduWord = {
-                word: cleanText,
-                meaning: translation || 'No translation found',
-                paragraphIndex: Number(tappedWord.paragraphIndex ?? -1),
-                occurrenceIndex: Number(tappedWord.occurrenceIndex ?? -1)
-            };
+            const resolved = translation || 'No translation found';
+            if (key) {
+                this._readerSelectionMeaningCache[key] = resolved;
+                if (this._readerSelectionMeaningKey === key) {
+                    this._readerSelectionMeaningText = resolved;
+                    this._renderStorySelectionControls();
+                }
+            }
         } catch (error) {
             console.error('Tapped word translation failed:', error);
-            this._selectedUrduWord = {
-                word: cleanText,
-                meaning: 'Translation failed. Try again.',
-                paragraphIndex: Number(tappedWord.paragraphIndex ?? -1),
-                occurrenceIndex: Number(tappedWord.occurrenceIndex ?? -1)
-            };
+            if (key && this._readerSelectionMeaningKey === key) {
+                this._readerSelectionMeaningText = 'Translation failed. Try again.';
+                this._renderStorySelectionControls();
+            }
         } finally {
             this._renderCurrentStoryText();
             this._renderStorySelectionControls();
@@ -5808,29 +5739,15 @@ class KidsMathsApp {
     }
 
     _getUrduSavedWords() {
-        return state.get('urduSavedWords') || [];
+        return this._getStorySavedWords().filter(item => String(item.storyId || '').trim());
     }
 
     _getUrduSavedWordKey(selection = this._getActiveReaderSelection()) {
-        if (!selection || !this.currentStory) return '';
-        return [
-            this.currentStory.id,
-            this.currentStoryPage,
-            Number(selection.paragraphIndex ?? -1),
-            Number(selection.occurrenceIndex ?? -1),
-            Number(selection.startTokenIndex ?? selection.occurrenceIndex ?? -1),
-            Number(selection.endTokenIndex ?? selection.occurrenceIndex ?? -1)
-        ].join('::');
+        return this._getStorySavedWordKey(selection);
     }
 
     _urduSavedWordMatchesSelection(item, selection = this._getActiveReaderSelection()) {
-        if (!item || !selection || !this.currentStory) return false;
-        const exactKey = this._getUrduSavedWordKey(selection);
-        if (item.key === exactKey) return true;
-        return String(item.storyId) === String(this.currentStory.id)
-            && Number(item.page) === Number(this.currentStoryPage)
-            && Number(item.paragraphIndex) === Number(selection.paragraphIndex ?? -1)
-            && Number(item.occurrenceIndex) === Number(selection.occurrenceIndex ?? -1);
+        return this._storySavedWordMatchesSelection(item, selection);
     }
 
     _isUrduWordBookmarked(paragraphIndex = -1, occurrenceIndex = -1, savedWords = this._getUrduSavedWords(), tokenIndex = occurrenceIndex) {
@@ -5858,30 +5775,31 @@ class KidsMathsApp {
     _saveSelectedUrduWord() {
         const selection = this._getActiveReaderSelection();
         if (!selection || !this.currentStory || this.currentStory.direction !== 'rtl') return;
-        const existing = this._getUrduSavedWords();
-        const key = this._getUrduSavedWordKey(selection);
-        if (existing.some(item => this._urduSavedWordMatchesSelection(item, selection))) {
+        const existing = this._getStorySavedWords();
+        const key = this._getStorySavedWordKey(selection);
+        if (existing.some(item => this._storySavedWordMatchesSelection(item, selection))) {
             this._storySelectionFeedback = 'saved';
             this._renderCurrentStoryText();
             this._renderStorySelectionControls();
             this._renderUrduSupportPanel();
             return;
         }
-        state.set('urduSavedWords', [
+        state.set('storySavedWords', [
             {
                 key,
                 word: selection.word,
+                normalizedWord: this._normalizeStoryWordText(selection.word),
                 meaning: this._getReaderSelectionMeaning(selection) || '',
                 storyId: this.currentStory.id,
                 storyTitle: this.currentStory.title,
-                page: this.currentStoryPage,
+                page: Number(selection.page ?? this.currentStoryPage),
                 paragraphIndex: Number(selection.paragraphIndex ?? -1),
                 occurrenceIndex: Number(selection.occurrenceIndex ?? -1),
                 startTokenIndex: Number(selection.startTokenIndex ?? selection.occurrenceIndex ?? -1),
                 endTokenIndex: Number(selection.endTokenIndex ?? selection.occurrenceIndex ?? -1)
             },
             ...existing
-        ].slice(0, 60));
+        ].slice(0, 160));
         this._storySelectionFeedback = 'saved';
         this._renderCurrentStoryText();
         this._renderStorySelectionControls();
@@ -5889,7 +5807,7 @@ class KidsMathsApp {
     }
 
     _removeUrduSavedWord(key) {
-        state.set('urduSavedWords', this._getUrduSavedWords().filter(item => item.key !== key));
+        state.set('storySavedWords', this._getStorySavedWords().filter(item => item.key !== key));
         this._renderUrduSupportPanel();
     }
 

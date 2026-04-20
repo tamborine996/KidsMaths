@@ -36,14 +36,15 @@ assert(indexHtml.includes('id="urdu-save-word-btn"'), 'Expected explicit save-wo
 assert(appJs.includes("fetch('data/urdu.json')"), 'Expected app.js to load data/urdu.json');
 assert(appJs.includes('this.urduLevels'), 'Expected app.js to track urduLevels');
 assert(appJs.includes("tab === 'urdu'"), 'Expected app.js to support Urdu reading tab logic');
-assert(indexHtml.includes('id="home-urdu-hub"'), 'Expected home screen to expose Urdu as its own top-level hub');
-assert(appJs.includes('Open Urdu reading'), 'Expected Urdu hub copy in app.js');
+assert(appJs.includes('home-urdu-hub'), 'Expected Urdu hub wiring in app.js');
+assert(appJs.includes('A calm Urdu corner') || appJs.includes('A gentle place for Urdu stories'), 'Expected Urdu hub copy in app.js');
 assert(appJs.includes('_storySupportsUrduTools'), 'Expected dedicated Urdu story enhancement logic');
 assert(appJs.includes('_renderInteractiveUrduText'), 'Expected Urdu text highlighting renderer');
 assert(appJs.includes('_saveSelectedUrduWord'), 'Expected saved-word workflow for Urdu');
 assert(appJs.includes('story.direction'), 'Expected story rendering to respect direction metadata');
 
 assert(stateJs.includes("urduLevel: 'U1'"), 'Expected default state to include urduLevel');
-assert(stateJs.includes('urduSavedWords'), 'Expected default state to include saved Urdu words');
+assert(!stateJs.includes('urduSavedWords: []'), 'Expected legacy standalone urduSavedWords default state to be removed after saved-word unification');
+assert(stateJs.includes('storySavedWords'), 'Expected unified storySavedWords state to remain the shared saved-word store');
 
 console.log('Urdu module checks passed.');

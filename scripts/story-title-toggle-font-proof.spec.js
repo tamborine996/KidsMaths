@@ -21,7 +21,7 @@ test('Show English title does not change reader text size or reset reading posit
 
   await page.goto(baseURL, { waitUntil: 'networkidle' });
   await page.getByRole('button', { name: /Open Urdu/i }).click();
-  await page.getByRole('button', { name: /Start reading/i }).click();
+  await page.getByRole('button', { name: /Read together|Continue together|Open/i }).first().click();
 
   const titleToggle = page.locator('#story-title-translation-toggle');
   await expect(titleToggle).toHaveText(/Show English title/i);

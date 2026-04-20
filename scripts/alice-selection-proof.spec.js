@@ -1,7 +1,7 @@
 const { test, expect, devices } = require('playwright/test');
 const path = require('path');
 
-const baseURL = process.env.ALICE_PROOF_BASE_URL || 'http://127.0.0.1:8124/';
+const baseURL = process.env.ALICE_PROOF_BASE_URL || 'http://127.0.0.1:8125/';
 const outputDir = path.join(process.cwd(), 'tmp', 'alice-selection-proof');
 
 async function selectedTokens(page) {

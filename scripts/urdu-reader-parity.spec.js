@@ -1,6 +1,6 @@
 const { test, expect, devices } = require('playwright/test');
 
-const baseURL = process.env.ALICE_PROOF_BASE_URL || 'http://127.0.0.1:8124/';
+const baseURL = process.env.ALICE_PROOF_BASE_URL || 'http://127.0.0.1:8125/';
 const storageKey = 'kidsmaths_state';
 
 async function seedState(page, patch = {}) {
@@ -15,7 +15,7 @@ async function openUrduArticle(page, statePatch = {}) {
   await seedState(page, statePatch);
   await page.goto(baseURL, { waitUntil: 'networkidle' });
   await page.getByRole('button', { name: /Open Urdu/i }).click();
-  await page.getByRole('button', { name: /Start reading/i }).click();
+  await page.getByRole('button', { name: /Read together|Continue together|Open/i }).first().click();
   await expect(page.locator('#story-title')).toBeVisible();
 }
 

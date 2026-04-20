@@ -68,16 +68,44 @@ KidsMaths/
 - **PWA**: installable to home screen, runs in standalone mode (no browser chrome)
 - **Back button trapping**: History API prevents accidental exits on tablet
 
-**Design Theme**: Warm Storybook
-- Comic Neue font (friendly, hand-drawn feel)
-- Cream background (`#F7F3E9`)
-- Warm golden accents (`#F4A460`)
-- Chunky 3px offset shadows
-- Color-coded module borders
+## Design Theme
+
+Legacy note: the older `Warm Storybook` direction is no longer the governing visual default for current reading-product work.
+
+Current source of truth:
+- `KIDSMATHS_VISUAL_AESTHETIC.md`
+- direction = premium, warm-editorial, restrained, human-authored
+- avoid drifting back to Comic Neue as the governing UI font, chunky 3px offset shadows, or thick playful borders as the main system language
+
+The reading product should feel like a calm curated reading notebook, not a chunky storybook dashboard.
+
+## Documentation Ownership
+
+Use these files deliberately so project thinking does not go stale:
+
+- `KIDSMATHS_PROJECT_INTENT.md`
+  - canonical source for Mohammed's durable KidsMaths-specific product intent and project-level expectations for Hermes
+- `KIDSMATHS_VISUAL_AESTHETIC.md`
+  - canonical source for KidsMaths visual direction, presentation grammar, and anti-drift rules
+- `KIDSMATHS_INTERACTION_SYSTEM.md`
+  - interaction-layer rules for reader gestures, selection, handles, popups, and related UX behavior
+- `KIDSMATHS_ANDROID_WEB_GATES.md`
+  - Android/PWA/phone release gates and QA discipline
+- `CLAUDE.md`
+  - project context, active backlog, and migration staging area
+- `USER.md`
+  - compatibility pointer only; do not add new project guidance there
+
+Promotion rule:
+- if Mohammed gives a durable KidsMaths-specific idea in Telegram, promote it into the appropriate project doc instead of leaving it only in chat
+- if the idea is true across projects, keep it in Hermes memory/skills rather than in KidsMaths docs
 
 ## To-Dos
 
 ### Pressing
+- Restore the bookmark function in the reader with clear separation between page bookmark and word-bank/save meaning; the current popup wording/behavior is causing comprehension regression.
+- Add true deep links into the Urdu reader so Hermes can send a click-ready URL that opens the exact relevant article/page for troubleshooting instead of the app root.
+- Rework the custom selection visuals to feel more Android/Kindle-correct on phone: less awkward popup geometry, more natural handle placement, and clearer bookmark affordance.
 - Test on tablet device (add to home screen as PWA)
 - Refine visual canvas for larger numbers
 

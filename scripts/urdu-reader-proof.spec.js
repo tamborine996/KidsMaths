@@ -1,7 +1,7 @@
 const { test, expect, devices } = require('playwright/test');
 const path = require('path');
 
-const baseURL = process.env.ALICE_PROOF_BASE_URL || 'http://127.0.0.1:8124/';
+const baseURL = process.env.ALICE_PROOF_BASE_URL || 'http://127.0.0.1:8125/';
 const outputDir = path.join(process.cwd(), 'tmp', 'urdu-reader-proof');
 
 test.use({
@@ -9,16 +9,18 @@ test.use({
   viewport: { width: 412, height: 915 },
 });
 
-test('Urdu shelf is article-focused and reader uses popup + inline paragraph translation', async ({ page }) => {
+test('Urdu shelf is reading-first and reader uses popup + inline paragraph translation', async ({ page }) => {
   await page.goto(baseURL, { waitUntil: 'networkidle' });
   await page.getByRole('button', { name: /Open Urdu/i }).click();
 
-  await expect(page.getByRole('heading', { name: /Continue your Urdu reading/i })).toBeVisible();
-  await expect(page.getByText(/Only the two live article reads stay on the main shelf/i)).toBeVisible();
+  await expect(page.getByText(/Last Read/i)).toBeVisible();
+  await expect(page.getByText(/Your collection/i)).toBeVisible();
+  await expect(page.getByRole('button', { name: /Put away for now/i })).toHaveCount(0);
+  await expect(page.getByText(/Supportive Urdu reads stay first/i)).toBeVisible();
   await expect(page.getByText(/Reading-ready|Needs smoothing/i)).toHaveCount(0);
   await page.screenshot({ path: path.join(outputDir, '01-urdu-shelf.png'), fullPage: false });
 
-  await page.getByRole('button', { name: /Start reading/i }).click();
+  await page.getByRole('button', { name: /Read together|Continue together|Open/i }).first().click();
   await expect(page.locator('#bookmark-btn')).toBeVisible();
 
   const urduWord = page.locator('.story-word-button', { hasText: 'کردار' }).first();
@@ -55,7 +57,7 @@ test('Urdu shelf is article-focused and reader uses popup + inline paragraph tra
   await expect(page.locator('#story-selection-bookmark-meta')).not.toHaveText(/^\s*$/);
   await page.screenshot({ path: path.join(outputDir, '02-urdu-word-popup.png'), fullPage: false });
 
-  await page.locator('#story-selection-backdrop').click({ force: true });
+  await page.locator('#story-selection-backdrop').dispatchEvent('click');
   await expect(popup).toBeHidden();
 
   const paragraphTranslate = page.locator('[data-paragraph-translate="1"]').first();
