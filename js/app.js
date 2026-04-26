@@ -1252,10 +1252,10 @@ class KidsMathsApp {
         if (!nextItem) {
             container.innerHTML = `
                 <button class="next-up-card" data-kind="screen" data-screen="reading">
-                    <div class="next-up-label">Start Reading</div>
-                    <div class="next-up-title">Choose your reading shelf</div>
-                    <div class="next-up-meta">Step into English or Urdu and pick a calm book to begin.</div>
-                    <div class="next-up-cta next-up-cta-primary">Browse shelves</div>
+                    <div class="next-up-label">Continue reading — or choose a shelf</div>
+                    <div class="next-up-title">Your reading room is ready</div>
+                    <div class="next-up-meta">English books and Urdu articles are the main path; maths stays quiet until you need it.</div>
+                    <div class="next-up-cta next-up-cta-primary">Enter reading room</div>
                 </button>
             `;
             return;
@@ -1264,10 +1264,10 @@ class KidsMathsApp {
         if (!showMaths && nextItem.type !== 'story') {
             container.innerHTML = `
                 <button class="next-up-card" data-kind="screen" data-screen="reading">
-                    <div class="next-up-label">Start Reading</div>
-                    <div class="next-up-title">Choose your reading shelf</div>
-                    <div class="next-up-meta">Step into English or Urdu and pick a calm book to begin.</div>
-                    <div class="next-up-cta next-up-cta-primary">Browse shelves</div>
+                    <div class="next-up-label">Continue reading — or choose a shelf</div>
+                    <div class="next-up-title">Your reading room is ready</div>
+                    <div class="next-up-meta">English books and Urdu articles are the main path; maths stays quiet until you need it.</div>
+                    <div class="next-up-cta next-up-cta-primary">Enter reading room</div>
                 </button>
             `;
             return;
@@ -1420,13 +1420,13 @@ class KidsMathsApp {
             : 'Public-domain books with calm reading and easy returns.';
         const readingStats = bookmarks.length > 0 || readStories.length > 0
             ? `${bookmarks.length} bookmarked · ${readStories.length} finished`
-            : 'Open your English shelf';
+            : 'Open English shelf';
         const urduCopy = urduBookmarks > 0
             ? 'A gentle place for Urdu stories, bookmarks, and practice.'
             : 'A calm Urdu corner for short stories and parent-guided practice.';
         const urduStats = urduBookmarks > 0
             ? `${urduBookmarks} bookmarked · ${this.urduLevels.length} level${this.urduLevels.length !== 1 ? 's' : ''}`
-            : 'Open your Urdu shelf';
+            : 'Open Urdu shelf';
 
         mathsHub.innerHTML = `
             <div class="learning-area-top">
@@ -1445,10 +1445,10 @@ class KidsMathsApp {
                 ${this._buildHomeShelfPreview(['r5-04', 'r5-05'])}
                 <span class="learning-area-badge">English</span>
             </div>
-            <div class="learning-area-title">English</div>
+            <div class="learning-area-title">English shelf</div>
             <div class="learning-area-copy">${this._escapeHtml(readingCopy)}</div>
             <div class="learning-area-stats">${this._escapeHtml(readingStats)}</div>
-            <div class="learning-area-foot">Open English</div>
+            <div class="learning-area-foot">Open English shelf</div>
         `;
 
         urduHub.innerHTML = `
@@ -1456,10 +1456,10 @@ class KidsMathsApp {
                 <span class="learning-area-icon">اُ</span>
                 <span class="learning-area-badge">Urdu</span>
             </div>
-            <div class="learning-area-title">Urdu</div>
+            <div class="learning-area-title">Urdu shelf</div>
             <div class="learning-area-copy">${this._escapeHtml(urduCopy)}</div>
             <div class="learning-area-stats">${this._escapeHtml(urduStats)}</div>
-            <div class="learning-area-foot">Open Urdu</div>
+            <div class="learning-area-foot">Open Urdu shelf</div>
         `;
     }
 
@@ -3469,6 +3469,15 @@ class KidsMathsApp {
             || activeStories.find(story => this._getUrduStoryProgress(story).status === 'In progress')
             || activeStories[0]
             || null;
+        const currentProgress = currentStory ? this._getUrduStoryProgress(currentStory) : null;
+        const currentHeroKicker = currentProgress?.bookmark
+            ? 'Continue Urdu read'
+            : currentProgress?.isFinished
+                ? 'Read again'
+                : 'Next Urdu read';
+        const currentHeroHeading = currentProgress?.bookmark
+            ? 'Pick up your Urdu place'
+            : 'Best next Urdu read';
         const activeList = activeStories.filter(story => story.id !== currentStory?.id);
 
         list.innerHTML = `
@@ -3476,8 +3485,8 @@ class KidsMathsApp {
                 <section class="urdu-library-section urdu-current-section ${currentStory ? '' : 'hidden'}">
                     <div class="urdu-library-heading-row urdu-hero-heading-row">
                         <div>
-                            <div class="urdu-library-kicker">Last Read</div>
-                            <h3 class="urdu-library-heading urdu-hero-heading">Best next Urdu read</h3>
+                            <div class="urdu-library-kicker">${currentHeroKicker}</div>
+                            <h3 class="urdu-library-heading urdu-hero-heading">${currentHeroHeading}</h3>
                             <div class="urdu-library-copy">A calmer Urdu read with English help on tap, so you can read together without guesswork.</div>
                         </div>
                     </div>
@@ -3936,6 +3945,7 @@ class KidsMathsApp {
         const storyText = document.getElementById('story-text');
 
         storyScreen.classList.toggle('article-reader-mode', isUrduArticle);
+        storyScreen.classList.toggle('is-article-reader', isUrduArticle);
         storyScreen.classList.toggle('story-custom-selection-mode', this._storySupportsCustomWordSelection(story));
         storyContent.classList.toggle('urdu-story-layout', isInteractiveUrdu);
         storyContent.classList.toggle('urdu-article-reader-layout', isUrduArticle);
@@ -4423,17 +4433,31 @@ class KidsMathsApp {
         }
 
         const isRtl = (this.currentStory?.direction || 'ltr') === 'rtl';
+        adjusters.classList.toggle('is-rtl', isRtl);
+        const getWordRect = (button) => {
+            if (!button) return null;
+            try {
+                const range = document.createRange();
+                range.selectNodeContents(button);
+                const rects = Array.from(range.getClientRects()).filter(rect => rect.width > 0 && rect.height > 0);
+                return rects[0] || button.getBoundingClientRect();
+            } catch (_error) {
+                return button.getBoundingClientRect();
+            }
+        };
         const positionHandle = (handle, button, boundary = 'start') => {
-            const rect = button.getBoundingClientRect();
+            const rect = getWordRect(button);
             const selectionRect = button.closest('.story-selection-unit')?.getBoundingClientRect() || rect;
             const logicalStartOnRight = isRtl;
             const anchorToRightEdge = boundary === 'start' ? logicalStartOnRight : !logicalStartOnRight;
+            // The visible blue shape is only the pseudo-element inside the larger
+            // 28px handle hitbox. Anchor that visible shape flush to the selected
+            // word boundary instead of anchoring the whole hitbox outside it.
             handle.style.left = anchorToRightEdge
-                ? `${Math.round(rect.right)}px`
-                : `${Math.round(rect.left - 28)}px`;
-            // Anchor vertically to the actual highlighted selection unit, not the
-            // taller inline button box. Otherwise the handles can look detached
-            // even when they are mathematically close to the button bounds.
+                ? `${Math.round(rect.right - 18)}px`
+                : `${Math.round(rect.left - 10)}px`;
+            // For the current Urdu review target, the visible handle graphic should
+            // touch the bottom corners of the light-blue selection block.
             handle.style.top = `${Math.round(selectionRect.bottom - 2)}px`;
         };
 
@@ -5820,12 +5844,18 @@ class KidsMathsApp {
         const clearBtn = document.getElementById('urdu-clear-selection-btn');
         const saveBtn = document.getElementById('urdu-save-word-btn');
         const supportCard = document.querySelector('#urdu-story-tools .urdu-support-card');
+        const calmUrduSupportMessage = 'English support is tucked away until requested';
 
         if (tools) {
             tools.classList.add('hidden');
             tools.classList.remove('urdu-article-tools', 'is-article-idle');
+            if (this.currentStory && this._storySupportsUrduTools(this.currentStory)) {
+                tools.classList.remove('hidden');
+                if (this._isUrduArticleStory(this.currentStory)) tools.classList.add('urdu-article-tools', 'is-article-idle');
+            }
         }
         supportCard?.classList.remove('is-article-idle');
+        if (supportCard && this.currentStory && this._isUrduArticleStory(this.currentStory)) supportCard.classList.add('is-article-idle');
         translation?.classList.add('hidden');
         if (translation) translation.innerHTML = '';
         savedPanel?.classList.add('hidden');

@@ -66,10 +66,10 @@ assert(app.includes('_ensureStoryPreviewSelection('), 'Expected first-press prev
 assert(app.includes('_storySelectionActionsOpen'), 'Expected story reader to track popup/actions separately from selection');
 assert(app.includes('_openStorySelectionActions('), 'Expected explicit long-hold popup opener for selected story text');
 assert(app.includes('_selectStoryWord('), 'Expected single-press story word selection path to remain available');
-assert(app.includes('rect.left - 28'), 'Expected start handle touch target to sit outside the left boundary of the selected text');
-assert(app.includes('rect.right)}px'), 'Expected end handle touch target to sit outside the right boundary of the selected text');
+assert(app.includes('rect.right - 18'), 'Expected visible start-handle graphic to sit flush to the selected word boundary instead of leaving a wide outside gap');
+assert(app.includes('rect.left - 10'), 'Expected visible end-handle graphic to sit flush to the selected word boundary instead of leaving a wide outside gap');
 assert(app.includes("closest('.story-selection-unit')"), 'Expected handle positioning to anchor vertically to the actual highlighted selection unit');
-assert(app.includes('selectionRect.bottom - 2'), 'Expected selection handles to sit flush with the highlighted selection unit instead of the taller inline word box');
+assert(app.includes('selectionRect.bottom - 2'), 'Expected the current Urdu handle review build to pin the visible handles to the bottom edge of the highlighted selection unit');
 assert(app.includes('_getStoryWordSelectionNearPoint('), 'Expected nearest-word fallback for selection-handle dragging');
 assert(app.includes('setPointerCapture?.(pointerEvent.pointerId)'), 'Expected pointer capture on selection handles during drag');
 assert(app.includes('releasePointerCapture?.(pointerEvent.pointerId)'), 'Expected pointer capture release after handle drag');
