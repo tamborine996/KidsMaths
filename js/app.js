@@ -2614,9 +2614,16 @@ class KidsMathsApp {
         }
         const storyContentEl = document.getElementById('story-content');
         if (storyContentEl) {
-            storyContentEl.addEventListener('scroll', () => this._updateStorySelectionHandles(), { passive: true });
+            storyContentEl.addEventListener('scroll', () => this._updateStorySelectionAnchoredUi(), { passive: true });
         }
-        window.addEventListener('resize', () => this._updateStorySelectionHandles());
+        const storyScreenEl = document.getElementById('story-screen');
+        if (storyScreenEl) {
+            storyScreenEl.addEventListener('scroll', () => this._updateStorySelectionAnchoredUi(), { passive: true });
+        }
+        window.addEventListener('scroll', () => this._updateStorySelectionAnchoredUi(), { passive: true });
+        window.visualViewport?.addEventListener?.('scroll', () => this._updateStorySelectionAnchoredUi(), { passive: true });
+        window.visualViewport?.addEventListener?.('resize', () => this._updateStorySelectionAnchoredUi(), { passive: true });
+        window.addEventListener('resize', () => this._updateStorySelectionAnchoredUi());
         const storySavedPanel = document.getElementById('story-selection-saved-panel');
         if (storySavedPanel) {
             storySavedPanel.addEventListener('click', (e) => {
@@ -3991,6 +3998,14 @@ class KidsMathsApp {
         this._updateBookmarkButton();
     }
 
+    _getCollapsedStoryTitle(title = '', wordLimit = 5) {
+        const words = String(title || '').trim().split(/\s+/u).filter(Boolean);
+        if (words.length <= wordLimit) {
+            return String(title || '').trim();
+        }
+        return `${words.slice(0, wordLimit).join(' ')}…`;
+    }
+
     _updateStoryTitleHeader(story = this.currentStory) {
         const storyTitle = document.getElementById('story-title');
         const storyTitleSubtitle = document.getElementById('story-title-subtitle');
@@ -4001,17 +4016,22 @@ class KidsMathsApp {
         const isInteractiveUrdu = this._storySupportsUrduTools(story);
         const isUrduArticle = this._isUrduArticleStory(story);
         const shouldCollapseEnglishTitle = isUrduArticle || (isInteractiveUrdu && window.matchMedia?.('(max-width: 720px)').matches);
+        const shouldCollapseMainTitle = isUrduArticle;
+        const titleExpanded = Boolean(this._showStoryTitleTranslation);
 
-        storyTitle.textContent = story.title;
+        storyTitle.textContent = shouldCollapseMainTitle && !titleExpanded
+            ? this._getCollapsedStoryTitle(story.title, 5)
+            : story.title;
         storyTitle.dir = direction;
+        storyTitle.title = story.title || '';
 
-        if (story.titleEnglish) {
-            storyTitleSubtitle.textContent = story.titleEnglish;
-            if (shouldCollapseEnglishTitle) {
+        if (story.titleEnglish || shouldCollapseMainTitle) {
+            storyTitleSubtitle.textContent = story.titleEnglish || '';
+            if (shouldCollapseEnglishTitle || shouldCollapseMainTitle) {
                 storyTitleTranslationToggle.classList.remove('hidden');
-                storyTitleTranslationToggle.textContent = this._showStoryTitleTranslation ? 'Hide English title' : 'Show English title';
-                storyTitleTranslationToggle.setAttribute('aria-expanded', this._showStoryTitleTranslation ? 'true' : 'false');
-                storyTitleSubtitle.classList.toggle('hidden', !this._showStoryTitleTranslation);
+                storyTitleTranslationToggle.textContent = titleExpanded ? 'Hide title' : 'More title';
+                storyTitleTranslationToggle.setAttribute('aria-expanded', titleExpanded ? 'true' : 'false');
+                storyTitleSubtitle.classList.toggle('hidden', !titleExpanded || !story.titleEnglish);
             } else {
                 storyTitleTranslationToggle.classList.add('hidden');
                 storyTitleTranslationToggle.textContent = '';
@@ -4405,6 +4425,13 @@ class KidsMathsApp {
         return this._storySelectionEngine.getBoundaryButton(boundary, selection);
     }
 
+    _updateStorySelectionAnchoredUi() {
+        this._updateStorySelectionHandles();
+        const selection = this._getActiveReaderSelection();
+        const shouldPositionPopup = Boolean(selection && (this._storySelectionActionsOpen || this._getReaderSelectionMeaning(selection)));
+        this._updateStorySelectionPopupPosition(shouldPositionPopup);
+    }
+
     _updateStorySelectionHandles() {
         const adjusters = document.getElementById('story-selection-adjusters');
         const startHandle = document.getElementById('story-selection-start-handle');
@@ -4434,6 +4461,23 @@ class KidsMathsApp {
 
         const isRtl = (this.currentStory?.direction || 'ltr') === 'rtl';
         adjusters.classList.toggle('is-rtl', isRtl);
+        const storyScreen = document.getElementById('story-screen');
+        const storyContent = document.getElementById('story-content');
+        const viewportRect = storyScreen?.getBoundingClientRect?.() || storyContent?.getBoundingClientRect?.();
+        const selectionUnits = [startButton, endButton]
+            .map(button => button.closest('.story-selection-unit') || button)
+            .filter(Boolean);
+        const selectionIsVisible = selectionUnits.some(unit => {
+            const rect = unit.getBoundingClientRect();
+            if (!rect || rect.width <= 0 || rect.height <= 0) return false;
+            const viewportTop = viewportRect ? viewportRect.top : 0;
+            const viewportBottom = viewportRect ? viewportRect.bottom : window.innerHeight;
+            return rect.bottom >= viewportTop && rect.top <= viewportBottom;
+        });
+        if (!selectionIsVisible) {
+            adjusters.classList.add('hidden');
+            return;
+        }
         const getWordRect = (button) => {
             if (!button) return null;
             try {
@@ -4587,17 +4631,29 @@ class KidsMathsApp {
         if (!controls || !storyScreen) return;
 
         const selectedButtons = Array.from(document.querySelectorAll('#story-text .story-word-button.is-selected, #story-text .urdu-word-button.active'));
-        if (!trayVisible || !selectedButtons.length) {
+        const viewportRect = storyScreen.getBoundingClientRect?.();
+        const visibleSelectedButtons = selectedButtons.filter((button) => {
+            const rect = button.getBoundingClientRect?.();
+            if (!rect || rect.width <= 0 || rect.height <= 0) return false;
+            const viewportTop = viewportRect ? viewportRect.top : 0;
+            const viewportBottom = viewportRect ? viewportRect.bottom : window.innerHeight;
+            return rect.bottom >= viewportTop && rect.top <= viewportBottom;
+        });
+        if (!trayVisible || !visibleSelectedButtons.length) {
             this._storySelectionPositioner.clear(controls, storyScreen);
+            controls.classList.add('hidden');
+            document.getElementById('story-selection-backdrop')?.classList.add('hidden');
+            storyScreen.classList.remove('story-selection-sheet-open');
             return;
         }
+        controls.classList.remove('hidden');
 
         this._storySelectionPositionFrame = requestAnimationFrame(() => {
             this._storySelectionPositionFrame = null;
             this._storySelectionPositioner.update({
                 controls,
                 storyScreen,
-                selectedButtons,
+                selectedButtons: visibleSelectedButtons,
             }).catch((error) => {
                 console.warn('Story selection positioning failed:', error);
                 this._storySelectionPositioner.clear(controls, storyScreen);
@@ -5127,15 +5183,17 @@ class KidsMathsApp {
             : '';
         const isUrduSelection = Boolean(selectedWord?.isUrduSelection);
         const meaningText = isUrduSelection ? this._getReaderSelectionMeaning(selectedWord) : '';
+        const hasUrduSelectionMeaning = Boolean(isUrduSelection && selectedWord && meaningText);
+        const effectiveTrayVisible = Boolean(trayVisible || hasUrduSelectionMeaning);
         const saveMetaLabel = [
             String(meaningText || '').trim(),
             activeFeedback === 'saved' || wordAlreadySaved ? 'Saved word' : 'Save word'
         ].filter(Boolean).join(' • ');
 
-        controls.classList.toggle('hidden', !trayVisible);
-        backdrop.classList.toggle('hidden', !trayVisible);
-        storyScreen.classList.toggle('story-selection-sheet-open', trayVisible);
-        if (!trayVisible) {
+        controls.classList.toggle('hidden', !effectiveTrayVisible);
+        backdrop.classList.toggle('hidden', !effectiveTrayVisible);
+        storyScreen.classList.toggle('story-selection-sheet-open', effectiveTrayVisible);
+        if (!effectiveTrayVisible) {
             controls.classList.remove('is-dragging');
             controls.classList.remove('is-speaking');
             controls.classList.remove('is-saved-feedback');
@@ -5171,7 +5229,7 @@ class KidsMathsApp {
             status.textContent = 'hold one';
         }
 
-        this._updateStorySelectionPopupPosition(Boolean(trayVisible && selectedWord));
+        this._updateStorySelectionPopupPosition(Boolean(effectiveTrayVisible && selectedWord));
         this._updateStorySelectionHandles();
     }
 
